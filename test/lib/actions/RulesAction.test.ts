@@ -262,29 +262,47 @@ describe('RulesAction tests', () => {
 				};
 				// ==== TESTED BEHAVIOR ====
 				await action.execute(input);
-	
-				const telemEvents: CapturedTelemetryEmission[] = spyTelemetryEmitter.getCapturedTelemetry()
-					.filter(e => e.data.sfcaEvent === 'engine_selection');
 
 				// ==== ASSERTIONS ====
-				expect(telemEvents).toHaveLength(2);
-				expect(telemEvents[0]).toEqual({
+				const allTelemEvents: CapturedTelemetryEmission[] = spyTelemetryEmitter.getCapturedTelemetry();
+				const ruleSelectionTelemEvents: CapturedTelemetryEmission[] = allTelemEvents.filter(
+					e => e.data.sfcaEvent === 'engine_selection');
+
+				expect(ruleSelectionTelemEvents).toHaveLength(2);
+				expect(ruleSelectionTelemEvents[0]).toEqual({
 					"data": {
 						"engine": "stubEngine1",
 						"ruleCount": 5,
 						"sfcaEvent": "engine_selection"
 					},
 					"eventName": "plugin-code-analyzer",
-					"source": "CLI"
+					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI
 				});
-				expect(telemEvents[1]).toEqual({
+				expect(ruleSelectionTelemEvents[1]).toEqual({
 					"data": {
 						"engine": "stubEngine2",
 						"ruleCount": 3,
 						"sfcaEvent": "engine_selection"
 					},
 					"eventName": "plugin-code-analyzer",
-					"source": "CLI"
+					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI
+				});
+
+				const engineSpecificTelemEvents: CapturedTelemetryEmission[] = allTelemEvents.filter(
+					e => e.data.sfcaEvent === 'engine1DescribeTelemetry');
+				expect(engineSpecificTelemEvents).toHaveLength(1);
+				const customEvent: CapturedTelemetryEmission = engineSpecificTelemEvents[0];
+				customEvent.data["timestamp"] = 0; // fix for deterministic testing
+				customEvent.data["uuid"] = "someUUID"; // fix for deterministic testing
+				expect(customEvent).toEqual({
+					"data": {
+						"someArg": true, // argument set by engine
+						"sfcaEvent": "engine1DescribeTelemetry",
+						"timestamp": 0,
+						"uuid": "someUUID"
+					},
+					"eventName": "plugin-code-analyzer",
+					"source": "stubEngine1"
 				});
 			});
 		})
