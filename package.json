@@ -8,7 +8,7 @@
 		"@oclif/core": "3.27.0",
 		"@salesforce/code-analyzer-core": "0.31.0",
 		"@salesforce/code-analyzer-engine-api": "0.26.0",
-		"@salesforce/code-analyzer-eslint-engine": "0.27.0",
+		"@salesforce/code-analyzer-eslint-engine": "0.28.0",
 		"@salesforce/code-analyzer-flow-engine": "0.24.0",
 		"@salesforce/code-analyzer-pmd-engine": "0.28.0",
 		"@salesforce/code-analyzer-regex-engine": "0.24.0",
