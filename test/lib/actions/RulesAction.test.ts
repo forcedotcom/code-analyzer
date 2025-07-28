@@ -8,6 +8,7 @@ import { SpyRuleViewer } from '../../stubs/SpyRuleViewer';
 import { SpyRuleWriter } from '../../stubs/SpyRuleWriter';
 import { StubDefaultConfigFactory } from '../../stubs/StubCodeAnalyzerConfigFactories';
 import * as StubEnginePluginFactories from '../../stubs/StubEnginePluginsFactories';
+import { CapturedTelemetryEmission, SpyTelemetryEmitter } from '../../stubs/SpyTelemetryEmitter';
 
 const PATH_TO_GOLDFILES = path.join(__dirname, '..', '..', 'fixtures', 'comparison-files', 'lib', 'actions', 'RulesAction.test.ts');
 
@@ -15,6 +16,7 @@ describe('RulesAction tests', () => {
 	let viewer: SpyRuleViewer;
 	let writer: SpyRuleWriter;
 	let spyDisplay: SpyDisplay;
+	let spyTelemetryEmitter: SpyTelemetryEmitter;
 	let actionSummaryViewer: RulesActionSummaryViewer;
 	let defaultDependencies: RulesDependencies;
 
@@ -23,11 +25,13 @@ describe('RulesAction tests', () => {
 		writer = new SpyRuleWriter();
 		spyDisplay = new SpyDisplay();
 		actionSummaryViewer = new RulesActionSummaryViewer(spyDisplay);
+		spyTelemetryEmitter = new SpyTelemetryEmitter();
 		defaultDependencies = {
 			configFactory: new StubDefaultConfigFactory(),
 			pluginsFactory: new StubEnginePluginFactories.StubEnginePluginsFactory_withFunctionalStubEngine(),
 			logEventListeners: [],
 			progressListeners: [],
+			telemetryEmitter: spyTelemetryEmitter,
 			actionSummaryViewer,
 			viewer,
 			writer
@@ -123,14 +127,8 @@ describe('RulesAction tests', () => {
 			}
 		])('When $case, only the relevant rules are returned', async ({workspace, target}) => {
 			const dependencies: RulesDependencies = {
-				configFactory: new StubDefaultConfigFactory(),
-				// The engine we're using here will synthesize one rule per target.
+				...defaultDependencies,
 				pluginsFactory: new StubEnginePluginFactories.StubEnginePluginsFactory_withTargetDependentStubEngine(),
-				logEventListeners: [],
-				progressListeners: [],
-				actionSummaryViewer,
-				viewer,
-				writer
 			};
 			const action = RulesAction.createAction(dependencies);
 			const input: RulesInput = {
@@ -161,13 +159,8 @@ describe('RulesAction tests', () => {
 	 */
 	it('When no engines are registered, empty results are displayed', async () => {
 		const dependencies: RulesDependencies = {
-			configFactory: new StubDefaultConfigFactory(),
+			...defaultDependencies,
 			pluginsFactory: new StubEnginePluginFactories.StubEnginePluginsFactory_withNoPlugins(),
-			logEventListeners: [],
-			progressListeners: [],
-			actionSummaryViewer,
-			viewer,
-			writer
 		};
 		const action = RulesAction.createAction(dependencies);
 		const input: RulesInput = {
@@ -183,13 +176,8 @@ describe('RulesAction tests', () => {
 
 	it('Throws an error when an engine throws an error', async () => {
 		const dependencies: RulesDependencies = {
-			configFactory: new StubDefaultConfigFactory(),
+			...defaultDependencies,
 			pluginsFactory: new StubEnginePluginFactories.StubEnginePluginsFactory_withThrowingStubPlugin(),
-			logEventListeners: [],
-			progressListeners: [],
-			actionSummaryViewer,
-			viewer,
-			writer
 		};
 		const action = RulesAction.createAction(dependencies);
 		const input: RulesInput = {
@@ -214,13 +202,9 @@ describe('RulesAction tests', () => {
 		])('When $quantifier rules are returned, $expectation', async ({selector, goldfile}) => {
 			const goldfilePath: string = path.join(PATH_TO_GOLDFILES, 'action-summaries', goldfile);
 			const dependencies: RulesDependencies = {
-				configFactory: new StubDefaultConfigFactory(),
+				...defaultDependencies,
 				pluginsFactory: new StubEnginePluginFactories.StubEnginePluginsFactory_withFunctionalStubEngine(),
-				logEventListeners: [],
-				progressListeners: [],
-				actionSummaryViewer,
-				viewer,
-				writer
+				viewer
 			};
 			const action = RulesAction.createAction(dependencies);
 			const input: RulesInput = {
@@ -266,6 +250,62 @@ describe('RulesAction tests', () => {
 			expect(displayedLogEvents).toContain(goldfileContents);
 		});
 	});
+
+	describe('Telemetry Emission', () => {
+			it('When a telemetry emitter is provided, it is used', async () => {
+
+				defaultDependencies.pluginsFactory = new StubEnginePluginFactories.StubEnginePluginsFactory_withFunctionalStubEngine();
+				const action = RulesAction.createAction(defaultDependencies);
+				// Create the input.
+				const input: RulesInput = {
+					'rule-selector': ['all']
+				};
+				// ==== TESTED BEHAVIOR ====
+				await action.execute(input);
+
+				// ==== ASSERTIONS ====
+				const allTelemEvents: CapturedTelemetryEmission[] = spyTelemetryEmitter.getCapturedTelemetry();
+				const ruleSelectionTelemEvents: CapturedTelemetryEmission[] = allTelemEvents.filter(
+					e => e.data.sfcaEvent === 'engine_selection');
+
+				expect(ruleSelectionTelemEvents).toHaveLength(2);
+				expect(ruleSelectionTelemEvents[0]).toEqual({
+					"data": {
+						"engine": "stubEngine1",
+						"ruleCount": 5,
+						"sfcaEvent": "engine_selection"
+					},
+					"eventName": "plugin-code-analyzer",
+					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI
+				});
+				expect(ruleSelectionTelemEvents[1]).toEqual({
+					"data": {
+						"engine": "stubEngine2",
+						"ruleCount": 3,
+						"sfcaEvent": "engine_selection"
+					},
+					"eventName": "plugin-code-analyzer",
+					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI
+				});
+
+				const engineSpecificTelemEvents: CapturedTelemetryEmission[] = allTelemEvents.filter(
+					e => e.data.sfcaEvent === 'engine1DescribeTelemetry');
+				expect(engineSpecificTelemEvents).toHaveLength(1);
+				const customEvent: CapturedTelemetryEmission = engineSpecificTelemEvents[0];
+				customEvent.data["timestamp"] = 0; // fix for deterministic testing
+				customEvent.data["uuid"] = "someUUID"; // fix for deterministic testing
+				expect(customEvent).toEqual({
+					"data": {
+						"someArg": true, // argument set by engine
+						"sfcaEvent": "engine1DescribeTelemetry",
+						"timestamp": 0,
+						"uuid": "someUUID"
+					},
+					"eventName": "plugin-code-analyzer",
+					"source": "stubEngine1"
+				});
+			});
+		})
 });
 
 // TODO: Whenever we decide to document the custom_engine_plugin_modules flag in our configuration file, then we'll want
