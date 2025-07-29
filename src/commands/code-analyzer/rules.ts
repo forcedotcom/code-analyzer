@@ -10,6 +10,7 @@ import {Displayable, UxDisplay} from '../../lib/Display';
 import {LogEventDisplayer} from '../../lib/listeners/LogEventListener';
 import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener';
 import {CompositeRulesWriter} from '../../lib/writers/RulesWriter';
+import { SfCliTelemetryEmitter } from '../../lib/Telemetry';
 
 export default class RulesCommand extends SfCommand<void> implements Displayable {
 	// We don't need the `--json` output for this command.
@@ -86,6 +87,7 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 			pluginsFactory: new EnginePluginsFactoryImpl(),
 			logEventListeners: [new LogEventDisplayer(uxDisplay)],
 			progressListeners: [new RuleSelectionProgressSpinner(uxDisplay)],
+			telemetryEmitter: new SfCliTelemetryEmitter(),
 			actionSummaryViewer: new RulesActionSummaryViewer(uxDisplay),
 			viewer: this.createRulesViewer(view, outputFiles, uxDisplay),
 			writer: CompositeRulesWriter.fromFiles(outputFiles)

@@ -8,12 +8,16 @@ import { RulesActionSummaryViewer } from '../viewers/ActionSummaryViewer';
 import { RuleViewer } from '../viewers/RuleViewer';
 import { LogFileWriter } from '../writers/LogWriter';
 import { RulesWriter } from '../writers/RulesWriter';
+import { TelemetryEmitter } from '../Telemetry';
+import { TelemetryEventListener } from '../listeners/TelemetryEventListener';
+import * as Constants from '../../Constants';
 
 export type RulesDependencies = {
 	configFactory: CodeAnalyzerConfigFactory;
 	pluginsFactory: EnginePluginsFactory;
 	logEventListeners: LogEventListener[];
 	progressListeners: ProgressEventListener[];
+	telemetryEmitter: TelemetryEmitter;
 	actionSummaryViewer: RulesActionSummaryViewer,
 	viewer: RuleViewer;
 	writer: RulesWriter;
@@ -45,6 +49,8 @@ export class RulesAction {
 		// LogEventListeners should start listening as soon as the Core is instantiated, since Core can start emitting
 		// events they listen for basically immediately.
 		this.dependencies.logEventListeners.forEach(listener => listener.listen(core));
+		const telemetryListener: TelemetryEventListener = new TelemetryEventListener(this.dependencies.telemetryEmitter);
+		telemetryListener.listen(core);
 		const enginePlugins = this.dependencies.pluginsFactory.create();
 		const enginePluginModules = config.getCustomEnginePluginModules();
 		const addEnginePromises: Promise<void>[] = [
@@ -60,10 +66,12 @@ export class RulesAction {
 		// that's when progress events can start being emitted.
 		this.dependencies.progressListeners.forEach(listener => listener.listen(core));
 		const ruleSelection: RuleSelection = await core.selectRules(input["rule-selector"], selectOptions);
+		this.emitEngineTelemetry(ruleSelection, enginePlugins.flatMap(p => p.getAvailableEngineNames()));
 		// After Core is done running, the listeners need to be told to stop, since some of them have persistent UI elements
 		// or file handlers that must be gracefully ended.
 		this.dependencies.progressListeners.forEach(listener => listener.stopListening());
 		this.dependencies.logEventListeners.forEach(listener => listener.stopListening());
+		telemetryListener.stopListening();
 		const rules: Rule[] = core.getEngineNames().flatMap(name => ruleSelection.getRulesFor(name));
 
 		this.dependencies.writer.write(ruleSelection)
@@ -78,5 +86,19 @@ export class RulesAction {
 
 	public static createAction(dependencies: RulesDependencies): RulesAction {
 		return new RulesAction(dependencies);
+	}
+
+	private emitEngineTelemetry(ruleSelection: RuleSelection, coreEngineNames: string[]): void {
+		const selectedEngineNames: Set<string> = new Set(ruleSelection.getEngineNames());
+		for (const coreEngineName of coreEngineNames) {
+			if (!selectedEngineNames.has(coreEngineName)) {
+				continue;
+			}
+			this.dependencies.telemetryEmitter.emitTelemetry(Constants.TelemetrySource, Constants.TelemetryEventName, {
+				sfcaEvent: Constants.CliTelemetryEvents.ENGINE_SELECTION,
+				engine: coreEngineName,
+				ruleCount: ruleSelection.getRulesFor(coreEngineName).length
+			});
+		}
 	}
 }
