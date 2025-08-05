@@ -1,6 +1,6 @@
 {
     "productTag": "a1aB0000000c7jnIAA",
-    "defaultBuild": "[SFCA] Scanner 4.0",
+    "defaultBuild": "[SFCA] Code Analyzer 5.x",
     "hideWorkItemUrl": "true",
     "issueTypeLabels": {
         "type:feature": "USER STORY",
