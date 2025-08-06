@@ -4,14 +4,6 @@ on:
     types: [edited, opened, reopened, synchronize]
 
 jobs:
-  # Prevent merging to dev-4 or main-4 to preserve until we're ready to delete
-  verify_target_branch:
-    runs-on: ubuntu-latest
-    steps:
-      - if: ${{ github.base_ref == 'dev-4' || github.base_ref == 'main-4' }}
-        run: |
-          echo "Forbidden to merge this branch into dev-4 or main-4"
-          exit 1
   # We need to verify that the Pull Request's title matches the desired format.
   verify_pr_title:
     runs-on: ubuntu-latest
