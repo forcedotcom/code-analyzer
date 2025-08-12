@@ -27,7 +27,8 @@ body:
       label: Output / Logs
       description: Attach any output or logs here.
       placeholder: |
-        Add log output or drag files here.
+        Add log output here. This will be automatically formatted into code, so no need for backticks.
+      render: shell
   - type: textarea
     attributes:
       label: Steps To Reproduce
