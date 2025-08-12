@@ -13,11 +13,11 @@
         "type:duplicate": ""
     },
     "issueEpicMapping": {
-        "USER STORY": "a3QEE000000OpkY2AS",
-        "BUG P0": "a3QEE000000V67Z2AS",
-        "BUG P1": "a3QEE000000V67Z2AS",
-        "BUG P2": "a3QEE000000V67Z2AS",
-        "BUG P3": "a3QEE000000V67Z2AS"
+        "USER STORY": "a3QEE000001n8Ld2AI",
+        "BUG P0": "a3QEE000001n7Sn2AI",
+        "BUG P1": "a3QEE000001n7Sn2AI",
+        "BUG P2": "a3QEE000001n7Sn2AI",
+        "BUG P3": "a3QEE000001n7Sn2AI"
     },
     "gusTitlePrefix": "[GitHub Issue]",
     "statusWhenClosed": "FIXED"
