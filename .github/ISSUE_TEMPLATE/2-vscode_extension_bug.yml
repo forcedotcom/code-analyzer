@@ -28,7 +28,8 @@ body:
       label: Output / Logs
       description: Attach any output or logs here.
       placeholder: |
-        Add log output or drag files here.
+        Add log output here. This will be automatically formatted into code, so no need for backticks.
+      render: shell
   - type: textarea
     attributes:
       label: Steps To Reproduce
@@ -65,22 +66,20 @@ body:
       required: true
   - type: input
     attributes:
+      label: Extension Version
+      description: |
+        What version do you see for the Salesforce Code Analyzer VS Code Extension?
+      placeholder: |
+        Example: Version: 1.9.0
+    validations:
+      required: true
+  - type: input
+    attributes:
       label: Salesforce CLI Version
       description: |
         What do you get when you run the "sf --version" command in the terminal?
       placeholder: |
         Example: @salesforce/cli/2.90.4 darwin-x64 node-v22.15.0
-    validations:
-      required: true
-  - type: dropdown
-    attributes:
-      label: Using v4
-      description: "Are you using Code Analyzer v4? (Is the setting 'Code Analyzer: Use v4 (Deprecated)' checked?)"
-      options:
-        - ""
-        - "No"
-        - "Yes"
-        - "Not sure"
     validations:
       required: true
   - type: input
@@ -89,7 +88,7 @@ body:
       description: |
         What do you get when you run the "sf plugins" command in the terminal?
       placeholder: |
-        code-analyzer 5.0.0; or if using v4: @salesforce/sfdx-scanner 4.12.0
+        code-analyzer 5.0.0
     validations:
       required: false
   - type: input
