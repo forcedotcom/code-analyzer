@@ -37,15 +37,15 @@ export class LogEventDisplayer implements LogEventListener {
 		switch (event.logLevel) {
 			case LogLevel.Error:
 				this.display.displayError(formattedMessage);
-				// Adds a newline outside of the error formatting to make errors easy to read. That is do not want to
-				// add a \n inside of the above displayError or use displayError('') here because it always adds in a
+				// Adds a newline outside of the error formatting to make errors easy to read. That is, we do not want
+				// to add a \n inside of the above displayError or use displayError('') here because it always adds in a
 				// red "">" character.
 				this.display.displayInfo('');
 				return;
 			case LogLevel.Warn:
 				this.display.displayWarning(formattedMessage);
-				// Linewise we want spacing here, but don't want to add in displayWarning('') because it adds back in
-				// the word "Warning". So its best to just use displayInfo('') to add in a blank line.
+				// Likewise, we want spacing here, but don't want to add in displayWarning('') because it adds back in
+				// the word "Warning". So it's best to just use displayInfo('') to add in a blank line.
 				this.display.displayInfo('');
 				return;
 			case LogLevel.Info:
