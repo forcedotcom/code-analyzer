@@ -2,6 +2,7 @@ import {CodeAnalyzer, EngineLogEvent, EventType, LogEvent, LogLevel} from '@sale
 import {Display} from '../Display';
 import {LogWriter} from '../writers/LogWriter';
 import {BundleName, getMessage} from "../messages";
+import {indent, makeGrey} from '../utils/StylingUtil';
 
 export interface LogEventListener {
 	listen(codeAnalyzer: CodeAnalyzer): void;
@@ -17,8 +18,8 @@ export class LogEventDisplayer implements LogEventListener {
 
 	public listen(codeAnalyzer: CodeAnalyzer): void {
 		// Set up listeners
-		codeAnalyzer.onEvent(EventType.LogEvent, (e: LogEvent) => this.handleEvent('Core', e));
-		codeAnalyzer.onEvent(EventType.EngineLogEvent, (e: EngineLogEvent) => this.handleEvent(e.engineName, e));
+		codeAnalyzer.onEvent(EventType.LogEvent, (e: LogEvent) => this.handleEvent('Code Analyzer', e));
+		codeAnalyzer.onEvent(EventType.EngineLogEvent, (e: EngineLogEvent) => this.handleEvent(`Engine '${e.engineName}'`, e));
 	}
 
 	public stopListening(): void {
@@ -31,16 +32,25 @@ export class LogEventDisplayer implements LogEventListener {
 		if (event.logLevel > LogLevel.Info) {
 			return;
 		}
-		const formattedMessage = `${source} [${formatTimestamp(event.timestamp)}]: ${event.message}`;
+		const decoratedTimestamp = makeGrey(`[${formatTimestamp(event.timestamp)}]`);
+		const formattedMessage = `${source} ${decoratedTimestamp}:\n${indent(event.message)}`;
 		switch (event.logLevel) {
 			case LogLevel.Error:
 				this.display.displayError(formattedMessage);
+				// Adds a newline outside of the error formatting to make errors easy to read. That is, we do not want
+				// to add a \n inside of the above displayError or use displayError('') here because it always adds in a
+				// red "">" character.
+				this.display.displayInfo('');
 				return;
 			case LogLevel.Warn:
 				this.display.displayWarning(formattedMessage);
+				// Likewise, we want spacing here, but don't want to add in displayWarning('') because it adds back in
+				// the word "Warning". So it's best to just use displayInfo('') to add in a blank line.
+				this.display.displayInfo('');
 				return;
 			case LogLevel.Info:
 				this.display.displayInfo(formattedMessage);
+				this.display.displayInfo('');
 				return;
 		}
 	}
@@ -72,5 +82,5 @@ export class LogEventLogger implements LogEventListener {
 }
 
 function formatTimestamp(timestamp: Date): string {
-	return `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}`;
+	return `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}.${timestamp.getMilliseconds()}`;
 }

@@ -51,10 +51,11 @@ describe('LogEventListener implementations', () => {
 
 			// ==== ASSERTIONS ====
 			const displayEvents = spyDisplay.getDisplayEvents();
-			expect(displayEvents).toHaveLength(3);
+			expect(displayEvents).toHaveLength(6);
 			for (let i = 0; i < 3; i++) {
-				expect(displayEvents[i].type).toEqual(displayEvent);
-				expect(displayEvents[i].data).toContain(expectedMessages[i]);
+				expect(displayEvents[i*2].type).toEqual(displayEvent);
+				expect(displayEvents[i*2].data).toContain(expectedMessages[i]);
+				expect(displayEvents[i*2+1]).toEqual({type: DisplayEventType.INFO, data: ""}); // We display an empty line after each message
 			}
 		});
 
