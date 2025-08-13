@@ -2,6 +2,7 @@ import {CodeAnalyzer, EngineLogEvent, EventType, LogEvent, LogLevel} from '@sale
 import {Display} from '../Display';
 import {LogWriter} from '../writers/LogWriter';
 import {BundleName, getMessage} from "../messages";
+import {indent, makeGrey} from '../utils/StylingUtil';
 
 export interface LogEventListener {
 	listen(codeAnalyzer: CodeAnalyzer): void;
@@ -31,16 +32,20 @@ export class LogEventDisplayer implements LogEventListener {
 		if (event.logLevel > LogLevel.Info) {
 			return;
 		}
-		const formattedMessage = `${source} [${formatTimestamp(event.timestamp)}]: ${event.message}`;
+		const docoratedTimestamp = makeGrey(`[${formatTimestamp(event.timestamp)}]`);
+		const formattedMessage = `${source} ${docoratedTimestamp}:\n${indent(event.message)}`;
 		switch (event.logLevel) {
 			case LogLevel.Error:
 				this.display.displayError(formattedMessage);
+				this.display.displayInfo(''); // Adds a newline outside of the error formatting to make errors easy to read
 				return;
 			case LogLevel.Warn:
 				this.display.displayWarning(formattedMessage);
+				this.display.displayInfo('');
 				return;
 			case LogLevel.Info:
 				this.display.displayInfo(formattedMessage);
+				this.display.displayInfo('');
 				return;
 		}
 	}
@@ -72,5 +77,5 @@ export class LogEventLogger implements LogEventListener {
 }
 
 function formatTimestamp(timestamp: Date): string {
-	return `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}`;
+	return `${timestamp.getHours()}:${timestamp.getMinutes()}:${timestamp.getSeconds()}.${timestamp.getMilliseconds()}`;
 }

@@ -625,10 +625,9 @@ describe('ConfigAction tests', () => {
 
 		// ==== OUTPUT PROCESSING ====
 		const displayEvents = spyDisplay.getDisplayEvents();
-		if (displayEvents[4].type === DisplayEventType.LOG) {
-			return ansis.strip(displayEvents[4].data);
-		} else if (displayEvents[5].type === DisplayEventType.LOG) {
-			return ansis.strip(displayEvents[5].data);
+		const displayedConfigEventArray = displayEvents.filter(e => e.data.includes("CODE ANALYZER CONFIGURATION"));
+		if (displayedConfigEventArray.length === 1) {
+			return ansis.strip(displayedConfigEventArray[0].data);
 		} else {
 			return 'Could Not Get Specific Output';
 		}
