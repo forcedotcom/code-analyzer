@@ -18,8 +18,8 @@ export class LogEventDisplayer implements LogEventListener {
 
 	public listen(codeAnalyzer: CodeAnalyzer): void {
 		// Set up listeners
-		codeAnalyzer.onEvent(EventType.LogEvent, (e: LogEvent) => this.handleEvent('Core', e));
-		codeAnalyzer.onEvent(EventType.EngineLogEvent, (e: EngineLogEvent) => this.handleEvent(e.engineName, e));
+		codeAnalyzer.onEvent(EventType.LogEvent, (e: LogEvent) => this.handleEvent('Code Analyzer', e));
+		codeAnalyzer.onEvent(EventType.EngineLogEvent, (e: EngineLogEvent) => this.handleEvent(`Engine '${e.engineName}'`, e));
 	}
 
 	public stopListening(): void {
