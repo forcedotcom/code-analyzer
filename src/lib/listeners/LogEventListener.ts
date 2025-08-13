@@ -32,8 +32,8 @@ export class LogEventDisplayer implements LogEventListener {
 		if (event.logLevel > LogLevel.Info) {
 			return;
 		}
-		const docoratedTimestamp = makeGrey(`[${formatTimestamp(event.timestamp)}]`);
-		const formattedMessage = `${source} ${docoratedTimestamp}:\n${indent(event.message)}`;
+		const decoratedTimestamp = makeGrey(`[${formatTimestamp(event.timestamp)}]`);
+		const formattedMessage = `${source} ${decoratedTimestamp}:\n${indent(event.message)}`;
 		switch (event.logLevel) {
 			case LogLevel.Error:
 				this.display.displayError(formattedMessage);
