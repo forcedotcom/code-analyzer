@@ -128,6 +128,11 @@ Name of the file where the selected rules are written. The file format depends o
 
 # flags.output-file.description
 
-If you specify a file within folder, such as `--output-file ./out/rules.json`, the folder must already exist, or you get an error. If the file already exists, it's overwritten without prompting.
+If you don't specify this flag, the command outputs the rules to only the terminal. Use this flag to write the rules to a file; the format of the rules depends on the extension you provide. For example, `--output-file rules.csv` creates a comma-separated values file. You can specify one of these extensions:
 
-If you don't specify this flag, the command outputs the rules to only the terminal. 
+- .csv
+- .json
+
+To output the rules to multiple files, specify this flag multiple times. For example, `--output-file rules.json --output-file rules.csv` creates both a JSON file and a CSV file.
+
+If you specify a file within folder, such as `--output-file ./out/rules.json`, the folder must already exist, or you get an error. If the file already exists, it's overwritten without prompting.
