@@ -124,7 +124,7 @@ If you specify neither `--view` nor `--output-file`, then the default table view
 
 # flags.output-file.summary
 
-Name of the file where the selected rules are written. The file format depends on the extension you specify; the currently supported extensions are .json and .csv.
+Name of the file where the selected rules are written. The file format depends on the extension you specify; the currently supported extensions are .json and .csv
 
 # flags.output-file.description
 
