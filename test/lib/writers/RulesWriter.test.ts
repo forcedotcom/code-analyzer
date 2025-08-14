@@ -6,65 +6,68 @@ import * as Stub from '../../stubs/StubRuleSelection';
 
 describe('RulesWriter', () => {
 
-    let writeFileSpy: jest.SpyInstance;
-    let writeFileInvocations: { file: fs.PathOrFileDescriptor, contents: string | ArrayBufferView }[];
+	let writeFileSpy: jest.SpyInstance;
+	let writeFileInvocations: { file: fs.PathOrFileDescriptor, contents: string | ArrayBufferView }[];
 
-    beforeEach(() => {
-        jest.resetAllMocks();
-        writeFileInvocations = [];
-        writeFileSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation((file, contents) => {
-            writeFileInvocations.push({file, contents});
-        });
-    });
+	beforeEach(() => {
+		jest.resetAllMocks();
+		writeFileInvocations = [];
+		writeFileSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation((file, contents) => {
+			writeFileInvocations.push({file, contents});
+		});
+	});
 
-    describe('RulesFileWriter', () => {
+	describe('RulesFileWriter', () => {
 
-        it('Rejects invalid file format', () => {
-            const invalidFile = 'file.xml';
-            expect(() => new RulesFileWriter(invalidFile)).toThrow(invalidFile);
-        });
+		it('Rejects invalid file format', () => {
+			const invalidFile = 'file.xml';
+			expect(() => new RulesFileWriter(invalidFile)).toThrow(invalidFile);
+		});
 
-        it('Writes to a json file path', () => {
-            const outfilePath = path.join('the', 'results', 'path', 'file.json');
-            const expectations = {
-                file: outfilePath,
-                contents: `Rules formatted as ${OutputFormat.JSON}`
-            };
-            const rulesWriter = new RulesFileWriter(expectations.file);
-            const stubbedSelection = new Stub.StubEmptyRuleSelection();
-            rulesWriter.write(stubbedSelection);
+		it.each([
+			{ext: 'json', format: OutputFormat.JSON},
+			{ext: 'csv', format: OutputFormat.CSV}
+		])('Writes to a $ext file path', ({ext, format}) => {
+			const outfilePath = path.join('the', 'results', 'path', `file.${ext}`);
+			const expectations = {
+				file: outfilePath,
+				contents: `Rules formatted as ${format}`
+			};
+			const rulesWriter = new RulesFileWriter(expectations.file);
+			const stubbedSelection = new Stub.StubEmptyRuleSelection();
+			rulesWriter.write(stubbedSelection);
 
-            expect(writeFileSpy).toHaveBeenCalled();
-            expect(writeFileInvocations).toEqual([expectations]);
-        });
-    });
+			expect(writeFileSpy).toHaveBeenCalled();
+			expect(writeFileInvocations).toEqual([expectations]);
+		});
+	});
 
-    describe('CompositeRulesWriter', () => {
+	describe('CompositeRulesWriter', () => {
 
-        it('Does a no-op when there are no files to write to', () => {
-            const outputFileWriter = CompositeRulesWriter.fromFiles([]);
-            const stubbedEmptyRuleSelection = new Stub.StubEmptyRuleSelection();
+		it('Does a no-op when there are no files to write to', () => {
+			const outputFileWriter = CompositeRulesWriter.fromFiles([]);
+			const stubbedEmptyRuleSelection = new Stub.StubEmptyRuleSelection();
 
-            outputFileWriter.write(stubbedEmptyRuleSelection);
+			outputFileWriter.write(stubbedEmptyRuleSelection);
 
-            expect(writeFileSpy).not.toHaveBeenCalled();
-        });
-    
-        it('When given multiple files, outputs to all of them', () => {
-            const expectations = [{
-                file: 'outFile1.json',
-                contents: `Rules formatted as ${OutputFormat.JSON}`
-            }, {
-                file: 'outFile2.json',
-                contents: `Rules formatted as ${OutputFormat.JSON}`
-            }];
-            const outputFileWriter = CompositeRulesWriter.fromFiles(expectations.map(i => i.file));
-            const stubbedSelection = new Stub.StubEmptyRuleSelection();
-    
-            outputFileWriter.write(stubbedSelection);
-    
-            expect(writeFileSpy).toHaveBeenCalledTimes(2);
-            expect(writeFileInvocations).toEqual(expectations);
-        });
-    })
+			expect(writeFileSpy).not.toHaveBeenCalled();
+		});
+
+		it('When given multiple files, outputs to all of them', () => {
+			const expectations = [{
+				file: 'outFile1.json',
+				contents: `Rules formatted as ${OutputFormat.JSON}`
+			}, {
+				file: 'outFile2.json',
+				contents: `Rules formatted as ${OutputFormat.JSON}`
+			}];
+			const outputFileWriter = CompositeRulesWriter.fromFiles(expectations.map(i => i.file));
+			const stubbedSelection = new Stub.StubEmptyRuleSelection();
+
+			outputFileWriter.write(stubbedSelection);
+
+			expect(writeFileSpy).toHaveBeenCalledTimes(2);
+			expect(writeFileInvocations).toEqual(expectations);
+		});
+	})
 });
