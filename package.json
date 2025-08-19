@@ -11,7 +11,7 @@
 		"@salesforce/code-analyzer-eslint-engine": "0.30.0",
 		"@salesforce/code-analyzer-flow-engine": "0.25.0",
 		"@salesforce/code-analyzer-pmd-engine": "0.29.0",
-		"@salesforce/code-analyzer-regex-engine": "0.25.0",
+		"@salesforce/code-analyzer-regex-engine": "0.26.0",
 		"@salesforce/code-analyzer-retirejs-engine": "0.25.0",
 		"@salesforce/code-analyzer-sfge-engine": "0.10.0",
 		"@salesforce/core": "6.7.6",
