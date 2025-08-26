@@ -48,10 +48,12 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 			char: 'c',
 			exists: true
 		}),
-		'output-file': Flags.file({
+		'output-file': Flags.string({
 			summary: getMessage(BundleName.RulesCommand, 'flags.output-file.summary'),
 			description: getMessage(BundleName.RulesCommand, 'flags.output-file.description'),
-			char: 'f'
+			char: 'f',
+			multiple: true,
+			delimiter: ','
 		}),
 		view: Flags.string({
 			summary: getMessage(BundleName.RulesCommand, 'flags.view.summary'),
@@ -63,7 +65,7 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 
 	public async run(): Promise<void> {
 		const parsedFlags = (await this.parse(RulesCommand)).flags;
-		const outputFiles = parsedFlags['output-file'] ? [parsedFlags['output-file']] : [];
+		const outputFiles = parsedFlags['output-file'] ?? [];
 		const view = parsedFlags.view as View | undefined;
 
 		const dependencies: RulesDependencies = this.createDependencies(view, outputFiles);

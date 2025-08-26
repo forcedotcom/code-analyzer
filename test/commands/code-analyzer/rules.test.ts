@@ -117,10 +117,12 @@ describe('`code-analyzer rules` tests', () => {
 
 	describe('--output-file', () => {
 
-		const inputValue1 = path.join('my', 'rules-output.json');
-		const inputValue2 = path.join('my', 'second', 'rules-output.json');
+		const inputValue1 = path.join('my', 'first', 'rules-output.json');
+		const inputValue2 = path.join('my', 'second', 'rules-output.csv');
+		const inputValue3 = path.join('my', 'third', 'rules-output.json');
+		const inputValue4 = path.join('my', 'fourth', 'rules-output.csv');
 
-		it('Accepts one file path', async () => {
+		it('Can be supplied once with a single value', async () => {
 			await RulesCommand.run(['--output-file', inputValue1]);
 			expect(executeSpy).toHaveBeenCalled();
 			expect(createActionSpy).toHaveBeenCalled();
@@ -129,10 +131,31 @@ describe('`code-analyzer rules` tests', () => {
 			expect(receivedFiles).toEqual([inputValue1]);
 		});
 
-		it('Can only be supplied once', async () => {
-			const executionPromise = RulesCommand.run(['--output-file', inputValue1, '--output-file', inputValue2]);
-			await expect(executionPromise).rejects.toThrow(`Flag --output-file can only be specified once`);
-			expect(executeSpy).not.toHaveBeenCalled();
+		it('Can be supplied once with multiple comma-separated values', async () => {
+			await RulesCommand.run(['--output-file', `${inputValue1},${inputValue2}`]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(createActionSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('output-file', [inputValue1, inputValue2]);
+			expect(fromFilesSpy).toHaveBeenCalled()
+			expect(receivedFiles).toEqual([inputValue1, inputValue2]);
+		});
+
+		it('Can be supplied multiple times with one value each', async () => {
+			await RulesCommand.run(['--output-file', inputValue1, '--output-file', inputValue2]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(createActionSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('output-file', [inputValue1, inputValue2]);
+			expect(fromFilesSpy).toHaveBeenCalled()
+			expect(receivedFiles).toEqual([inputValue1, inputValue2]);
+		});
+
+		it('Can be supplied multiple times with multiple comma-separated values', async () => {
+			await RulesCommand.run(['--output-file', `${inputValue1},${inputValue2}`, '--output-file', `${inputValue3},${inputValue4}`]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(createActionSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('output-file', [inputValue1, inputValue2, inputValue3, inputValue4]);
+			expect(fromFilesSpy).toHaveBeenCalled()
+			expect(receivedFiles).toEqual([inputValue1, inputValue2, inputValue3, inputValue4]);
 		});
 
 		it('Can be referenced by its shortname, -f', async () => {

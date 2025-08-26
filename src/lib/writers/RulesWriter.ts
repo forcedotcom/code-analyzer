@@ -33,12 +33,14 @@ export class RulesFileWriter implements RulesWriter {
         const ext = path.extname(file).toLowerCase();
 
         if (ext === '.json') {
-            this.format = OutputFormat.JSON;
+			this.format = OutputFormat.JSON;
+		} else if (ext === '.csv') {
+			this.format = OutputFormat.CSV;
         } else {
             throw new Error(getMessage(BundleName.RulesWriter, 'error.unrecognized-file-format', [file]));
         }
     }
-    
+
     public write(ruleSelection: RuleSelection): void {
         const contents = ruleSelection.toFormattedOutput(this.format);
         fs.writeFileSync(this.file, contents);
