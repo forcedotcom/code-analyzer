@@ -35,6 +35,7 @@
 		"@types/tmp": "^0.2.6",
 		"eslint": "^9.32.0",
 		"eslint-plugin-sf-plugin": "^1.20.30",
+		"husky": "^9.1.7",
 		"jest": "^30.0.5",
 		"jest-junit": "^16.0.0",
 		"oclif": "^4.22.6",
@@ -131,6 +132,7 @@
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
 		"test": "jest --coverage",
-		"showcoverage": "open ./coverage/lcov-report/index.html"
+		"showcoverage": "open ./coverage/lcov-report/index.html",
+		"prepare": "husky"
 	}
 }
