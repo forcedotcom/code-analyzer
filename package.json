@@ -1,7 +1,7 @@
 {
 	"name": "@salesforce/plugin-code-analyzer",
 	"description": "Salesforce Code Analyzer is a unified tool to help Salesforce developers analyze their source code for security vulnerabilities, performance issues, best practices, and more.",
-	"version": "5.4.0",
+	"version": "5.5.0",
 	"author": "Salesforce Code Analyzer Team",
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
 	"dependencies": {
