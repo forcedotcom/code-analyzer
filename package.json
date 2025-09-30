@@ -1,24 +1,24 @@
 {
 	"name": "@salesforce/plugin-code-analyzer",
 	"description": "Salesforce Code Analyzer is a unified tool to help Salesforce developers analyze their source code for security vulnerabilities, performance issues, best practices, and more.",
-	"version": "5.4.0",
+	"version": "5.5.0",
 	"author": "Salesforce Code Analyzer Team",
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
 	"dependencies": {
 		"@oclif/core": "3.27.0",
-		"@salesforce/code-analyzer-core": "0.33.0",
-		"@salesforce/code-analyzer-engine-api": "0.27.0",
-		"@salesforce/code-analyzer-eslint-engine": "0.30.0",
-		"@salesforce/code-analyzer-flow-engine": "0.25.0",
-		"@salesforce/code-analyzer-pmd-engine": "0.29.0",
-		"@salesforce/code-analyzer-regex-engine": "0.26.0",
-		"@salesforce/code-analyzer-retirejs-engine": "0.25.0",
-		"@salesforce/code-analyzer-sfge-engine": "0.11.0",
+		"@salesforce/code-analyzer-core": "0.36.0",
+		"@salesforce/code-analyzer-engine-api": "0.30.0",
+		"@salesforce/code-analyzer-eslint-engine": "0.34.0",
+		"@salesforce/code-analyzer-flow-engine": "0.27.0",
+		"@salesforce/code-analyzer-pmd-engine": "0.31.0",
+		"@salesforce/code-analyzer-regex-engine": "0.28.0",
+		"@salesforce/code-analyzer-retirejs-engine": "0.27.0",
+		"@salesforce/code-analyzer-sfge-engine": "0.13.0",
 		"@salesforce/core": "6.7.6",
 		"@salesforce/sf-plugins-core": "5.0.13",
 		"@salesforce/ts-types": "^2.0.12",
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^22.17.0",
+		"@types/node": "^20.0.0",
 		"ansis": "^4.1.0",
 		"fast-glob": "^3.3.3",
 		"js-yaml": "^4.1.0",
@@ -26,22 +26,23 @@
 		"tslib": "^2"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.3.1",
+		"@eslint/compat": "^1.3.2",
 		"@eslint/eslintrc": "^3.3.1",
-		"@eslint/js": "^9.32.0",
-		"@oclif/plugin-help": "^6.2.32",
-		"@salesforce/cli-plugins-testkit": "^5.3.39",
+		"@eslint/js": "^9.35.0",
+		"@oclif/plugin-help": "^6.2.33",
+		"@salesforce/cli-plugins-testkit": "^5.3.41",
 		"@types/jest": "^30.0.0",
 		"@types/tmp": "^0.2.6",
-		"eslint": "^9.32.0",
-		"eslint-plugin-sf-plugin": "^1.20.30",
-		"jest": "^30.0.5",
+		"eslint": "^9.35.0",
+		"eslint-plugin-sf-plugin": "^1.20.32",
+		"husky": "^9.1.7",
+		"jest": "^30.1.3",
 		"jest-junit": "^16.0.0",
-		"oclif": "^4.22.6",
-		"tmp": "^0.2.4",
-		"ts-jest": "^29.4.1",
+		"oclif": "^4.22.22",
+		"tmp": "^0.2.5",
+		"ts-jest": "^29.4.4",
 		"typescript": "^5.9.2",
-		"typescript-eslint": "^8.39.0"
+		"typescript-eslint": "^8.44.0"
 	},
 	"engines": {
 		"node": ">=20.0.0"
@@ -131,6 +132,7 @@
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
 		"test": "jest --coverage",
-		"showcoverage": "open ./coverage/lcov-report/index.html"
+		"showcoverage": "open ./coverage/lcov-report/index.html",
+		"prepare": "husky"
 	}
 }
