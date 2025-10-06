@@ -56,7 +56,7 @@ describe('`code-analyzer config` tests', () => {
 			const inputValue2 = ['defgh', 'mnopq'];
 			await ConfigCommand.run(['--rule-selector', inputValue1.join(' '), '--rule-selector', inputValue2.join(' ')]);
 			expect(executeSpy).toHaveBeenCalled();
-			expect(receivedActionInput).toHaveProperty('rule-selector', [...inputValue1, ...inputValue2]);
+			expect(receivedActionInput).toHaveProperty('rule-selector', ['ab,(qq:zz),cde', 'hijlk',  'defgh', 'mnopq']);
 		});
 
 		it('Defaults to value of "all"', async () => {

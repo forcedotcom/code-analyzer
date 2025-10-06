@@ -67,7 +67,7 @@ describe('`code-analyzer rules` tests', () => {
 			const inputValue2 = ['de:(a,b):fgh', 'mnopq'];
 			await RulesCommand.run(['--rule-selector', inputValue1.join(' '), '--rule-selector', inputValue2.join(' ')]);
 			expect(executeSpy).toHaveBeenCalled();
-			expect(receivedActionInput).toHaveProperty('rule-selector', [...inputValue1, ...inputValue2]);
+			expect(receivedActionInput).toHaveProperty('rule-selector', ['ab,cde', 'hi:jlk', 'de:(a,b):fgh', 'mnopq']);
 		});
 
 		it('Defaults to value of "Recommended"', async () => {

@@ -157,11 +157,11 @@ describe('`code-analyzer run` tests', () => {
 		});
 
 		it('Can be supplied multiple times with multiple space-separated values each', async () => {
-			const inputValue1 = ['abcde', 'hijlk'];
+			const inputValue1 = ['a,(bc):de', 'hijlk'];
 			const inputValue2 = ['defgh', 'mnopq'];
 			await RunCommand.run(['--rule-selector', inputValue1.join(' '), '--rule-selector', inputValue2.join(' ')]);
 			expect(executeSpy).toHaveBeenCalled();
-			expect(receivedActionInput).toHaveProperty('rule-selector', [...inputValue1, ...inputValue2]);
+			expect(receivedActionInput).toHaveProperty('rule-selector', ['a,(bc):de', 'hijlk', 'defgh' ,'mnopq']);
 		});
 
 		it('Defaults to value of "Recommended"', async () => {
