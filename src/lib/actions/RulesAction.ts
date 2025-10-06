@@ -41,8 +41,6 @@ export class RulesAction {
 
 	public async execute(input: RulesInput): Promise<void> {
 		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file']);
-		//console.log(`selectors: ${JSON.stringify(input["rule-selector"])}`);
-		//input["rule-selector"] = [input["rule-selector"].join(',')];
 		const logWriter: LogFileWriter = await LogFileWriter.fromConfig(config);
 		this.dependencies.actionSummaryViewer.viewPreExecutionSummary(logWriter.getLogDestination());
 		// We always add a Logger Listener to the appropriate listeners list, because we should Always Be Logging.
@@ -67,7 +65,6 @@ export class RulesAction {
 		// EngineProgressListeners should start listening right before we call Core's `.selectRules()` method, since
 		// that's when progress events can start being emitted.
 		this.dependencies.progressListeners.forEach(listener => listener.listen(core));
-		//console.log(`selectors 2: ${JSON.stringify(input['rule-selector'])}`);
 		const ruleSelection: RuleSelection = await core.selectRules(input["rule-selector"], selectOptions);
 		this.emitEngineTelemetry(ruleSelection, enginePlugins.flatMap(p => p.getAvailableEngineNames()));
 		// After Core is done running, the listeners need to be told to stop, since some of them have persistent UI elements
