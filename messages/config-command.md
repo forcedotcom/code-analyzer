@@ -84,7 +84,7 @@ Selection of rules, based on engine name, severity level, rule name, tag, or a c
 
 Use the `--rule-selector` flag to display only the configuration associated with the rules based on specific criteria. You can select by engine, such as the rules associated with the "retire-js" or "eslint" engine. Or select by the severity of the rules, such as high or moderate. You can also select rules using tag values or rule names.
 
-You can further filter the list by combining different criteria using colons to represent logical AND, commas to represent logical OR, and parentheses to create groupings. For example, `--rule-selector pmd:(Performance,Security):2` reduces the output to onlycontain the configuration state associated with PMD rules that have the Performance or Security tag and a severity of 2. You may also specify the flag multiple times to OR multiple selectors together. For example, `--rule-selector Performance,Security` is equivalent to `--rule-selector Performance --rule-selector Security`.
+You can further filter the list by combining different criteria using colons to represent logical AND, commas to represent logical OR, and parentheses to create groupings. For example, `--rule-selector pmd:(Performance,Security):2` reduces the output to only contain the configuration state associated with PMD rules that have the Performance or Security tag and a severity of 2. You may also specify the flag multiple times to OR multiple selectors together. For example, `--rule-selector Performance,Security` is equivalent to `--rule-selector Performance --rule-selector Security`.
 
 If you don't specify this flag, then the command uses the "all" rule selector.
 
