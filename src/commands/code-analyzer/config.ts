@@ -1,5 +1,5 @@
 import {Flags, SfCommand} from '@salesforce/sf-plugins-core';
-import {ConfigAction, ConfigDependencies} from '../../lib/actions/ConfigAction';
+import {ConfigAction, ConfigDependencies, ConfigInput} from '../../lib/actions/ConfigAction';
 import {ConfigFileWriter} from '../../lib/writers/ConfigWriter';
 import {ConfigStyledYamlViewer} from '../../lib/viewers/ConfigViewer';
 import {ConfigActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer';
@@ -37,7 +37,6 @@ export default class ConfigCommand extends SfCommand<void> implements Displayabl
 			description: getMessage(BundleName.ConfigCommand, 'flags.rule-selector.description'),
 			char: 'r',
 			multiple: true,
-			delimiter: ',',
 			default: ["all"]
 		}),
 		'config-file': Flags.file({
@@ -61,7 +60,11 @@ export default class ConfigCommand extends SfCommand<void> implements Displayabl
 		const parsedFlags = (await this.parse(ConfigCommand)).flags;
 		const dependencies: ConfigDependencies = this.createDependencies(parsedFlags['output-file']);
 		const action: ConfigAction = ConfigAction.createAction(dependencies);
-		await action.execute(parsedFlags);
+		const configInput: ConfigInput = {
+			...parsedFlags,
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.split(' '))
+		};
+		await action.execute(configInput);
 	}
 
 	protected createDependencies(outputFile?: string): ConfigDependencies {

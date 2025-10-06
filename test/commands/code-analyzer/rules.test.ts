@@ -47,9 +47,9 @@ describe('`code-analyzer rules` tests', () => {
 			expect(receivedActionInput).toHaveProperty('rule-selector', [inputValue]);
 		});
 
-		it('Can be supplied once with multiple comma-separated values', async () => {
-			const inputValue = ['abcde', 'defgh'];
-			await RulesCommand.run(['--rule-selector', inputValue.join(',')]);
+		it('Can be supplied once with multiple space-separated values', async () => {
+			const inputValue = ['ab,cde', 'def:gh'];
+			await RulesCommand.run(['--rule-selector', inputValue.join(' ')]);
 			expect(executeSpy).toHaveBeenCalled();
 			expect(receivedActionInput).toHaveProperty('rule-selector', inputValue);
 		});
@@ -62,10 +62,10 @@ describe('`code-analyzer rules` tests', () => {
 			expect(receivedActionInput).toHaveProperty('rule-selector', [inputValue1, inputValue2]);
 		});
 
-		it('Can be supplied multiple times with multiple comma-separated values each', async () => {
-			const inputValue1 = ['abcde', 'hijlk'];
-			const inputValue2 = ['defgh', 'mnopq'];
-			await RulesCommand.run(['--rule-selector', inputValue1.join(','), '--rule-selector', inputValue2.join(',')]);
+		it('Can be supplied multiple times with multiple space-separated values each', async () => {
+			const inputValue1 = ['ab,cde', 'hi:jlk'];
+			const inputValue2 = ['de:(a,b):fgh', 'mnopq'];
+			await RulesCommand.run(['--rule-selector', inputValue1.join(' '), '--rule-selector', inputValue2.join(' ')]);
 			expect(executeSpy).toHaveBeenCalled();
 			expect(receivedActionInput).toHaveProperty('rule-selector', [...inputValue1, ...inputValue2]);
 		});

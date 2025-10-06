@@ -43,7 +43,6 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			description: getMessage(BundleName.RunCommand, 'flags.rule-selector.description'),
 			char: 'r',
 			multiple: true,
-			delimiter: ',',
 			default: ["Recommended"]
 		}),
 		// === Flags pertaining to output ===
@@ -81,7 +80,7 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 		const runInput: RunInput = {
 			'config-file': parsedFlags['config-file'],
 			'output-file': parsedFlags['output-file'] ?? [],
-			'rule-selector': parsedFlags['rule-selector'],
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.split(' ')),
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
