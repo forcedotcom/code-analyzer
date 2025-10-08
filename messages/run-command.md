@@ -38,7 +38,7 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
 - Analyze the files using only rules in the "pmd" engine with a severity of high (2) or moderate (3), and the "Performance" tag.
 
-    <%= config.bin %> <%= command.id %> --rule-selector pmd:(2,3):Performance
+    <%= config.bin %> <%= command.id %> --rule-selector "pmd:(2,3):Performance"
 
 - Analyze files using the recommended "retire-js" rules; target all the files in the folder "./other-source" and only the Apex class files (extension .cls) in the folder "./force-app":
 

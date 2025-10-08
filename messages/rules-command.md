@@ -50,7 +50,7 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
 - List all the "pmd" engine rules that have a severity of moderate (3) or high (2) and the "Performance" tag.
 
-    <%= config.bin %> <%= command.id %> --rule-selector pmd:(2,3):Performance
+    <%= config.bin %> <%= command.id %> --rule-selector "pmd:(2,3):Performance"
 
 - Similar to the previous example, but apply the rule overrides and engine settings from the configuration file called `code-analyzer2.yml` in the current folder. If, for example, you changed the severity of an "eslint" rule from moderate (3) to high (2) in the configuration file, then that rule isn't listed:
 

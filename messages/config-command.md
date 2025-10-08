@@ -42,7 +42,7 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
 - Display any relevant configuration settings associated with PMD rules whose severity is 2 or 3:
 
-  <%= config.bin %> <%= command.id %> --rule-selector eslint:(2,3)
+  <%= config.bin %> <%= command.id %> --rule-selector "pmd:(2,3)"
 
 - Load an existing configuration file called `existing-config.yml`, and then write the configuration to a new file called `new-config.yml`, the configuration state that is applicable to all rules that are relevant to the workspace located in the current folder:
 
