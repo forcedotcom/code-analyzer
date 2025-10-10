@@ -39,7 +39,6 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 			description: getMessage(BundleName.RulesCommand, 'flags.rule-selector.description'),
 			char: 'r',
 			multiple: true,
-			delimiter: ',',
 			default: ["Recommended"]
 		}),
 		'config-file': Flags.file({
@@ -74,7 +73,7 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 		const rulesInput: RulesInput = {
 			'config-file': parsedFlags['config-file'],
 			'output-file': outputFiles,
-			'rule-selector': parsedFlags['rule-selector'],
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.replace(/\s+/g, ' ').trim().split(' ')),
 			'workspace': parsedFlags['workspace'],
 			'target': parsedFlags['target']
 		};

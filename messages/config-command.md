@@ -40,6 +40,10 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
   <%= config.bin %> <%= command.id %> --rule-selector eslint:no-undef
 
+- Display any relevant configuration settings associated with PMD rules whose severity is 2 or 3:
+
+  <%= config.bin %> <%= command.id %> --rule-selector "pmd:(2,3)"
+
 - Load an existing configuration file called `existing-config.yml`, and then write the configuration to a new file called `new-config.yml`, the configuration state that is applicable to all rules that are relevant to the workspace located in the current folder:
 
   <%= config.bin %> <%= command.id %> --config-file ./existing-config.yml --workspace . --output-file ./subfolder-config.yml
@@ -74,13 +78,13 @@ If you specify `--workspace` but not `--target`, then all the files within your 
 
 # flags.rule-selector.summary
 
-Selection of rules, based on engine name, severity level, rule name, tag, or a combination of criteria separated by colons.
+Selection of rules, based on engine name, severity level, rule name, tag, or a combination of criteria separated by colons and commas, and grouped by parentheses.
 
 # flags.rule-selector.description
 
 Use the `--rule-selector` flag to display only the configuration associated with the rules based on specific criteria. You can select by engine, such as the rules associated with the "retire-js" or "eslint" engine. Or select by the severity of the rules, such as high or moderate. You can also select rules using tag values or rule names.
 
-You can combine different criteria using colons to further filter the list; the colon works as an intersection. For example, `--rule-selector eslint:Security` reduces the output to only contain the configuration state associated with the rules from the "eslint" engine that have the "Security" tag. To add multiple rule selectors together (a union), specify the `--rule-selector` flag multiple times, such as `--rule-selector eslint:Recommended --rule-selector retire-js:3`.
+You can further filter the list by combining different criteria using colons to represent logical AND, commas to represent logical OR, and parentheses to create groupings. For example, `--rule-selector "pmd:(Performance,Security):2"` reduces the output to only contain the configuration state associated with PMD rules that have the Performance or Security tag and a severity of 2. You may also specify the flag multiple times to OR multiple selectors together. For example, `--rule-selector Performance,Security` is equivalent to `--rule-selector Performance --rule-selector Security`. Note that if you use parentheses in your selector, the selector should be wrapped in double-quotes.
 
 If you don't specify this flag, then the command uses the "all" rule selector.
 
