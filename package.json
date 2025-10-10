@@ -6,7 +6,7 @@
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
 	"dependencies": {
 		"@oclif/core": "3.27.0",
-		"@salesforce/code-analyzer-core": "0.38.0",
+		"@salesforce/code-analyzer-core": "0.38.1",
 		"@salesforce/code-analyzer-engine-api": "0.30.0",
 		"@salesforce/code-analyzer-eslint-engine": "0.34.0",
 		"@salesforce/code-analyzer-flow-engine": "0.27.0",

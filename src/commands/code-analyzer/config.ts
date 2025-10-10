@@ -62,7 +62,7 @@ export default class ConfigCommand extends SfCommand<void> implements Displayabl
 		const action: ConfigAction = ConfigAction.createAction(dependencies);
 		const configInput: ConfigInput = {
 			...parsedFlags,
-			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.split(' '))
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.replace(/\s+/g, ' ').trim().split(' '))
 		};
 		await action.execute(configInput);
 	}

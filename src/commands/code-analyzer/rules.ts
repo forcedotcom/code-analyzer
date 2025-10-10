@@ -73,7 +73,7 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 		const rulesInput: RulesInput = {
 			'config-file': parsedFlags['config-file'],
 			'output-file': outputFiles,
-			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.split(' ')),
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.replace(/\s+/g, ' ').trim().split(' ')),
 			'workspace': parsedFlags['workspace'],
 			'target': parsedFlags['target']
 		};

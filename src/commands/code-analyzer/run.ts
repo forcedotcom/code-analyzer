@@ -80,7 +80,7 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 		const runInput: RunInput = {
 			'config-file': parsedFlags['config-file'],
 			'output-file': parsedFlags['output-file'] ?? [],
-			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.split(' ')),
+			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.replace(/\s+/g, ' ').trim().split(' ')),
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
