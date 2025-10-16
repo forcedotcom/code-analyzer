@@ -1,5 +1,4 @@
-import { SeverityLevel, OutputFormat } from '@salesforce/code-analyzer-core';
-import {EngineRunResults, RunResults, Violation} from '@salesforce/code-analyzer-core/dist/results';
+import { EngineRunResults, RunResults, Violation, SeverityLevel, OutputFormat } from '@salesforce/code-analyzer-core';
 
 
 export class StubEmptyResults implements RunResults {
