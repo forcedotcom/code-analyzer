@@ -126,12 +126,12 @@
 	},
 	"repository": "forcedotcom/code-analyzer",
 	"scripts": {
-		"build": "tsc --build tsconfig.build.json",
-		"prepack": "rm -rf lib && tsc --build tsconfig.build.json && oclif manifest && oclif readme && npm shrinkwrap",
+		"build": "tsc --build tsconfig.json",
+		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme && npm shrinkwrap",
 		"postpack": "rm -f oclif.manifest.json oclif.lock npm-shrinkwrap.json",
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
-		"test": "jest --coverage",
+		"test": "tsc --build ./test/tsconfig.json --noEmit && jest --coverage",
 		"showcoverage": "open ./coverage/lcov-report/index.html",
 		"prepare": "husky"
 	}

@@ -1,12 +1,22 @@
 {
-	"extends": "./tsconfig.build.json",
 	"compilerOptions": {
-		"esModuleInterop": true,
+		"module": "NodeNext",
+		"target": "ESNext",
+		"lib": ["ESNext"],
+		"sourceMap": true,
+		"declaration": true,
+		"moduleResolution": "NodeNext",
+		"alwaysStrict": true,
+		"noUnusedLocals": true,
 		"outDir": "./lib",
-		"rootDir": "."
+		"rootDir": "./src",
+		"allowJs": false,
+		"strictNullChecks": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"isolatedModules": true
 	},
 	"include": [
-		"./src",
-		"./test"
+		"./src"
 	]
 }
