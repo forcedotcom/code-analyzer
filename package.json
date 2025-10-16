@@ -114,6 +114,7 @@
 				"summary"
 			]
 		],
+		"setupFiles": ["./test/setup-jest.ts"],
 		"testEnvironment": "node",
 		"testMatch": [
 			"<rootDir>/test/**/*.test.ts"
