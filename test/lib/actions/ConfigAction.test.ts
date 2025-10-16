@@ -1,5 +1,6 @@
 import path from 'node:path';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as fsp from 'node:fs/promises';
 import ansis from 'ansis';
 import {CodeAnalyzerConfig} from "@salesforce/code-analyzer-core";
@@ -252,10 +253,10 @@ describe('ConfigAction tests', () => {
 				{prop: 'log_folder'}
 			])(`When derivable property $prop input is non-null and non-default, it is rendered as-is`, async ({prop}) => {
 				// ==== SETUP ====
-				// Make the config root and log folder both be the folder above this one.
-				const parentOfCurrentDirectory = path.resolve(__dirname, '..');
-				stubConfigFactory.dummyConfigRoot = parentOfCurrentDirectory;
-				stubConfigFactory.dummyLogFolder = parentOfCurrentDirectory;
+				// Make the config root and log folder both a non-default temp folder
+				const nonDefaultFolder: string = fs.mkdtempSync(path.join(os.tmpdir(), 'my-temp-'));
+				stubConfigFactory.dummyConfigRoot = nonDefaultFolder;
+				stubConfigFactory.dummyLogFolder = nonDefaultFolder;
 
 				// ==== TESTED BEHAVIOR ====
 				// Just select all rules for this test, since we don't care about the rules here.
@@ -263,8 +264,8 @@ describe('ConfigAction tests', () => {
 
 				// ==== ASSERTIONS ====
 				const goldFileContents = (await readGoldFile(path.join(PATH_TO_COMPARISON_DIR, 'derivables-as-non-defaults', `${prop}.yml.goldfile`)))
-					.replace('__DUMMY_CONFIG_ROOT__', parentOfCurrentDirectory)
-					.replace('__DUMMY_LOG_FOLDER__', parentOfCurrentDirectory)
+					.replace('__DUMMY_CONFIG_ROOT__', nonDefaultFolder)
+					.replace('__DUMMY_LOG_FOLDER__', nonDefaultFolder)
 					.replace('__DUMMY_DEFAULT_CONFIG_ROOT__', 'null')
 					.replace('__DUMMY_DEFAULT_LOG_FOLDER__', 'null')
 				expect(output).toContain(goldFileContents);
