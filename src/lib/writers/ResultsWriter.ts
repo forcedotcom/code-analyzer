@@ -1,7 +1,7 @@
-import * as fs from 'node:fs';
-import path from 'node:path';
+import * as path from 'node:path';
 import {OutputFormat, RunResults} from '@salesforce/code-analyzer-core';
 import {BundleName, getMessage} from '../messages';
+import {FileSystem, RealFileSystem} from '../utils/FileUtil';
 
 export interface ResultsWriter {
 	write(results: RunResults): void;
@@ -18,16 +18,17 @@ export class CompositeResultsWriter implements ResultsWriter {
 		this.writers.forEach(w => w.write(results));
 	}
 
-	public static fromFiles(files: string[]): CompositeResultsWriter {
-		return new CompositeResultsWriter(files.map(f => new ResultsFileWriter(f)));
+	public static fromFiles(files: string[], fileSystem: FileSystem = new RealFileSystem()): CompositeResultsWriter {
+		return new CompositeResultsWriter(files.map(f => new ResultsFileWriter(f, fileSystem)));
 	}
 }
 
 export class ResultsFileWriter implements ResultsWriter {
 	private readonly file: string;
 	private readonly format: OutputFormat;
+	private readonly fileSystem: FileSystem;
 
-	public constructor(file: string) {
+	public constructor(file: string, fileSystem: FileSystem = new RealFileSystem()) {
 		this.file = file;
 		const ext = path.extname(file).toLowerCase();
 		if (ext === '.csv') {
@@ -44,9 +45,10 @@ export class ResultsFileWriter implements ResultsWriter {
 		} else {
 			throw new Error(getMessage(BundleName.ResultsWriter, 'error.unrecognized-file-format', [file]));
 		}
+		this.fileSystem = fileSystem;
 	}
 
 	public write(results: RunResults): void {
-		fs.writeFileSync(this.file, results.toFormattedOutput(this.format));
+		this.fileSystem.writeFileSync(this.file, results.toFormattedOutput(this.format));
 	}
 }

@@ -1,9 +1,14 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import {makeGrey, toStyledHeaderAndBody, toStyledHeader, toStyledPropertyList, indent} from '../../../src/lib/utils/StylingUtil';
+import {makeGrey, toStyledHeaderAndBody, toStyledHeader, toStyledPropertyList, indent, __ANSIS} from '../../../src/lib/utils/StylingUtil';
+import { Ansis } from 'ansis';
 
-const PATH_TO_COMPARISON_FILES = path.resolve('.', 'test', 'fixtures', 'comparison-files', 'lib',
+const PATH_TO_COMPARISON_FILES = path.resolve(__dirname, '..', '..', 'fixtures', 'comparison-files', 'lib',
 	'utils', 'StylingUtil.test.ts');
+
+// Note that vitest by default turns off all coloring (probably with FORCE_COLOR='1' env variable), so we need
+// to tell our ansis instance that we want to ignore the environment variables and just force all colors
+__ANSIS.instance = new Ansis(3); // Forces all colors
 
 describe('StylingUtil tests', () => {
 	describe('#toStyledHeaderAndBody()', () => {
