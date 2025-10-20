@@ -8,7 +8,7 @@
 		"@oclif/core": "3.27.0",
 		"@salesforce/code-analyzer-core": "0.38.1",
 		"@salesforce/code-analyzer-engine-api": "0.30.0",
-		"@salesforce/code-analyzer-eslint-engine": "0.34.0",
+		"@salesforce/code-analyzer-eslint-engine": "0.35.0",
 		"@salesforce/code-analyzer-flow-engine": "0.27.0",
 		"@salesforce/code-analyzer-pmd-engine": "0.31.0",
 		"@salesforce/code-analyzer-regex-engine": "0.28.0",
@@ -31,18 +31,16 @@
 		"@eslint/js": "^9.35.0",
 		"@oclif/plugin-help": "^6.2.33",
 		"@salesforce/cli-plugins-testkit": "^5.3.41",
-		"@types/jest": "^30.0.0",
 		"@types/tmp": "^0.2.6",
+		"@vitest/coverage-istanbul": "^3.2.4",
 		"eslint": "^9.35.0",
 		"eslint-plugin-sf-plugin": "^1.20.32",
 		"husky": "^9.1.7",
-		"jest": "^30.1.3",
-		"jest-junit": "^16.0.0",
 		"oclif": "^4.22.22",
-		"tmp": "^0.2.5",
-		"ts-jest": "^29.4.4",
 		"typescript": "^5.9.2",
-		"typescript-eslint": "^8.44.0"
+		"typescript-eslint": "^8.44.0",
+		"vite": "^7.1.5",
+		"vitest": "^3.2.4"
 	},
 	"engines": {
 		"node": ">=20.0.0"
@@ -76,55 +74,6 @@
 		"topicSeparator": " ",
 		"flexibleTaxonomy": true
 	},
-	"jest": {
-		"testTimeout": 60000,
-		"collectCoverageFrom": [
-			"src/**/*.ts",
-			"!src/index.ts",
-			"!src/lib/Display.ts"
-		],
-		"coverageReporters": [
-			"lcov",
-			"json",
-			"text"
-		],
-		"coverageThreshold": {
-			"global": {
-				"branches": 80,
-				"functions": 80,
-				"lines": 80,
-				"statements": 80
-			}
-		},
-		"preset": "ts-jest",
-		"reporters": [
-			"default",
-			[
-				"jest-junit",
-				{
-					"outputDirectory": "reports",
-					"outputName": "report.xml"
-				}
-			],
-			[
-				"github-actions",
-				{
-					"silent": false
-				},
-				"summary"
-			]
-		],
-		"setupFiles": ["./test/setup-jest.ts"],
-		"testEnvironment": "node",
-		"testMatch": [
-			"<rootDir>/test/**/*.test.ts"
-		],
-		"testPathIgnorePatterns": [
-			"<rootDir>/node_modules/",
-			"<rootDir>/lib/",
-			"<rootDir>/dist/"
-		]
-	},
 	"repository": "forcedotcom/code-analyzer",
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
@@ -132,7 +81,7 @@
 		"postpack": "rm -f oclif.manifest.json oclif.lock npm-shrinkwrap.json",
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
-		"test": "tsc --build ./test/tsconfig.json --noEmit && jest --coverage",
+		"test": "tsc --build ./test/tsconfig.json --noEmit && vitest run --coverage",
 		"showcoverage": "open ./coverage/lcov-report/index.html",
 		"prepare": "husky"
 	}
