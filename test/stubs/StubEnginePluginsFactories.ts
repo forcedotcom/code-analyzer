@@ -1,6 +1,6 @@
 import {EnginePlugin} from '@salesforce/code-analyzer-engine-api';
-import {EnginePluginsFactory} from '../../src/lib/factories/EnginePluginsFactory';
-import {FunctionalStubEnginePlugin1, ThrowingStubPlugin1, StubEnginePluginWithTargetDependentEngine} from './StubEnginePlugins';
+import {EnginePluginsFactory} from '../../src/lib/factories/EnginePluginsFactory.js';
+import {FunctionalStubEnginePlugin1, ThrowingStubPlugin1, StubEnginePluginWithTargetDependentEngine} from './StubEnginePlugins.js';
 
 export class StubEnginePluginsFactory_withFunctionalStubEngine implements EnginePluginsFactory {
 	public create(): EnginePlugin[] {

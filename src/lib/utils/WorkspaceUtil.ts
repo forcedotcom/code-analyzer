@@ -1,6 +1,6 @@
 import * as fg from 'fast-glob';
 import {CodeAnalyzer, Workspace} from '@salesforce/code-analyzer-core';
-import {getMessage, BundleName} from '../messages';
+import {getMessage, BundleName} from '../messages.js';
 
 export async function createWorkspace(core: CodeAnalyzer, workspacePaths: string[], targetPaths?: string[]): Promise<Workspace> {
 	const processedWorkspacePaths: string[] = await processPaths(workspacePaths, 'Workspace');

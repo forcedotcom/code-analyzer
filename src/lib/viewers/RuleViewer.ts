@@ -1,8 +1,8 @@
 import {Ux} from '@salesforce/sf-plugins-core';
 import {Rule, SeverityLevel} from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {toStyledHeaderAndBody} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
+import {Display} from '../Display.js';
+import {toStyledHeaderAndBody} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export interface RuleViewer {
 	view(rules: Rule[]): void;

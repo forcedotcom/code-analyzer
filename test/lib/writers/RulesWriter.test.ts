@@ -1,8 +1,8 @@
-import { OutputFormat } from '@salesforce/code-analyzer-core';
-import path from 'node:path';
-import { CompositeRulesWriter, RulesFileWriter } from "../../../src/lib/writers/RulesWriter";
-import * as Stub from '../../stubs/StubRuleSelection';
-import { StubFileSystem } from '../../stubs/StubFileSystem';
+import * as path from 'node:path';
+import {OutputFormat} from '@salesforce/code-analyzer-core';
+import {CompositeRulesWriter, RulesFileWriter} from "../../../src/lib/writers/RulesWriter.js";
+import * as Stub from '../../stubs/StubRuleSelection.js';
+import { StubFileSystem } from '../../stubs/StubFileSystem.js';
 
 describe('RulesWriter', () => {
 

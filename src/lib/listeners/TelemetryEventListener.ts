@@ -3,9 +3,9 @@ import {
 	EngineTelemetryEvent,
 	EventType,
 	TelemetryEvent
-} from "@salesforce/code-analyzer-core";
-import {TelemetryEmitter} from '../Telemetry';
-import * as constants from '../../Constants';
+} from '@salesforce/code-analyzer-core';
+import {TelemetryEmitter} from '../Telemetry.js';
+import * as constants from '../../Constants.js';
 
 export class TelemetryEventListener {
 	private telemetryEmitter: TelemetryEmitter;

@@ -1,12 +1,26 @@
-import RulesCommand from '../../../src/commands/code-analyzer/rules';
-import { RulesAction, RulesDependencies, RulesInput } from '../../../src/lib/actions/RulesAction';
-import { RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer } from '../../../src/lib/viewers/RuleViewer';
-import { CompositeRulesWriter } from '../../../src/lib/writers/RulesWriter';
-import {Config} from '@oclif/core';
 import * as path from 'node:path';
-import { ConsoleOuputInterceptor } from '../../test-utils';
+import {Config, settings} from '@oclif/core';
+import RulesCommand from '../../../src/commands/code-analyzer/rules.js';
+import {RulesAction, RulesDependencies, RulesInput} from '../../../src/lib/actions/RulesAction.js';
+import {RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer} from '../../../src/lib/viewers/RuleViewer.js';
+import {CompositeRulesWriter} from '../../../src/lib/writers/RulesWriter.js';
+import {ConsoleOuputInterceptor} from '../../test-utils.js';
 
-const rootFolderWithPackageJson: string = path.join(__dirname, '..', '..', '..');
+const rootFolderWithPackageJson: string = path.join(import.meta.dirname, '..', '..', '..');
+
+/* 
+We need to set the oclif settings to have enableAutoTranspile=false.
+This because vitest has its own typescript interpreter which doesn't work with oclif's use of dynamic imports of
+typescript files. Setting this to false seems to resolve this so that we do not get warnings that look like:
+	(node:39148) [ERR_UNKNOWN_FILE_EXTENSION] Warning: TypeError
+	module: @oclif/core@3.27.0
+	task: findCommand (code-analyzer:config)
+	plugin: @salesforce/plugin-code-analyzer
+	root: /tmp/github/forcedotcom/code-analyzer
+	code: ERR_UNKNOWN_FILE_EXTENSION
+	message: Unknown file extension ".ts" for /tmp/github/forcedotcom/code-analyzer/src/commands/code-analyzer/config.ts
+*/
+settings.enableAutoTranspile = false; 
 const config: Config = new Config({ root: rootFolderWithPackageJson });
 
 function runRulesCommand(userArgs: string[]): Promise<void> {

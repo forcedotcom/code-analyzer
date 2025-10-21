@@ -1,8 +1,8 @@
 import {CodeAnalyzer, CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
-import {EngineRunProgressSpinner, RuleSelectionProgressSpinner} from '../../../src/lib/listeners/ProgressEventListener';
-import {SpyDisplay, DisplayEvent, DisplayEventType} from '../../stubs/SpyDisplay';
-import {ConfigurableStubEnginePlugin1, EventConfigurableEngine1, TimeableStubEnginePlugin1, TimeableEngine1, TimeableEngine2} from '../../stubs/StubEnginePlugins';
-import {StubEnginePluginsFactory_withFunctionalStubEngine} from '../../stubs/StubEnginePluginsFactories';
+import {EngineRunProgressSpinner, RuleSelectionProgressSpinner} from '../../../src/lib/listeners/ProgressEventListener.js';
+import {SpyDisplay, DisplayEvent, DisplayEventType} from '../../stubs/SpyDisplay.js';
+import {ConfigurableStubEnginePlugin1, EventConfigurableEngine1, TimeableStubEnginePlugin1, TimeableEngine1, TimeableEngine2} from '../../stubs/StubEnginePlugins.js';
+import {StubEnginePluginsFactory_withFunctionalStubEngine} from '../../stubs/StubEnginePluginsFactories.js';
 
 describe('ProgressEventListener implementations', () => {
 	let codeAnalyzer: CodeAnalyzer;

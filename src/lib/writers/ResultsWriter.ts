@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import {OutputFormat, RunResults} from '@salesforce/code-analyzer-core';
-import {BundleName, getMessage} from '../messages';
-import {FileSystem, RealFileSystem} from '../utils/FileUtil';
+import {BundleName, getMessage} from '../messages.js';
+import {FileSystem, RealFileSystem} from '../utils/FileUtil.js';
 
 export interface ResultsWriter {
 	write(results: RunResults): void;

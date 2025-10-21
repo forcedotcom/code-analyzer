@@ -1,7 +1,7 @@
-import * as path from "path";
-import { OutputFormat, RuleSelection } from "@salesforce/code-analyzer-core";
-import { BundleName, getMessage } from "../messages";
-import { FileSystem, RealFileSystem } from "../utils/FileUtil";
+import * as path from 'node:path';
+import {OutputFormat, RuleSelection} from '@salesforce/code-analyzer-core';
+import {BundleName, getMessage} from '../messages.js';
+import {FileSystem, RealFileSystem} from '../utils/FileUtil.js';
 
 export interface RulesWriter {
     write(rules: RuleSelection): void;

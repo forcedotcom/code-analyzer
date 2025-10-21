@@ -1,10 +1,10 @@
 import {CodeAnalyzer, CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
 import {LogLevel} from '@salesforce/code-analyzer-engine-api';
-import {LogEventDisplayer} from '../../../src/lib/listeners/LogEventListener';
-import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import {SpyLogWriter} from '../../stubs/SpyLogWriter';
-import {EventConfigurableEngine1, ConfigurableStubEnginePlugin1} from "../../stubs/StubEnginePlugins";
-import {LogEventLogger} from "../../../src/lib/listeners/LogEventListener";
+import {LogEventDisplayer} from '../../../src/lib/listeners/LogEventListener.js';
+import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {SpyLogWriter} from '../../stubs/SpyLogWriter.js';
+import {EventConfigurableEngine1, ConfigurableStubEnginePlugin1} from '../../stubs/StubEnginePlugins.js';
+import {LogEventLogger} from '../../../src/lib/listeners/LogEventListener.js';
 
 describe('LogEventListener implementations', () => {
 	let spyDisplay: SpyDisplay;

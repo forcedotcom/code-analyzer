@@ -1,5 +1,5 @@
 import {RunResults} from '@salesforce/code-analyzer-core';
-import {ResultsWriter} from '../../src/lib/writers/ResultsWriter';
+import {ResultsWriter} from '../../src/lib/writers/ResultsWriter.js';
 
 export class SpyResultsWriter implements ResultsWriter {
 	private callHistory: RunResults[] = [];

@@ -1,14 +1,14 @@
 import {Flags, SfCommand} from '@salesforce/sf-plugins-core';
-import {ConfigAction, ConfigDependencies, ConfigInput} from '../../lib/actions/ConfigAction';
-import {ConfigFileWriter} from '../../lib/writers/ConfigWriter';
-import {ConfigStyledYamlViewer} from '../../lib/viewers/ConfigViewer';
-import {ConfigActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer';
-import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory';
-import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory';
-import {BundleName, getMessage, getMessages} from '../../lib/messages';
-import {LogEventDisplayer} from '../../lib/listeners/LogEventListener';
-import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener';
-import {Displayable, UxDisplay} from '../../lib/Display';
+import {ConfigAction, ConfigDependencies, ConfigInput} from '../../lib/actions/ConfigAction.js';
+import {ConfigFileWriter} from '../../lib/writers/ConfigWriter.js';
+import {ConfigStyledYamlViewer} from '../../lib/viewers/ConfigViewer.js';
+import {ConfigActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer.js';
+import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory.js';
+import {BundleName, getMessage, getMessages} from '../../lib/messages.js';
+import {LogEventDisplayer} from '../../lib/listeners/LogEventListener.js';
+import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener.js';
+import {Displayable, UxDisplay} from '../../lib/Display.js';
 
 export default class ConfigCommand extends SfCommand<void> implements Displayable {
 	// We don't need the `--json` output for this command.

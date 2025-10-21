@@ -1,5 +1,5 @@
 import {RunResults} from '@salesforce/code-analyzer-core';
-import {ResultsViewer} from '../../src/lib/viewers/ResultsViewer';
+import {ResultsViewer} from '../../src/lib/viewers/ResultsViewer.js';
 
 export class SpyResultsViewer implements ResultsViewer {
 	private callHistory: RunResults[] = [];

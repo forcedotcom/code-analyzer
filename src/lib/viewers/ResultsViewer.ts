@@ -1,9 +1,9 @@
+import * as path from 'node:path';
 import {Ux} from '@salesforce/sf-plugins-core';
 import {CodeLocation, RunResults, SeverityLevel, Violation} from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {toStyledHeaderAndBody} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
-import path from "node:path";
+import {Display} from '../Display.js';
+import {toStyledHeaderAndBody} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export interface ResultsViewer {
 	view(results: RunResults): void;

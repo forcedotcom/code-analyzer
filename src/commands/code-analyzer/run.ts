@@ -1,17 +1,17 @@
 import {Flags, SfCommand} from '@salesforce/sf-plugins-core';
 import {SeverityLevel} from '@salesforce/code-analyzer-core';
-import {RunAction, RunDependencies, RunInput} from '../../lib/actions/RunAction';
-import {View} from '../../Constants';
-import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory';
-import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory';
-import {CompositeResultsWriter} from '../../lib/writers/ResultsWriter';
-import {ResultsDetailDisplayer, ResultsNoOpDisplayer, ResultsTableDisplayer, ResultsViewer} from '../../lib/viewers/ResultsViewer';
-import {RunActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer';
-import {BundleName, getMessage, getMessages} from '../../lib/messages';
-import {LogEventDisplayer} from '../../lib/listeners/LogEventListener';
-import {EngineRunProgressSpinner, RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener';
-import {Displayable, UxDisplay} from '../../lib/Display';
-import {SfCliTelemetryEmitter} from "../../lib/Telemetry";
+import {RunAction, RunDependencies, RunInput} from '../../lib/actions/RunAction.js';
+import {View} from '../../Constants.js';
+import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory.js';
+import {CompositeResultsWriter} from '../../lib/writers/ResultsWriter.js';
+import {ResultsDetailDisplayer, ResultsNoOpDisplayer, ResultsTableDisplayer, ResultsViewer} from '../../lib/viewers/ResultsViewer.js';
+import {RunActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer.js';
+import {BundleName, getMessage, getMessages} from '../../lib/messages.js';
+import {LogEventDisplayer} from '../../lib/listeners/LogEventListener.js';
+import {EngineRunProgressSpinner, RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener.js';
+import {Displayable, UxDisplay} from '../../lib/Display.js';
+import {SfCliTelemetryEmitter} from '../../lib/Telemetry.js';
 
 export default class RunCommand extends SfCommand<void> implements Displayable {
 	// We don't need the `--json` output for this command.

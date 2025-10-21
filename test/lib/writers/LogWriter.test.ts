@@ -2,8 +2,8 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
-import {LogFileWriter} from '../../../src/lib/writers/LogWriter';
-import {Clock} from '../../../src/lib/utils/DateTimeUtils';
+import {LogFileWriter} from '../../../src/lib/writers/LogWriter.js';
+import {Clock} from '../../../src/lib/utils/DateTimeUtils.js';
 
 describe('LogWriter implementations', () => {
 

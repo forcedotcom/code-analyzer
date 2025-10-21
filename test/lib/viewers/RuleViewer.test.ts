@@ -1,11 +1,11 @@
-import fs from 'node:fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import ansis from 'ansis';
-import {RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer} from '../../../src/lib/viewers/RuleViewer';
-import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import * as StubRules from '../../stubs/StubRules';
+import {RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer} from '../../../src/lib/viewers/RuleViewer.js';
+import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import * as StubRules from '../../stubs/StubRules.js';
 
-const PATH_TO_COMPARISON_FILES = path.resolve(__dirname, '..', '..', '..', 'test', 'fixtures', 'comparison-files', 'lib',
+const PATH_TO_COMPARISON_FILES = path.resolve(import.meta.dirname, '..', '..', '..', 'test', 'fixtures', 'comparison-files', 'lib',
 	'viewers', 'RuleViewer.test.ts');
 
 describe('RuleViewer implementations', () => {

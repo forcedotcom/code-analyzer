@@ -1,5 +1,5 @@
-import {Display} from '../Display';
-import {ConfigModel, OutputFormat} from '../models/ConfigModel';
+import {Display} from '../Display.js';
+import {ConfigModel, OutputFormat} from '../models/ConfigModel.js';
 
 
 export interface ConfigViewer {

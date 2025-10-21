@@ -1,16 +1,16 @@
-import { CodeAnalyzer, CodeAnalyzerConfig, Rule, RuleSelection } from '@salesforce/code-analyzer-core';
-import { CodeAnalyzerConfigFactory } from '../factories/CodeAnalyzerConfigFactory';
-import { EnginePluginsFactory } from '../factories/EnginePluginsFactory';
-import { LogEventListener, LogEventLogger } from '../listeners/LogEventListener';
-import { ProgressEventListener } from '../listeners/ProgressEventListener';
-import { createWorkspace } from '../utils/WorkspaceUtil';
-import { RulesActionSummaryViewer } from '../viewers/ActionSummaryViewer';
-import { RuleViewer } from '../viewers/RuleViewer';
-import { LogFileWriter } from '../writers/LogWriter';
-import { RulesWriter } from '../writers/RulesWriter';
-import { TelemetryEmitter } from '../Telemetry';
-import { TelemetryEventListener } from '../listeners/TelemetryEventListener';
-import * as Constants from '../../Constants';
+import {CodeAnalyzer, CodeAnalyzerConfig, Rule, RuleSelection} from '@salesforce/code-analyzer-core';
+import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactory} from '../factories/EnginePluginsFactory.js';
+import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener.js';
+import {ProgressEventListener} from '../listeners/ProgressEventListener.js';
+import {createWorkspace} from '../utils/WorkspaceUtil.js';
+import {RulesActionSummaryViewer} from '../viewers/ActionSummaryViewer.js';
+import {RuleViewer} from '../viewers/RuleViewer.js';
+import {LogFileWriter} from '../writers/LogWriter.js';
+import {RulesWriter} from '../writers/RulesWriter.js';
+import {TelemetryEmitter} from '../Telemetry.js';
+import {TelemetryEventListener} from '../listeners/TelemetryEventListener.js';
+import * as Constants from '../../Constants.js';
 
 export type RulesDependencies = {
 	configFactory: CodeAnalyzerConfigFactory;

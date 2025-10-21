@@ -1,23 +1,22 @@
-import path from 'node:path';
+import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import * as fsp from 'node:fs/promises';
 import ansis from 'ansis';
-import {CodeAnalyzerConfig} from "@salesforce/code-analyzer-core";
-import * as EngineApi from "@salesforce/code-analyzer-engine-api";
+import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
+import * as EngineApi from '@salesforce/code-analyzer-engine-api';
 
-import {CodeAnalyzerConfigFactory} from "../../../src/lib/factories/CodeAnalyzerConfigFactory";
-import {EnginePluginsFactory} from '../../../src/lib/factories/EnginePluginsFactory';
-import {ConfigAction, ConfigDependencies, ConfigInput} from '../../../src/lib/actions/ConfigAction';
-import {ConfigStyledYamlViewer} from '../../../src/lib/viewers/ConfigViewer';
-import {ConfigActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer';
+import {CodeAnalyzerConfigFactory} from '../../../src/lib/factories/CodeAnalyzerConfigFactory.js'
+import {EnginePluginsFactory} from '../../../src/lib/factories/EnginePluginsFactory.js';
+import {ConfigAction, ConfigDependencies, ConfigInput} from '../../../src/lib/actions/ConfigAction.js';
+import {ConfigStyledYamlViewer} from '../../../src/lib/viewers/ConfigViewer.js';
+import {ConfigActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer.js';
 
-import {SpyConfigWriter} from '../../stubs/SpyConfigWriter';
-import {SpyConfigViewer} from '../../stubs/SpyConfigViewer';
-import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import { LogEventDisplayer } from '../../../src/lib/listeners/LogEventListener';
+import {SpyConfigWriter} from '../../stubs/SpyConfigWriter.js';
+import {SpyConfigViewer} from '../../stubs/SpyConfigViewer.js';
+import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {LogEventDisplayer} from '../../../src/lib/listeners/LogEventListener.js';
 
-const PATH_TO_FIXTURES = path.join(__dirname, '..', '..', 'fixtures');
+const PATH_TO_FIXTURES = path.join(import.meta.dirname, '..', '..', 'fixtures');
 
 const PATH_TO_EXAMPLE_WORKSPACE = path.join(PATH_TO_FIXTURES, 'example-workspaces', 'ConfigAction.test.ts');
 
@@ -439,7 +438,7 @@ describe('ConfigAction tests', () => {
 
 	describe('Target/Workspace resolution', () => {
 		const originalCwd: string = process.cwd();
-		const baseDir: string = path.resolve(__dirname, '..', '..', 'fixtures', 'example-workspaces', 'workspace-with-misc-files');
+		const baseDir: string = path.resolve(import.meta.dirname, '..', '..', 'fixtures', 'example-workspaces', 'workspace-with-misc-files');
 
 		beforeEach(() => {
 			process.chdir(baseDir);
@@ -607,7 +606,7 @@ describe('ConfigAction tests', () => {
 	// ====== HELPER FUNCTIONS ======
 
 	async function readGoldFile(goldFilePath: string): Promise<string> {
-		return fsp.readFile(goldFilePath, {encoding: 'utf-8'});
+		return fs.promises.readFile(goldFilePath, {encoding: 'utf-8'});
 	}
 
 	async function runActionAndGetDisplayedConfig(dependencies: ConfigDependencies, ruleSelectors: string[], configFile?: string, workspace?: string[], target?: string[], includeUnmodifiedRules?: boolean): Promise<string> {

@@ -1,16 +1,16 @@
 import {Flags, SfCommand} from '@salesforce/sf-plugins-core';
-import {View} from '../../Constants';
-import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory';
-import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory';
-import {RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer} from '../../lib/viewers/RuleViewer';
-import {RulesActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer';
-import {RulesAction, RulesDependencies, RulesInput} from '../../lib/actions/RulesAction';
-import {BundleName, getMessage, getMessages} from '../../lib/messages';
-import {Displayable, UxDisplay} from '../../lib/Display';
-import {LogEventDisplayer} from '../../lib/listeners/LogEventListener';
-import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener';
-import {CompositeRulesWriter} from '../../lib/writers/RulesWriter';
-import { SfCliTelemetryEmitter } from '../../lib/Telemetry';
+import {View} from '../../Constants.js';
+import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactoryImpl} from '../../lib/factories/EnginePluginsFactory.js';
+import {RuleDetailDisplayer, RulesNoOpDisplayer, RuleTableDisplayer} from '../../lib/viewers/RuleViewer.js';
+import {RulesActionSummaryViewer} from '../../lib/viewers/ActionSummaryViewer.js';
+import {RulesAction, RulesDependencies, RulesInput} from '../../lib/actions/RulesAction.js';
+import {BundleName, getMessage, getMessages} from '../../lib/messages.js';
+import {Displayable, UxDisplay} from '../../lib/Display.js';
+import {LogEventDisplayer} from '../../lib/listeners/LogEventListener.js';
+import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener.js';
+import {CompositeRulesWriter} from '../../lib/writers/RulesWriter.js';
+import {SfCliTelemetryEmitter} from '../../lib/Telemetry.js';
 
 export default class RulesCommand extends SfCommand<void> implements Displayable {
 	// We don't need the `--json` output for this command.

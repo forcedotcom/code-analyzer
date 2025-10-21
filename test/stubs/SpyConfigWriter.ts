@@ -1,5 +1,5 @@
-import {ConfigModel} from '../../src/lib/models/ConfigModel';
-import {ConfigWriter} from '../../src/lib/writers/ConfigWriter';
+import {ConfigModel} from '../../src/lib/models/ConfigModel.js';
+import {ConfigWriter} from '../../src/lib/writers/ConfigWriter.js';
 
 export class SpyConfigWriter implements ConfigWriter {
 	private simulateSuccessfulWrites: boolean;

@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
-import {Clock, RealClock, formatToDateTimeString} from '../utils/DateTimeUtils';
-import {FileSystem, RealFileSystem, WriteStream} from '../utils/FileUtil';
+import {Clock, RealClock, formatToDateTimeString} from '../utils/DateTimeUtils.js';
+import {FileSystem, RealFileSystem, WriteStream} from '../utils/FileUtil.js';
 
 export interface LogWriter {
 	writeToLog(message: string): void;
