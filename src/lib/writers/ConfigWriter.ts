@@ -1,8 +1,8 @@
 import * as path from 'node:path';
-import {ConfigModel, OutputFormat} from '../models/ConfigModel';
-import {BundleName, getMessage} from '../messages';
-import {Display} from '../Display';
-import {FileSystem, RealFileSystem} from '../utils/FileUtil';
+import {ConfigModel, OutputFormat} from '../models/ConfigModel.js';
+import {BundleName, getMessage} from '../messages.js';
+import {Display} from '../Display.js';
+import {FileSystem, RealFileSystem} from '../utils/FileUtil.js';
 
 export interface ConfigWriter {
 	write(model: ConfigModel): Promise<boolean>;

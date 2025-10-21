@@ -1,8 +1,8 @@
 import {CodeAnalyzer, EngineLogEvent, EventType, LogEvent, LogLevel} from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {LogWriter} from '../writers/LogWriter';
-import {BundleName, getMessage} from "../messages";
-import {indent, makeGrey} from '../utils/StylingUtil';
+import {Display} from '../Display.js';
+import {LogWriter} from '../writers/LogWriter.js';
+import {BundleName, getMessage} from '../messages.js';
+import {indent, makeGrey} from '../utils/StylingUtil.js';
 
 export interface LogEventListener {
 	listen(codeAnalyzer: CodeAnalyzer): void;

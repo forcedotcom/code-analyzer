@@ -1,8 +1,8 @@
-import {OutputFormat} from '../../../src/lib/models/ConfigModel';
-import {ConfigFileWriter} from '../../../src/lib/writers/ConfigWriter';
-import {StubConfigModel} from '../../stubs/StubConfigModel';
-import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import { StubFileSystem } from '../../stubs/StubFileSystem';
+import {OutputFormat} from '../../../src/lib/models/ConfigModel.js';
+import {ConfigFileWriter} from '../../../src/lib/writers/ConfigWriter.js';
+import {StubConfigModel} from '../../stubs/StubConfigModel.js';
+import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import { StubFileSystem } from '../../stubs/StubFileSystem.js';
 
 describe('ConfigWriter implementations', () => {
 	let fileSystem: StubFileSystem;

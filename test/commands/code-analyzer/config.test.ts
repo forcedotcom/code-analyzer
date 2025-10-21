@@ -1,12 +1,26 @@
-import ConfigCommand from '../../../src/commands/code-analyzer/config';
-import {ConfigAction, ConfigInput} from '../../../src/lib/actions/ConfigAction';
-import {ConfigFileWriter} from '../../../src/lib/writers/ConfigWriter';
-import {SpyDisplay} from '../../stubs/SpyDisplay';
-import {Config} from '@oclif/core';
-import * as path from "path";
-import { ConsoleOuputInterceptor } from '../../test-utils';
+import * as path from 'node:path';
+import {Config, settings} from '@oclif/core';
+import ConfigCommand from '../../../src/commands/code-analyzer/config.js';
+import {ConfigAction, ConfigInput} from '../../../src/lib/actions/ConfigAction.js';
+import {ConfigFileWriter} from '../../../src/lib/writers/ConfigWriter.js';
+import {SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {ConsoleOuputInterceptor} from '../../test-utils.js';
 
 const rootFolderWithPackageJson: string = path.join(__dirname, '..', '..', '..');
+
+/* 
+We need to set the oclif settings to have enableAutoTranspile=false.
+This because vitest has its own typescript interpreter which doesn't work with oclif's use of dynamic imports of
+typescript files. Setting this to false seems to resolve this so that we do not get warnings that look like:
+	(node:39148) [ERR_UNKNOWN_FILE_EXTENSION] Warning: TypeError
+	module: @oclif/core@3.27.0
+	task: findCommand (code-analyzer:config)
+	plugin: @salesforce/plugin-code-analyzer
+	root: /tmp/github/forcedotcom/code-analyzer
+	code: ERR_UNKNOWN_FILE_EXTENSION
+	message: Unknown file extension ".ts" for /tmp/github/forcedotcom/code-analyzer/src/commands/code-analyzer/config.ts
+*/
+settings.enableAutoTranspile = false;
 const config: Config = new Config({ root: rootFolderWithPackageJson });
 
 async function runConfigCommand(userArgs: string[]): Promise<void> {

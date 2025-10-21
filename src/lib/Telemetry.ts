@@ -1,5 +1,5 @@
 import {TelemetryData} from '@salesforce/code-analyzer-core';
-import {Lifecycle} from "@salesforce/core";
+import {Lifecycle} from '@salesforce/core';
 
 export interface TelemetryEmitter {
 	emitTelemetry(source: string, eventName: string, data: TelemetryData): void;

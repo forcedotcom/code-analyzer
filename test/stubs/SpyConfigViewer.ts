@@ -1,5 +1,5 @@
-import {ConfigModel} from '../../src/lib/models/ConfigModel';
-import {ConfigViewer} from '../../src/lib/viewers/ConfigViewer';
+import {ConfigModel} from '../../src/lib/models/ConfigModel.js';
+import {ConfigViewer} from '../../src/lib/viewers/ConfigViewer.js';
 
 export class SpyConfigViewer implements ConfigViewer {
 	private callHistory: ConfigModel[] = [];

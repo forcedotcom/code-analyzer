@@ -1,5 +1,5 @@
-import {Display} from '../../src/lib/Display';
 import {Ux} from '@salesforce/sf-plugins-core';
+import {Display} from '../../src/lib/Display.js';
 
 /**
  * Implementation of {@link Display} that tracks every call in an array and allows assertions against them.

@@ -1,4 +1,4 @@
-import { WriteStream } from "../../src/lib/utils/FileUtil";
+import { WriteStream } from "../../src/lib/utils/FileUtil.js";
 
 export class SpyWriteStream implements WriteStream {
     writeCallHistory: {content: string}[] = [];

@@ -1,7 +1,7 @@
-import {Display} from '../Display';
 import {RuleSelection, RunResults, SeverityLevel, Violation} from '@salesforce/code-analyzer-core';
-import {toStyledHeader, indent} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
+import {Display} from '../Display.js';
+import {toStyledHeader, indent} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 abstract class AbstractActionSummaryViewer {
 	protected readonly display: Display;

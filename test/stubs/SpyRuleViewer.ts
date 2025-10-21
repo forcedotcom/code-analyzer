@@ -1,5 +1,5 @@
 import {Rule} from '@salesforce/code-analyzer-core';
-import {RuleViewer} from '../../src/lib/viewers/RuleViewer';
+import {RuleViewer} from '../../src/lib/viewers/RuleViewer.js';
 
 
 export class SpyRuleViewer implements RuleViewer {

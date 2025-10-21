@@ -4,6 +4,7 @@
 	"version": "5.5.0",
 	"author": "Salesforce Code Analyzer Team",
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
+	"type": "module",
 	"dependencies": {
 		"@oclif/core": "3.27.0",
 		"@salesforce/code-analyzer-core": "0.38.1",

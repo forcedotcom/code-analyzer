@@ -8,19 +8,19 @@ import {
 	SeverityLevel,
 	Workspace
 } from '@salesforce/code-analyzer-core';
-import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory';
-import {EnginePluginsFactory} from '../factories/EnginePluginsFactory';
-import {createWorkspace} from '../utils/WorkspaceUtil';
-import {ResultsViewer} from '../viewers/ResultsViewer';
-import {RunActionSummaryViewer} from '../viewers/ActionSummaryViewer';
-import {ResultsWriter} from '../writers/ResultsWriter';
-import {LogFileWriter} from '../writers/LogWriter';
-import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener';
-import {ProgressEventListener} from '../listeners/ProgressEventListener';
-import {BundleName, getMessage} from '../messages';
-import {TelemetryEmitter} from "../Telemetry";
-import {TelemetryEventListener} from "../listeners/TelemetryEventListener";
-import * as Constants from '../../Constants';
+import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactory} from '../factories/EnginePluginsFactory.js';
+import {createWorkspace} from '../utils/WorkspaceUtil.js';
+import {ResultsViewer} from '../viewers/ResultsViewer.js';
+import {RunActionSummaryViewer} from '../viewers/ActionSummaryViewer.js';
+import {ResultsWriter} from '../writers/ResultsWriter.js';
+import {LogFileWriter} from '../writers/LogWriter.js';
+import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener.js';
+import {ProgressEventListener} from '../listeners/ProgressEventListener.js';
+import {BundleName, getMessage} from '../messages.js';
+import {TelemetryEmitter} from '../Telemetry.js';
+import {TelemetryEventListener} from '../listeners/TelemetryEventListener.js';
+import * as Constants from '../../Constants.js';
 
 export type RunDependencies = {
 	configFactory: CodeAnalyzerConfigFactory;

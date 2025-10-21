@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 
 import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
-import {CodeAnalyzerConfigFactoryImpl} from '../../../src/lib/factories/CodeAnalyzerConfigFactory';
+import {CodeAnalyzerConfigFactoryImpl} from '../../../src/lib/factories/CodeAnalyzerConfigFactory.js';
 
 
 describe('CodeAnalyzerConfigFactoryImpl', () => {
@@ -40,7 +40,7 @@ describe('CodeAnalyzerConfigFactoryImpl', () => {
 		])(`Locates a config with extension: .$extension}`, ({extension, dir, uniqueTag}) => {
 			// ==== TEST SETUP ====
 			// Move into the directory where the target config file lives.
-			process.chdir(path.resolve(__dirname, '..', '..', 'fixtures', 'example-workspaces', dir));
+			process.chdir(path.resolve(import.meta.dirname, '..', '..', 'fixtures', 'example-workspaces', dir));
 			const factory = new CodeAnalyzerConfigFactoryImpl();
 
 			// ==== TESTED BEHAVIOR ====

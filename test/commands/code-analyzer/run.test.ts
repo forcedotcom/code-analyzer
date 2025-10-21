@@ -1,11 +1,11 @@
+import * as path from 'node:path';
+import {Config, settings} from '@oclif/core';
 import {TelemetryData} from '@salesforce/code-analyzer-core';
-import RunCommand from '../../../src/commands/code-analyzer/run';
-import {RunAction, RunDependencies, RunInput} from '../../../src/lib/actions/RunAction';
-import {CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter';
-import {SfCliTelemetryEmitter} from "../../../src/lib/Telemetry";
-import {ConsoleOuputInterceptor} from '../../test-utils';
-import {Config} from '@oclif/core';
-import * as path from "path";
+import RunCommand from '../../../src/commands/code-analyzer/run.js';
+import {RunAction, RunDependencies, RunInput} from '../../../src/lib/actions/RunAction.js';
+import {CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter.js';
+import {SfCliTelemetryEmitter} from '../../../src/lib/Telemetry.js';
+import {ConsoleOuputInterceptor} from '../../test-utils.js';
 
 type TelemetryEmission = {
 	source: string,
@@ -13,8 +13,23 @@ type TelemetryEmission = {
 	data: TelemetryData
 };
 
-const rootFolderWithPackageJson: string = path.join(__dirname, '..', '..', '..');
+const rootFolderWithPackageJson: string = path.join(import.meta.dirname, '..', '..', '..');
+
+/* 
+We need to set the oclif settings to have enableAutoTranspile=false.
+This because vitest has its own typescript interpreter which doesn't work with oclif's use of dynamic imports of
+typescript files. Setting this to false seems to resolve this so that we do not get warnings that look like:
+	(node:39148) [ERR_UNKNOWN_FILE_EXTENSION] Warning: TypeError
+	module: @oclif/core@3.27.0
+	task: findCommand (code-analyzer:config)
+	plugin: @salesforce/plugin-code-analyzer
+	root: /tmp/github/forcedotcom/code-analyzer
+	code: ERR_UNKNOWN_FILE_EXTENSION
+	message: Unknown file extension ".ts" for /tmp/github/forcedotcom/code-analyzer/src/commands/code-analyzer/config.ts
+*/
+settings.enableAutoTranspile = false; 
 const config: Config = new Config({ root: rootFolderWithPackageJson });
+
 function runRunCommand(userArgs: string[]): Promise<void> {
 	const command: RunCommand = new RunCommand(userArgs, config);
 	return command.run();

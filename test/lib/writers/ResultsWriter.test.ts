@@ -1,7 +1,7 @@
 import {OutputFormat} from '@salesforce/code-analyzer-core';
-import {ResultsFileWriter, CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter';
-import * as StubRunResults from '../../stubs/StubRunResults';
-import { StubFileSystem } from '../../stubs/StubFileSystem';
+import {ResultsFileWriter, CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter.js';
+import * as StubRunResults from '../../stubs/StubRunResults.js';
+import { StubFileSystem } from '../../stubs/StubFileSystem.js';
 
 describe('ResultsWriter implementations', () => {
 	let fileSystem: StubFileSystem;

@@ -1,5 +1,6 @@
-import path from 'node:path';
-import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import ansis from 'ansis';
 import {CodeAnalyzer, CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
 import {RuleDescription, Violation} from '@salesforce/code-analyzer-engine-api';
@@ -8,16 +9,15 @@ import {
 	findLongestCommonParentFolderOf,
 	ResultsDetailDisplayer,
 	ResultsTableDisplayer
-} from '../../../src/lib/viewers/ResultsViewer';
-import {BundleName, getMessage} from '../../../src/lib/messages';
-import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import {FunctionalStubEnginePlugin1, StubEngine1} from '../../stubs/StubEnginePlugins';
-import {platform} from "node:os";
+} from '../../../src/lib/viewers/ResultsViewer.js';
+import {BundleName, getMessage} from '../../../src/lib/messages.js';
+import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {FunctionalStubEnginePlugin1, StubEngine1} from '../../stubs/StubEnginePlugins.js';
 
-const PATH_TO_COMPARISON_FILES = path.resolve(__dirname, '..', '..', '..', 'test', 'fixtures', 'comparison-files', 'lib',
+const PATH_TO_COMPARISON_FILES = path.resolve(import.meta.dirname, '..', '..', '..', 'test', 'fixtures', 'comparison-files', 'lib',
 	'viewers', 'ResultsViewer.test.ts');
 
-const PATH_TO_SAMPLE_CODE = path.resolve(__dirname, '..', '..', '..', 'test', 'sample-code');
+const PATH_TO_SAMPLE_CODE = path.resolve(import.meta.dirname, '..', '..', '..', 'test', 'sample-code');
 const PATH_TO_SOME_FILE = path.resolve(PATH_TO_SAMPLE_CODE, 'someFile.cls');
 const PATH_TO_FILE_A = path.resolve(PATH_TO_SAMPLE_CODE, 'fileA.cls');
 const PATH_TO_FILE_Z = path.resolve(PATH_TO_SAMPLE_CODE, 'fileZ.cls');
@@ -273,17 +273,17 @@ describe('ResultsViewer implementations', () => {
 
 describe('Tests for the findLongestCommonParentFolderOf helper function', () => {
 	it('When a single file is given, then its direct parent is returned', () => {
-		expect(findLongestCommonParentFolderOf([path.resolve(__dirname,'ResultsViewer.test.ts')])).toEqual(__dirname);
+		expect(findLongestCommonParentFolderOf([path.resolve(import.meta.dirname,'ResultsViewer.test.ts')])).toEqual(import.meta.dirname);
 	});
 
 	it('When paths share common parent folders, then longest common folder is returned', () => {
-		const path1 = path.resolve(__dirname,'..','actions','RunAction.test.ts');
-		const path2 = path.resolve(__dirname,'ResultsViewer.test.ts');
-		const path3 = path.resolve(__dirname,'..','actions','RulesAction.test.ts');
-		expect(findLongestCommonParentFolderOf([path1, path2, path3])).toEqual(path.resolve(__dirname,'..'));
+		const path1 = path.resolve(import.meta.dirname,'..','actions','RunAction.test.ts');
+		const path2 = path.resolve(import.meta.dirname,'ResultsViewer.test.ts');
+		const path3 = path.resolve(import.meta.dirname,'..','actions','RulesAction.test.ts');
+		expect(findLongestCommonParentFolderOf([path1, path2, path3])).toEqual(path.resolve(import.meta.dirname,'..'));
 	});
 
-	if(platform() === 'win32') { // The following tests only run on Windows machines
+	if(os.platform() === 'win32') { // The following tests only run on Windows machines
 		it('When paths do not share common root (which can happen on Windows machines), then empty string is returned', () => {
 			const path1 = 'C:\\Windows\\someFile.txt';
 			const path2 = 'D:\\anotherFile.txt';
@@ -323,5 +323,5 @@ function repeatViolation(violation: Violation, times: number): Violation[] {
 }
 
 function readComparisonFile(fileName: string): Promise<string> {
-	return fs.readFile(path.join(PATH_TO_COMPARISON_FILES, fileName), {encoding: 'utf-8'});
+	return fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, fileName), {encoding: 'utf-8'});
 }

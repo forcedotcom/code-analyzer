@@ -1,12 +1,12 @@
-import path from 'node:path';
+import * as path from 'node:path';
 import {CodeAnalyzerConfig, CodeAnalyzer, Workspace} from '@salesforce/code-analyzer-core';
-import * as WorkspaceUtil from '../../../src/lib/utils/WorkspaceUtil';
+import * as WorkspaceUtil from '../../../src/lib/utils/WorkspaceUtil.js';
 
 
 describe('WorkspaceUtil', () => {
 	describe('#createWorkspace()' ,() => {
 		const ORIGINAL_TEST_DIR = process.cwd();
-		const PATH_TO_WORKSPACE = path.join(__dirname, '..', '..', 'fixtures', 'example-workspaces', 'workspace-with-dotted-items');
+		const PATH_TO_WORKSPACE = path.join(import.meta.dirname, '..', '..', 'fixtures', 'example-workspaces', 'workspace-with-dotted-items');
 
 		beforeEach(() => {
 			process.chdir(PATH_TO_WORKSPACE)

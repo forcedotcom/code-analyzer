@@ -1,5 +1,5 @@
-import { FileSystem, WriteStream } from "../../src/lib/utils/FileUtil";
-import { SpyWriteStream } from "./SpyWriteStream";
+import {FileSystem, WriteStream} from '../../src/lib/utils/FileUtil.js';
+import {SpyWriteStream} from './SpyWriteStream.js';
 
 export class StubFileSystem implements FileSystem {
     existsReturnValue: boolean = false;
