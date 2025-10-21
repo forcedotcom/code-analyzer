@@ -1,4 +1,4 @@
-import {Ux} from '@salesforce/sf-plugins-core';
+import { TableOptions } from '@oclif/table';
 import {Display} from '../../src/lib/Display.js';
 
 /**
@@ -53,13 +53,14 @@ export class SpyDisplay implements Display {
 	/**
 	 * Track that the provided table data was displayed.
 	 */
-	public displayTable<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>): void {
-		const columnNames: string[] = Object.values(columns).map(column => column.header || '');
+	public displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void {
+		const columnNames: string[] = options.columns!.map(
+			column => typeof(column) === 'string' ? column : (column as object)['name'] ?? (column as object)['key']);
 		this.displayEvents.push({
 			type: DisplayEventType.TABLE,
 			data: JSON.stringify({
 				columns: columnNames,
-				rows: data
+				rows: options.data
 			})
 		});
 	}

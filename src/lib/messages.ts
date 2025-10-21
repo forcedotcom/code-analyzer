@@ -1,5 +1,5 @@
 import {Messages} from '@salesforce/core';
-import {Tokens} from '@salesforce/core/lib/messages.js';
+import {Tokens} from '@salesforce/core/messages';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(import.meta.dirname);

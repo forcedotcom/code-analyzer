@@ -1,4 +1,5 @@
-import {Ux, Spinner} from '@salesforce/sf-plugins-core';
+import {TableOptions} from '@oclif/table';
+import {Spinner} from '@salesforce/sf-plugins-core';
 
 /**
  * Interface for objects that display output information to users. E.g., a class that prints to the CLI would implement
@@ -31,7 +32,7 @@ export interface Display {
 	/**
 	 * Output table to stdout only if the "--json" flag is not present.
 	 */
-	displayTable<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>): void;
+	displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void;
 
 	/**
 	 * Prompt the user to confirm that the described action should be carried out, and block until they respond (or a timeout
@@ -73,12 +74,28 @@ export class UxDisplay implements Display {
 		this.displayable.log(message);
 	}
 
-	public displayTable<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>): void {
-		this.displayable.table(data, columns);
+	public displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void {
+		// Currently oclif's table options do not allow us to set the width of the table larger than the user's current
+		// terminal width. This means if the user's terminal width is small then we will table cells with "truncate" by
+		// default or "wrap" depending on the passed in 'overflow' value in the table options. To work around this 
+		// limitation, we temporarily set the OCLIF_TABLE_COLUMN_OVERRIDE environment variable so that the user's
+		// terminal width is ignored so that no truncating or wrapping occurs in order to maintain our original table
+		// view behavior (prior to when we upgraded oclif).
+		const oldTableColumnOverrideValue = process.env.OCLIF_TABLE_COLUMN_OVERRIDE;
+
+		// If we use too large a number (like 99999), then we can get out of memory issues. Using 3000 seems to the best
+		// number that fits everything without causing memory issues. And if there is more than 3000 characters then at
+		// that point we are fine wrapping or truncating
+		process.env.OCLIF_TABLE_COLUMN_OVERRIDE = '3000';
+		try {
+			this.displayable.table(options);
+		} finally {
+			process.env.OCLIF_TABLE_COLUMN_OVERRIDE = oldTableColumnOverrideValue;
+		}
 	}
 
 	public confirm(message: string): Promise<boolean> {
-		return this.displayable.confirm(message);
+		return this.displayable.confirm({message});
 	}
 
 	public spinnerStart(msg: string, status?: string): void {
@@ -111,8 +128,8 @@ export interface Displayable {
 	log(message?: string): void;
 
 	// Prompt the user to confirm that the described action should be performed.                     [Implemented by SfCommand]
-	confirm(message: string): Promise<boolean>;
+	confirm(promptInputs: {message: string}): Promise<boolean>;
 
 	// Output table to stdout only when "--json" flag is not present.                                [Implemented by SfCommand]
-	table<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>, options?: Ux.Table.Options): void;
+	table<R extends Record<string, unknown>>(options: TableOptions<R>): void;
 }
