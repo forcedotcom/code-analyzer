@@ -113,6 +113,7 @@ export class RuleTableDisplayer extends AbstractRuleDisplayer {
 		this.display.displayTable({
 			data: ruleJsons,
 			columns: TABLE_COLUMNS,
+			maxWidth: 'none', // Important - this allows for large tables so that the wrapping isn't squished into the user's terminal width
 			overflow: 'wrap' // We do not want to use truncate because it is lossy
 		});
 	}

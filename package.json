@@ -7,7 +7,7 @@
 	"type": "module",
 	"dependencies": {
 		"@oclif/core": "^4.6.0",
-		"@oclif/table": "^0.4.14",
+		"@oclif/table": "^0.5.0",
 		"@salesforce/code-analyzer-core": "0.39.0",
 		"@salesforce/code-analyzer-engine-api": "0.31.0",
 		"@salesforce/code-analyzer-eslint-engine": "0.36.0",
@@ -17,7 +17,7 @@
 		"@salesforce/code-analyzer-retirejs-engine": "0.28.0",
 		"@salesforce/code-analyzer-sfge-engine": "0.14.0",
 		"@salesforce/core": "^8.23.3",
-		"@salesforce/sf-plugins-core": "^12.2.4",
+		"@salesforce/sf-plugins-core": "^12.2.5",
 		"@salesforce/ts-types": "^2.0.12",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^20.0.0",
