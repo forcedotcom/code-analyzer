@@ -75,23 +75,7 @@ export class UxDisplay implements Display {
 	}
 
 	public displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void {
-		// Currently oclif's table options do not allow us to set the width of the table larger than the user's current
-		// terminal width. This means if the user's terminal width is small then we will table cells with "truncate" by
-		// default or "wrap" depending on the passed in 'overflow' value in the table options. To work around this 
-		// limitation, we temporarily set the OCLIF_TABLE_COLUMN_OVERRIDE environment variable so that the user's
-		// terminal width is ignored so that no truncating or wrapping occurs in order to maintain our original table
-		// view behavior (prior to when we upgraded oclif).
-		const oldTableColumnOverrideValue = process.env.OCLIF_TABLE_COLUMN_OVERRIDE;
-
-		// If we use too large a number (like 99999), then we can get out of memory issues. Using 3000 seems to the best
-		// number that fits everything without causing memory issues. And if there is more than 3000 characters then at
-		// that point we are fine wrapping or truncating
-		process.env.OCLIF_TABLE_COLUMN_OVERRIDE = '3000';
-		try {
-			this.displayable.table(options);
-		} finally {
-			process.env.OCLIF_TABLE_COLUMN_OVERRIDE = oldTableColumnOverrideValue;
-		}
+		this.displayable.table(options);
 	}
 
 	public confirm(message: string): Promise<boolean> {
