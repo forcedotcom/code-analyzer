@@ -75,7 +75,17 @@ export class UxDisplay implements Display {
 	}
 
 	public displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void {
-		this.displayable.table(options);
+		// Unfortunately the table options borderStyle and noStyle don't do anything because
+		// I believe sfCommand always overrides them or something. But the environment variable
+		// SF_TABLE_BORDER_STYLE still seems to work so we'll use this to prevent adding border lines
+		// which make large overflowing tables look ugly. This seems to look good:
+		const original_SF_TABLE_BORDER_STYLE = process.env.SF_TABLE_BORDER_STYLE;
+		process.env.SF_TABLE_BORDER_STYLE = 'headers-only-with-underline';
+		try {
+			this.displayable.table(options);
+		} finally {
+			process.env.SF_TABLE_BORDER_STYLE = original_SF_TABLE_BORDER_STYLE;
+		}
 	}
 
 	public confirm(message: string): Promise<boolean> {
