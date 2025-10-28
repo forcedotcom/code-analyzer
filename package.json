@@ -1,21 +1,23 @@
 {
 	"name": "@salesforce/plugin-code-analyzer",
 	"description": "Salesforce Code Analyzer is a unified tool to help Salesforce developers analyze their source code for security vulnerabilities, performance issues, best practices, and more.",
-	"version": "5.5.0",
+	"version": "5.6.0",
 	"author": "Salesforce Code Analyzer Team",
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
+	"type": "module",
 	"dependencies": {
-		"@oclif/core": "3.27.0",
-		"@salesforce/code-analyzer-core": "0.36.0",
-		"@salesforce/code-analyzer-engine-api": "0.30.0",
-		"@salesforce/code-analyzer-eslint-engine": "0.34.0",
-		"@salesforce/code-analyzer-flow-engine": "0.27.0",
-		"@salesforce/code-analyzer-pmd-engine": "0.31.0",
-		"@salesforce/code-analyzer-regex-engine": "0.28.0",
-		"@salesforce/code-analyzer-retirejs-engine": "0.27.0",
-		"@salesforce/code-analyzer-sfge-engine": "0.13.0",
-		"@salesforce/core": "6.7.6",
-		"@salesforce/sf-plugins-core": "5.0.13",
+		"@oclif/core": "^4.6.0",
+		"@oclif/table": "^0.5.0",
+		"@salesforce/code-analyzer-core": "0.39.0",
+		"@salesforce/code-analyzer-engine-api": "0.31.0",
+		"@salesforce/code-analyzer-eslint-engine": "0.36.0",
+		"@salesforce/code-analyzer-flow-engine": "0.28.0",
+		"@salesforce/code-analyzer-pmd-engine": "0.32.0",
+		"@salesforce/code-analyzer-regex-engine": "0.29.0",
+		"@salesforce/code-analyzer-retirejs-engine": "0.28.0",
+		"@salesforce/code-analyzer-sfge-engine": "0.14.0",
+		"@salesforce/core": "^8.23.3",
+		"@salesforce/sf-plugins-core": "^12.2.5",
 		"@salesforce/ts-types": "^2.0.12",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^20.0.0",
@@ -31,18 +33,16 @@
 		"@eslint/js": "^9.35.0",
 		"@oclif/plugin-help": "^6.2.33",
 		"@salesforce/cli-plugins-testkit": "^5.3.41",
-		"@types/jest": "^30.0.0",
 		"@types/tmp": "^0.2.6",
+		"@vitest/coverage-istanbul": "^3.2.4",
 		"eslint": "^9.35.0",
 		"eslint-plugin-sf-plugin": "^1.20.32",
 		"husky": "^9.1.7",
-		"jest": "^30.1.3",
-		"jest-junit": "^16.0.0",
 		"oclif": "^4.22.22",
-		"tmp": "^0.2.5",
-		"ts-jest": "^29.4.4",
 		"typescript": "^5.9.2",
-		"typescript-eslint": "^8.44.0"
+		"typescript-eslint": "^8.46.2",
+		"vite": "^7.1.5",
+		"vitest": "^3.2.4"
 	},
 	"engines": {
 		"node": ">=20.0.0"
@@ -76,62 +76,14 @@
 		"topicSeparator": " ",
 		"flexibleTaxonomy": true
 	},
-	"jest": {
-		"testTimeout": 60000,
-		"collectCoverageFrom": [
-			"src/**/*.ts",
-			"!src/index.ts",
-			"!src/lib/Display.ts"
-		],
-		"coverageReporters": [
-			"lcov",
-			"json",
-			"text"
-		],
-		"coverageThreshold": {
-			"global": {
-				"branches": 80,
-				"functions": 80,
-				"lines": 80,
-				"statements": 80
-			}
-		},
-		"preset": "ts-jest",
-		"reporters": [
-			"default",
-			[
-				"jest-junit",
-				{
-					"outputDirectory": "reports",
-					"outputName": "report.xml"
-				}
-			],
-			[
-				"github-actions",
-				{
-					"silent": false
-				},
-				"summary"
-			]
-		],
-		"testEnvironment": "node",
-		"testMatch": [
-			"<rootDir>/test/**/*.test.ts"
-		],
-		"testPathIgnorePatterns": [
-			"<rootDir>/node_modules/",
-			"<rootDir>/lib/",
-			"<rootDir>/dist/"
-		]
-	},
 	"repository": "forcedotcom/code-analyzer",
 	"scripts": {
-		"build": "tsc --build tsconfig.build.json",
-		"prepack": "rm -rf lib && tsc --build tsconfig.build.json && oclif manifest && oclif readme && npm shrinkwrap",
+		"build": "tsc --build tsconfig.json",
+		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme && npm shrinkwrap",
 		"postpack": "rm -f oclif.manifest.json oclif.lock npm-shrinkwrap.json",
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
-		"test": "jest --coverage",
+		"test": "tsc --build ./test/tsconfig.json --noEmit && vitest run --coverage",
 		"showcoverage": "open ./coverage/lcov-report/index.html",
 		"prepare": "husky"
 	}

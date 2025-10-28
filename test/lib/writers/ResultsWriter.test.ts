@@ -1,20 +1,12 @@
-import fs from 'node:fs';
 import {OutputFormat} from '@salesforce/code-analyzer-core';
-import {ResultsFileWriter, CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter';
-import * as StubRunResults from '../../stubs/StubRunResults';
+import {ResultsFileWriter, CompositeResultsWriter} from '../../../src/lib/writers/ResultsWriter.js';
+import * as StubRunResults from '../../stubs/StubRunResults.js';
+import { StubFileSystem } from '../../stubs/StubFileSystem.js';
 
 describe('ResultsWriter implementations', () => {
-	let writeFileSpy: jest.SpyInstance;
-	let writeFileInvocations: { file: fs.PathOrFileDescriptor, contents: string | ArrayBufferView }[];
+	let fileSystem: StubFileSystem;
 	beforeEach(() => {
-		writeFileInvocations = [];
-		writeFileSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(async (file, contents) => {
-			writeFileInvocations.push({file, contents});
-		});
-	});
-
-	afterEach(() => {
-		jest.restoreAllMocks();
+		fileSystem = new StubFileSystem();
 	});
 
 	describe('ResultsFileWriter', () => {
@@ -28,13 +20,13 @@ describe('ResultsWriter implementations', () => {
 			{ext: '.xml', expectedOutput: `Results formatted as ${OutputFormat.XML}`}
 		])('Accepts and outputs valid file format: *$ext', ({ext, expectedOutput}) => {
 			const validFile = `beep${ext}`;
-			const outputFileWriter = new ResultsFileWriter(validFile);
+			const outputFileWriter = new ResultsFileWriter(validFile, fileSystem);
 			const stubbedResults = new StubRunResults.StubNonEmptyResults();
 
 			outputFileWriter.write(stubbedResults);
 
-			expect(writeFileSpy).toHaveBeenCalled();
-			expect(writeFileInvocations).toEqual([{
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(1);
+			expect(fileSystem.writeFileSyncCallHistory).toEqual([{
 				file: validFile,
 				contents: expectedOutput
 			}]);
@@ -45,13 +37,13 @@ describe('ResultsWriter implementations', () => {
 				file: 'beep.csv',
 				contents: `Results formatted as ${OutputFormat.CSV}`
 			};
-			const outputFileWriter = new ResultsFileWriter(expectations.file);
+			const outputFileWriter = new ResultsFileWriter(expectations.file, fileSystem);
 			const stubbedResults = new StubRunResults.StubEmptyResults();
 
 			outputFileWriter.write(stubbedResults);
 
-			expect(writeFileSpy).toHaveBeenCalled();
-			expect(writeFileInvocations).toEqual([expectations]);
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(1);
+			expect(fileSystem.writeFileSyncCallHistory).toEqual([expectations]);
 		});
 
 		it('Rejects invalid file format: *.txt', () => {
@@ -62,12 +54,12 @@ describe('ResultsWriter implementations', () => {
 
 	describe('CompositeResultsWriter', () => {
 		it('Does a no-op when there are no files to write to', () => {
-			const outputFileWriter = CompositeResultsWriter.fromFiles([]);
+			const outputFileWriter = CompositeResultsWriter.fromFiles([], fileSystem);
 			const stubbedResults = new StubRunResults.StubNonEmptyResults();
 
 			outputFileWriter.write(stubbedResults);
 
-			expect(writeFileSpy).not.toHaveBeenCalled();
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(0);
 		});
 
 		it('When given multiple files, outputs to all of them', () => {
@@ -81,13 +73,13 @@ describe('ResultsWriter implementations', () => {
 				file: 'beep.json',
 				contents: `Results formatted as ${OutputFormat.JSON}`
 			}];
-			const outputFileWriter = CompositeResultsWriter.fromFiles(expectations.map(i => i.file));
+			const outputFileWriter = CompositeResultsWriter.fromFiles(expectations.map(i => i.file), fileSystem);
 			const stubbedResults = new StubRunResults.StubNonEmptyResults();
 
 			outputFileWriter.write(stubbedResults);
 
-			expect(writeFileSpy).toHaveBeenCalledTimes(3);
-			expect(writeFileInvocations).toEqual(expectations);
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(3);
+			expect(fileSystem.writeFileSyncCallHistory).toEqual(expectations);
 		});
 	})
 });

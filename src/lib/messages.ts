@@ -1,8 +1,8 @@
 import {Messages} from '@salesforce/core';
-import {Tokens} from '@salesforce/core/lib/messages';
+import {Tokens} from '@salesforce/core/messages';
 
 // Initialize Messages with the current plugin directory
-Messages.importMessagesDirectory(__dirname);
+Messages.importMessagesDirectory(import.meta.dirname);
 
 export enum BundleName {
 	ActionSummaryViewer = 'action-summary-viewer',

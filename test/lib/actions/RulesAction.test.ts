@@ -1,16 +1,16 @@
-import ansis from 'ansis';
-import * as fsp from 'node:fs/promises';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { RulesAction, RulesDependencies, RulesInput } from '../../../src/lib/actions/RulesAction';
-import { RulesActionSummaryViewer } from '../../../src/lib/viewers/ActionSummaryViewer';
-import { DisplayEventType, SpyDisplay } from '../../stubs/SpyDisplay';
-import { SpyRuleViewer } from '../../stubs/SpyRuleViewer';
-import { SpyRuleWriter } from '../../stubs/SpyRuleWriter';
-import { StubDefaultConfigFactory } from '../../stubs/StubCodeAnalyzerConfigFactories';
-import * as StubEnginePluginFactories from '../../stubs/StubEnginePluginsFactories';
-import { CapturedTelemetryEmission, SpyTelemetryEmitter } from '../../stubs/SpyTelemetryEmitter';
+import ansis from 'ansis';
+import {RulesAction, RulesDependencies, RulesInput} from '../../../src/lib/actions/RulesAction.js';
+import {RulesActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer.js';
+import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {SpyRuleViewer} from '../../stubs/SpyRuleViewer.js';
+import {SpyRuleWriter} from '../../stubs/SpyRuleWriter.js';
+import {StubDefaultConfigFactory} from '../../stubs/StubCodeAnalyzerConfigFactories.js';
+import * as StubEnginePluginFactories from '../../stubs/StubEnginePluginsFactories.js';
+import {CapturedTelemetryEmission, SpyTelemetryEmitter} from '../../stubs/SpyTelemetryEmitter.js';
 
-const PATH_TO_GOLDFILES = path.join(__dirname, '..', '..', 'fixtures', 'comparison-files', 'lib', 'actions', 'RulesAction.test.ts');
+const PATH_TO_GOLDFILES = path.join(import.meta.dirname, '..', '..', 'fixtures', 'comparison-files', 'lib', 'actions', 'RulesAction.test.ts');
 
 describe('RulesAction tests', () => {
 	let viewer: SpyRuleViewer;
@@ -99,7 +99,7 @@ describe('RulesAction tests', () => {
 
 	describe('Target/Workspace resolution', () => {
 		const originalCwd: string = process.cwd();
-		const baseDir: string = path.resolve(__dirname, '..', '..', '..');
+		const baseDir: string = path.resolve(import.meta.dirname, '..', '..', '..');
 
 		beforeEach(() => {
 			process.chdir(baseDir);
@@ -218,10 +218,10 @@ describe('RulesAction tests', () => {
 				.filter(e => e.type === DisplayEventType.LOG)
 				.map(e => e.data)
 				.join('\n'));
-			const preExecutionGoldfileContents: string = await fsp.readFile(preExecutionGoldfilePath, 'utf-8');
+			const preExecutionGoldfileContents: string = await fs.promises.readFile(preExecutionGoldfilePath, 'utf-8');
 			expect(displayedLogEvents).toContain(preExecutionGoldfileContents);
 
-			const goldfileContents: string = await fsp.readFile(goldfilePath, 'utf-8');
+			const goldfileContents: string = await fs.promises.readFile(goldfilePath, 'utf-8');
 			expect(displayedLogEvents).toContain(goldfileContents);
 		});
 
@@ -238,8 +238,8 @@ describe('RulesAction tests', () => {
 
 			await action.execute(input);
 
-			const preExecutionGoldfileContents: string = await fsp.readFile(preExecutionGoldfilePath, 'utf-8');
-			const goldfileContents: string = (await fsp.readFile(summaryGoldfilePath, 'utf-8'))
+			const preExecutionGoldfileContents: string = await fs.promises.readFile(preExecutionGoldfilePath, 'utf-8');
+			const goldfileContents: string = (await fs.promises.readFile(summaryGoldfilePath, 'utf-8'))
 				.replace(`{{PATH_TO_FILE}}`, outfilePath);
 			const displayEvents = spyDisplay.getDisplayEvents();
 			const displayedLogEvents = ansis.strip(displayEvents

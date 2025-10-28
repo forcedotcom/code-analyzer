@@ -1,4 +1,5 @@
-import {Ux, Spinner} from '@salesforce/sf-plugins-core';
+import {TableOptions} from '@oclif/table';
+import {Spinner} from '@salesforce/sf-plugins-core';
 
 /**
  * Interface for objects that display output information to users. E.g., a class that prints to the CLI would implement
@@ -31,7 +32,7 @@ export interface Display {
 	/**
 	 * Output table to stdout only if the "--json" flag is not present.
 	 */
-	displayTable<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>): void;
+	displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void;
 
 	/**
 	 * Prompt the user to confirm that the described action should be carried out, and block until they respond (or a timeout
@@ -73,12 +74,22 @@ export class UxDisplay implements Display {
 		this.displayable.log(message);
 	}
 
-	public displayTable<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>): void {
-		this.displayable.table(data, columns);
+	public displayTable<R extends Record<string, unknown>>(options: TableOptions<R>): void {
+		// Unfortunately the table options borderStyle and noStyle don't do anything because
+		// I believe sfCommand always overrides them or something. But the environment variable
+		// SF_TABLE_BORDER_STYLE still seems to work so we'll use this to prevent adding border lines
+		// which make large overflowing tables look ugly. This seems to look good:
+		const original_SF_TABLE_BORDER_STYLE = process.env.SF_TABLE_BORDER_STYLE;
+		process.env.SF_TABLE_BORDER_STYLE = 'headers-only-with-underline';
+		try {
+			this.displayable.table(options);
+		} finally {
+			process.env.SF_TABLE_BORDER_STYLE = original_SF_TABLE_BORDER_STYLE;
+		}
 	}
 
 	public confirm(message: string): Promise<boolean> {
-		return this.displayable.confirm(message);
+		return this.displayable.confirm({message});
 	}
 
 	public spinnerStart(msg: string, status?: string): void {
@@ -111,8 +122,8 @@ export interface Displayable {
 	log(message?: string): void;
 
 	// Prompt the user to confirm that the described action should be performed.                     [Implemented by SfCommand]
-	confirm(message: string): Promise<boolean>;
+	confirm(promptInputs: {message: string}): Promise<boolean>;
 
 	// Output table to stdout only when "--json" flag is not present.                                [Implemented by SfCommand]
-	table<R extends Ux.Table.Data>(data: R[], columns: Ux.Table.Columns<R>, options?: Ux.Table.Options): void;
+	table<R extends Record<string, unknown>>(options: TableOptions<R>): void;
 }

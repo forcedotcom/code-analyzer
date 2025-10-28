@@ -1,4 +1,4 @@
-import {LogWriter} from '../../src/lib/writers/LogWriter';
+import {LogWriter} from '../../src/lib/writers/LogWriter.js';
 
 export class SpyLogWriter implements LogWriter {
 	private log: string;

@@ -1,4 +1,4 @@
-import {ConfigModel, OutputFormat} from '../../src/lib/models/ConfigModel';
+import {ConfigModel, OutputFormat} from '../../src/lib/models/ConfigModel.js';
 
 export class StubConfigModel implements ConfigModel {
 	public toFormattedOutput(format: OutputFormat): string {

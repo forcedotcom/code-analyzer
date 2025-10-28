@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import {dump as yamlDump} from 'js-yaml';
 import {
 	CodeAnalyzer,
@@ -9,9 +10,8 @@ import {
 	RuleSelection,
 	SeverityLevel
 } from '@salesforce/code-analyzer-core';
-import {indent, makeGrey} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
-import path from "node:path";
+import {indent, makeGrey} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export enum OutputFormat {
 	RAW_YAML = "RAW_YAML",

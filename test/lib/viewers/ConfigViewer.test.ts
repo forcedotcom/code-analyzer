@@ -1,6 +1,6 @@
-import {ConfigStyledYamlViewer} from '../../../src/lib/viewers/ConfigViewer';
-import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay';
-import {StubConfigModel} from '../../stubs/StubConfigModel';
+import {ConfigStyledYamlViewer} from '../../../src/lib/viewers/ConfigViewer.js';
+import {DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
+import {StubConfigModel} from '../../stubs/StubConfigModel.js';
 
 describe('ConfigViewer implementations', () => {
 	let spyDisplay: SpyDisplay;

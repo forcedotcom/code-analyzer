@@ -1,8 +1,7 @@
-import {Ux} from '@salesforce/sf-plugins-core';
 import {Rule, SeverityLevel} from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {toStyledHeaderAndBody} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
+import {Display} from '../Display.js';
+import {toStyledHeaderAndBody} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export interface RuleViewer {
 	view(rules: Rule[]): void;
@@ -76,23 +75,28 @@ type RuleRow = {
 	tag: string;
 };
 
-const TABLE_COLUMNS: Ux.Table.Columns<RuleRow> = {
-	num: {
-		header: getMessage(BundleName.RuleViewer, 'summary.table.num-column')
+const TABLE_COLUMNS = [
+	{
+		key: 'num' as keyof RuleRow,
+		name: getMessage(BundleName.RuleViewer, 'summary.table.num-column')
 	},
-	name: {
-		header: getMessage(BundleName.RuleViewer, 'summary.table.name-column')
+	{
+		key: 'name' as keyof RuleRow,
+		name: getMessage(BundleName.RuleViewer, 'summary.table.name-column')
 	},
-	engine: {
-		header: getMessage(BundleName.RuleViewer, 'summary.table.engine-column')
+	{
+		key: 'engine' as keyof RuleRow,
+		name: getMessage(BundleName.RuleViewer, 'summary.table.engine-column')
 	},
-	severity: {
-		header: getMessage(BundleName.RuleViewer, 'summary.table.severity-column')
+	{
+		key: 'severity' as keyof RuleRow,
+		name: getMessage(BundleName.RuleViewer, 'summary.table.severity-column')
 	},
-	tag: {
-		header: getMessage(BundleName.RuleViewer, 'summary.table.tag-column')
+	{
+		key: 'tag' as keyof RuleRow,
+		name: getMessage(BundleName.RuleViewer, 'summary.table.tag-column')
 	}
-};
+];
 
 export class RuleTableDisplayer extends AbstractRuleDisplayer {
 	protected _view(rules: Rule[]): void {
@@ -106,7 +110,12 @@ export class RuleTableDisplayer extends AbstractRuleDisplayer {
 				tag: rule.getTags().join(', ')
 			};
 		});
-		this.display.displayTable(ruleJsons, TABLE_COLUMNS);
+		this.display.displayTable({
+			data: ruleJsons,
+			columns: TABLE_COLUMNS,
+			maxWidth: 'none', // Important - this allows for large tables so that the wrapping isn't squished into the user's terminal width
+			overflow: 'wrap' // We do not want to use truncate because it is lossy
+		});
 	}
 }
 

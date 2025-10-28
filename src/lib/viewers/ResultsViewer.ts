@@ -1,9 +1,8 @@
-import {Ux} from '@salesforce/sf-plugins-core';
+import * as path from 'node:path';
 import {CodeLocation, RunResults, SeverityLevel, Violation} from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {toStyledHeaderAndBody} from '../utils/StylingUtil';
-import {BundleName, getMessage} from '../messages';
-import path from "node:path";
+import {Display} from '../Display.js';
+import {toStyledHeaderAndBody} from '../utils/StylingUtil.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export interface ResultsViewer {
 	view(results: RunResults): void;
@@ -119,23 +118,28 @@ type ResultRow = {
 	message: string;
 }
 
-const TABLE_COLUMNS: Ux.Table.Columns<ResultRow> = {
-	num: {
-		header: getMessage(BundleName.ResultsViewer, 'summary.table.num-column'),
+const TABLE_COLUMNS = [
+	{
+		key: 'num' as keyof ResultRow,
+		name: getMessage(BundleName.ResultsViewer, 'summary.table.num-column'),
 	},
-	severity: {
-		header: getMessage(BundleName.ResultsViewer, 'summary.table.severity-column')
+	{
+		key: 'severity' as keyof ResultRow,
+		name: getMessage(BundleName.ResultsViewer, 'summary.table.severity-column')
 	},
-	rule: {
-		header: getMessage(BundleName.ResultsViewer, 'summary.table.rule-column')
+	{
+		key: 'rule' as keyof ResultRow,
+		name: getMessage(BundleName.ResultsViewer, 'summary.table.rule-column')
 	},
-	location: {
-		header: getMessage(BundleName.ResultsViewer, 'summary.table.location-column')
+	{
+		key: 'location' as keyof ResultRow,
+		name: getMessage(BundleName.ResultsViewer, 'summary.table.location-column')
 	},
-	message: {
-		header: getMessage(BundleName.ResultsViewer, 'summary.table.message-column')
+	{
+		key: 'message' as keyof ResultRow,
+		name: getMessage(BundleName.ResultsViewer, 'summary.table.message-column')
 	}
-};
+];
 
 export class ResultsTableDisplayer extends AbstractResultsDisplayer {
 	protected _view(results: RunResults) {
@@ -158,7 +162,12 @@ export class ResultsTableDisplayer extends AbstractResultsDisplayer {
 			});
 
 		this.display.displayLog(getMessage(BundleName.ResultsViewer, 'summary.shared.results-relative-to', [parentFolder]));
-		this.display.displayTable(resultRows, TABLE_COLUMNS);
+		this.display.displayTable({
+			data: resultRows,
+			columns: TABLE_COLUMNS,
+			maxWidth: 'none', // Important - this allows for large tables so that the wrapping isn't squished into the user's terminal width
+			overflow: 'wrap' // We do not want to use truncate because it is lossy
+		});
 	}
 }
 

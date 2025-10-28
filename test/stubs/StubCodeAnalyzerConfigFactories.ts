@@ -1,5 +1,5 @@
 import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
-import {CodeAnalyzerConfigFactory} from '../../src/lib/factories/CodeAnalyzerConfigFactory';
+import {CodeAnalyzerConfigFactory} from '../../src/lib/factories/CodeAnalyzerConfigFactory.js';
 
 export class StubDefaultConfigFactory implements CodeAnalyzerConfigFactory {
 	public create(_configPath?: string): CodeAnalyzerConfig {

@@ -4,8 +4,8 @@ import {
 	EventType,
 	RuleSelectionProgressEvent
 } from '@salesforce/code-analyzer-core';
-import {Display} from '../Display';
-import {BundleName, getMessage} from '../messages';
+import {Display} from '../Display.js';
+import {BundleName, getMessage} from '../messages.js';
 
 export interface ProgressEventListener {
 	listen(...codeAnalyzers: CodeAnalyzer[]): void;

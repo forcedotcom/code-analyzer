@@ -1,4 +1,4 @@
-import {EnginePluginsFactoryImpl} from '../../../src/lib/factories/EnginePluginsFactory';
+import {EnginePluginsFactoryImpl} from '../../../src/lib/factories/EnginePluginsFactory.js';
 
 
 describe('EnginePluginsFactoryImpl', () => {

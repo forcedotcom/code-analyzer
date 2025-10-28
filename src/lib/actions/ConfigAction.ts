@@ -1,15 +1,15 @@
-import {CodeAnalyzerConfig, CodeAnalyzer} from "@salesforce/code-analyzer-core";
-import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory';
-import {EnginePluginsFactory} from '../factories/EnginePluginsFactory';
-import {ConfigWriter} from '../writers/ConfigWriter';
-import {LogFileWriter} from '../writers/LogWriter';
-import {ConfigViewer} from '../viewers/ConfigViewer';
-import {createWorkspace} from '../utils/WorkspaceUtil';
-import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener';
-import {ProgressEventListener} from '../listeners/ProgressEventListener';
-import {ConfigActionSummaryViewer} from '../viewers/ActionSummaryViewer';
-import {AnnotatedConfigModel, ConfigModel} from '../models/ConfigModel';
-import {EnginePlugin} from "@salesforce/code-analyzer-engine-api";
+import {CodeAnalyzerConfig, CodeAnalyzer} from '@salesforce/code-analyzer-core';
+import {EnginePlugin} from '@salesforce/code-analyzer-engine-api';
+import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
+import {EnginePluginsFactory} from '../factories/EnginePluginsFactory.js';
+import {ConfigWriter} from '../writers/ConfigWriter.js';
+import {LogFileWriter} from '../writers/LogWriter.js';
+import {ConfigViewer} from '../viewers/ConfigViewer.js';
+import {createWorkspace} from '../utils/WorkspaceUtil.js';
+import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener.js';
+import {ProgressEventListener} from '../listeners/ProgressEventListener.js';
+import {ConfigActionSummaryViewer} from '../viewers/ActionSummaryViewer.js';
+import {AnnotatedConfigModel, ConfigModel} from '../models/ConfigModel.js';
 
 export type ConfigDependencies = {
 	configFactory: CodeAnalyzerConfigFactory;

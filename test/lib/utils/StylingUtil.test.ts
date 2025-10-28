@@ -1,9 +1,14 @@
-import * as fs from 'node:fs/promises';
-import path from 'node:path';
-import {makeGrey, toStyledHeaderAndBody, toStyledHeader, toStyledPropertyList, indent} from '../../../src/lib/utils/StylingUtil';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {Ansis} from 'ansis';
+import {makeGrey, toStyledHeaderAndBody, toStyledHeader, toStyledPropertyList, indent, __ANSIS} from '../../../src/lib/utils/StylingUtil.js';
 
-const PATH_TO_COMPARISON_FILES = path.resolve('.', 'test', 'fixtures', 'comparison-files', 'lib',
+const PATH_TO_COMPARISON_FILES = path.resolve(import.meta.dirname, '..', '..', 'fixtures', 'comparison-files', 'lib',
 	'utils', 'StylingUtil.test.ts');
+
+// Note that vitest by default turns off all coloring (probably with FORCE_COLOR='1' env variable), so we need
+// to tell our ansis instance that we want to ignore the environment variables and just force all colors
+__ANSIS.instance = new Ansis(3); // Forces all colors
 
 describe('StylingUtil tests', () => {
 	describe('#toStyledHeaderAndBody()', () => {
@@ -18,7 +23,7 @@ describe('StylingUtil tests', () => {
 
 			const actualOutput = toStyledHeaderAndBody(header, body, ['boop', 'beep', 'a']);
 
-			const expectedOutput = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-header-and-body.txt'), {encoding: 'utf-8'}));
+			const expectedOutput = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-header-and-body.txt'), {encoding: 'utf-8'}));
 
 			expect(actualOutput).toEqual(expectedOutput);
 		});
@@ -29,7 +34,7 @@ describe('StylingUtil tests', () => {
 			const input = 'this text is styled as a comment';
 			const styledComment = makeGrey(input);
 
-			const expectedOutput = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-comment.txt'), {encoding: 'utf-8'}));
+			const expectedOutput = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-comment.txt'), {encoding: 'utf-8'}));
 			expect(styledComment).toEqual(expectedOutput);
 
 		});
@@ -40,7 +45,7 @@ describe('StylingUtil tests', () => {
 			const input: string = 'SAMPLE HEADER TEXT';
 			const styledHeader = toStyledHeader(input);
 
-			const expectedHeader = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-header.txt'), {encoding: 'utf-8'}));
+			const expectedHeader = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'styled-header.txt'), {encoding: 'utf-8'}));
 
 			expect(styledHeader).toEqual(expectedHeader);
 		});
@@ -56,7 +61,7 @@ describe('StylingUtil tests', () => {
 			};
 			const actualOutput = toStyledPropertyList(input);
 
-			const expectedOutput = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'all-keys-printed.txt'), {encoding: 'utf-8'}));
+			const expectedOutput = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'all-keys-printed.txt'), {encoding: 'utf-8'}));
 
 			expect(actualOutput).toEqual(expectedOutput);
 		});
@@ -71,7 +76,7 @@ describe('StylingUtil tests', () => {
 			};
 			const actualOutput = toStyledPropertyList(input, ['boop', 'a', 'beep']);
 
-			const expectedOutput = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'subset-of-keys-printed.txt'), {encoding: 'utf-8'}));
+			const expectedOutput = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'subset-of-keys-printed.txt'), {encoding: 'utf-8'}));
 
 			expect(actualOutput).toEqual(expectedOutput);
 		});
@@ -86,7 +91,7 @@ describe('StylingUtil tests', () => {
 			};
 			const actualOutput = toStyledPropertyList(input, ['notARealKey', 'beep']);
 
-			const expectedOutput = (await fs.readFile(path.join(PATH_TO_COMPARISON_FILES, 'non-existent-key-printed.txt'), {encoding: 'utf-8'}));
+			const expectedOutput = (await fs.promises.readFile(path.join(PATH_TO_COMPARISON_FILES, 'non-existent-key-printed.txt'), {encoding: 'utf-8'}));
 
 			expect(actualOutput).toEqual(expectedOutput);
 		})

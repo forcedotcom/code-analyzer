@@ -1,20 +1,14 @@
-import { OutputFormat } from '@salesforce/code-analyzer-core';
-import fs from 'node:fs';
-import path from 'node:path';
-import { CompositeRulesWriter, RulesFileWriter } from "../../../src/lib/writers/RulesWriter";
-import * as Stub from '../../stubs/StubRuleSelection';
+import * as path from 'node:path';
+import {OutputFormat} from '@salesforce/code-analyzer-core';
+import {CompositeRulesWriter, RulesFileWriter} from "../../../src/lib/writers/RulesWriter.js";
+import * as Stub from '../../stubs/StubRuleSelection.js';
+import { StubFileSystem } from '../../stubs/StubFileSystem.js';
 
 describe('RulesWriter', () => {
 
-	let writeFileSpy: jest.SpyInstance;
-	let writeFileInvocations: { file: fs.PathOrFileDescriptor, contents: string | ArrayBufferView }[];
-
+	let fileSystem: StubFileSystem;
 	beforeEach(() => {
-		jest.resetAllMocks();
-		writeFileInvocations = [];
-		writeFileSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation((file, contents) => {
-			writeFileInvocations.push({file, contents});
-		});
+		fileSystem = new StubFileSystem();
 	});
 
 	describe('RulesFileWriter', () => {
@@ -29,28 +23,27 @@ describe('RulesWriter', () => {
 			{ext: 'csv', format: OutputFormat.CSV}
 		])('Writes to a $ext file path', ({ext, format}) => {
 			const outfilePath = path.join('the', 'results', 'path', `file.${ext}`);
-			const expectations = {
-				file: outfilePath,
-				contents: `Rules formatted as ${format}`
-			};
-			const rulesWriter = new RulesFileWriter(expectations.file);
+			const rulesWriter = new RulesFileWriter(outfilePath, fileSystem);
 			const stubbedSelection = new Stub.StubEmptyRuleSelection();
 			rulesWriter.write(stubbedSelection);
 
-			expect(writeFileSpy).toHaveBeenCalled();
-			expect(writeFileInvocations).toEqual([expectations]);
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(1);
+			expect(fileSystem.writeFileSyncCallHistory[0]).toEqual({
+				file: outfilePath,
+				contents: `Rules formatted as ${format}`
+			});
 		});
 	});
 
 	describe('CompositeRulesWriter', () => {
 
 		it('Does a no-op when there are no files to write to', () => {
-			const outputFileWriter = CompositeRulesWriter.fromFiles([]);
+			const outputFileWriter = CompositeRulesWriter.fromFiles([], fileSystem);
 			const stubbedEmptyRuleSelection = new Stub.StubEmptyRuleSelection();
 
 			outputFileWriter.write(stubbedEmptyRuleSelection);
 
-			expect(writeFileSpy).not.toHaveBeenCalled();
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(0);
 		});
 
 		it('When given multiple files, outputs to all of them', () => {
@@ -61,13 +54,13 @@ describe('RulesWriter', () => {
 				file: 'outFile2.json',
 				contents: `Rules formatted as ${OutputFormat.JSON}`
 			}];
-			const outputFileWriter = CompositeRulesWriter.fromFiles(expectations.map(i => i.file));
+			const outputFileWriter = CompositeRulesWriter.fromFiles(expectations.map(i => i.file), fileSystem);
 			const stubbedSelection = new Stub.StubEmptyRuleSelection();
 
 			outputFileWriter.write(stubbedSelection);
 
-			expect(writeFileSpy).toHaveBeenCalledTimes(2);
-			expect(writeFileInvocations).toEqual(expectations);
+			expect(fileSystem.writeFileSyncCallHistory).toHaveLength(2);
+			expect(fileSystem.writeFileSyncCallHistory).toEqual(expectations);
 		});
 	})
 });

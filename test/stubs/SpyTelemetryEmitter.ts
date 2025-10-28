@@ -1,5 +1,5 @@
 import {TelemetryData} from '@salesforce/code-analyzer-core';
-import {TelemetryEmitter} from '../../src/lib/Telemetry';
+import {TelemetryEmitter} from '../../src/lib/Telemetry.js';
 
 export type CapturedTelemetryEmission = {
 	source: string,

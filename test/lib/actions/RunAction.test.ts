@@ -1,23 +1,23 @@
 import path from 'node:path';
-import * as fsp from 'node:fs/promises';
-import {SfError} from '@salesforce/core';
+import * as fs from 'node:fs';
 import ansis from 'ansis';
+import {SfError} from '@salesforce/core';
 import {SeverityLevel} from '@salesforce/code-analyzer-core';
-import {SpyResultsViewer} from '../../stubs/SpyResultsViewer';
-import {SpyResultsWriter} from '../../stubs/SpyResultsWriter';
-import {SpyDisplay, DisplayEventType} from '../../stubs/SpyDisplay';
-import {StubDefaultConfigFactory} from '../../stubs/StubCodeAnalyzerConfigFactories';
-import {ConfigurableStubEnginePlugin1, StubEngine1, TargetDependentEngine1} from '../../stubs/StubEnginePlugins';
-import {RunAction, RunInput, RunDependencies} from '../../../src/lib/actions/RunAction';
-import {RunActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer';
+import {SpyResultsViewer} from '../../stubs/SpyResultsViewer.js';
+import {SpyResultsWriter} from '../../stubs/SpyResultsWriter.js';
+import {SpyDisplay, DisplayEventType} from '../../stubs/SpyDisplay.js';
+import {StubDefaultConfigFactory} from '../../stubs/StubCodeAnalyzerConfigFactories.js';
+import {ConfigurableStubEnginePlugin1, StubEngine1, TargetDependentEngine1} from '../../stubs/StubEnginePlugins.js';
+import {RunAction, RunInput, RunDependencies} from '../../../src/lib/actions/RunAction.js';
+import {RunActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer.js';
 import {
 	StubEnginePluginsFactory_withPreconfiguredStubEngines,
 	StubEnginePluginsFactory_withThrowingStubPlugin
-} from '../../stubs/StubEnginePluginsFactories';
-import {SpyTelemetryEmitter} from "../../stubs/SpyTelemetryEmitter";
+} from '../../stubs/StubEnginePluginsFactories.js';
+import {SpyTelemetryEmitter} from '../../stubs/SpyTelemetryEmitter.js';
 
 const PATH_TO_FILE_A = path.resolve('test', 'sample-code', 'fileA.cls');
-const PATH_TO_GOLDFILES = path.join(__dirname, '..', '..', 'fixtures', 'comparison-files', 'lib', 'actions', 'RunAction.test.ts');
+const PATH_TO_GOLDFILES = path.join(import.meta.dirname, '..', '..', 'fixtures', 'comparison-files', 'lib', 'actions', 'RunAction.test.ts');
 
 describe('RunAction tests', () => {
 	let spyDisplay: SpyDisplay;
@@ -304,8 +304,8 @@ describe('RunAction tests', () => {
 			const actualTargetFiles = engine1.runRulesCallHistory[0].runOptions.workspace.getRawFilesAndFolders();
 			expect(actualTargetFiles).toEqual([path.resolve('.')]);
 			// Verify that the summary output matches the expectation.
-			const preExecutionGoldfileContents: string = await fsp.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'pre-execution-summary.txt.goldfile'), 'utf-8');
-			const goldfileContents: string = await fsp.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', goldfile), 'utf-8');
+			const preExecutionGoldfileContents: string = await fs.promises.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'pre-execution-summary.txt.goldfile'), 'utf-8');
+			const goldfileContents: string = await fs.promises.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', goldfile), 'utf-8');
 			const displayEvents = spyDisplay.getDisplayEvents();
 			const displayedLogEvents = ansis.strip(displayEvents
 				.filter(e => e.type === DisplayEventType.LOG)
@@ -353,8 +353,8 @@ describe('RunAction tests', () => {
 			const actualTargetFiles = engine1.runRulesCallHistory[0].runOptions.workspace.getRawFilesAndFolders();
 			expect(actualTargetFiles).toEqual([path.resolve('.')]);
 			// Verify that the summary output matches the expectation.
-			const preExecutionGoldfileContents: string = await fsp.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'pre-execution-summary.txt.goldfile'), 'utf-8');
-			const goldfileContents: string = (await fsp.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'some-outfiles.txt.goldfile'), 'utf-8'))
+			const preExecutionGoldfileContents: string = await fs.promises.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'pre-execution-summary.txt.goldfile'), 'utf-8');
+			const goldfileContents: string = (await fs.promises.readFile(path.join(PATH_TO_GOLDFILES, 'action-summaries', 'some-outfiles.txt.goldfile'), 'utf-8'))
 				.replace(`{{PATH_TO_FILE1}}`, outfilePath1)
 				.replace(`{{PATH_TO_FILE2}}`, outfilePath2);
 			const displayEvents = spyDisplay.getDisplayEvents();
