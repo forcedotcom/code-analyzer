@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/npm/l/scanner.svg)](https://github.com/forcedotcom/code-analyzer/blob/master/package.json)
+[![License](https://img.shields.io/npm/l/@salesforce/plugin-code-analyzer.svg)](https://github.com/forcedotcom/code-analyzer/blob/master/package.json)
 
 # Salesforce Code Analyzer
 Salesforce Code Analyzer is a unified tool to help Salesforce developers analyze their source code for security vulnerabilities, performance issues, best practices, and more.
