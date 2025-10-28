@@ -1,4 +1,4 @@
-import * as fg from 'fast-glob';
+import fg from 'fast-glob';
 import {CodeAnalyzer, Workspace} from '@salesforce/code-analyzer-core';
 import {getMessage, BundleName} from '../messages.js';
 

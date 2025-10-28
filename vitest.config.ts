@@ -2,6 +2,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
     test: {
+        deps: {
+            // We turn this off so that vitest catches "default imports" vs "namespace imports" issues
+            // instead of treating both types of imports as the same.
+            interopDefault: false
+        },
         setupFiles: ["test/setup-tests.ts"],
         testTimeout: 60000,
         environment: "node",

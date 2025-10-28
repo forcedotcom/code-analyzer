@@ -1,4 +1,4 @@
-import path from 'node:path';
+import * as path from 'node:path';
 import * as fs from 'node:fs';
 import ansis from 'ansis';
 import {SfError} from '@salesforce/core';
