@@ -29,11 +29,11 @@ jobs:
       # Checkout `dev`
       - uses: actions/checkout@v4
         with:
-          ref: 'dev'
+          ref: "dev"
       # We need to set up Node and install our Node dependencies.
       - uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*' # Always use Node LTS for building dependencies.
+          node-version: "lts/*" # Always use Node LTS for building dependencies.
       - run: npm install
       # Increment the version as desired locally, without actually committing anything.
       - name: Locally increment version
@@ -122,5 +122,6 @@ jobs:
     needs: create-release-branch
     uses: ./.github/workflows/run-tests.yml
     with:
-      node-matrix: "[{version: 'lts/*', artifact: 'lts'}, {version: 'latest', artifact: 'latest'}]"
+      # NOTE: We are temporarily hardcoding the `latest` version to 24.x, since 25.x is not yet supported in the CLI.
+      node-matrix: "[{version: 'lts/*', artifact: 'lts'}, {version: '24.x', artifact: 'latest'}]"
       target-branch: ${{ needs.create-release-branch.outputs.branch-name }}
