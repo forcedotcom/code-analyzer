@@ -34,7 +34,7 @@
 		"@oclif/plugin-help": "^6.2.33",
 		"@salesforce/cli-plugins-testkit": "^5.3.41",
 		"@types/tmp": "^0.2.6",
-		"@vitest/coverage-istanbul": "^3.2.4",
+		"@vitest/coverage-istanbul": "^4.0.10",
 		"eslint": "^9.35.0",
 		"eslint-plugin-sf-plugin": "^1.20.32",
 		"husky": "^9.1.7",
