@@ -21,3 +21,4 @@ Read the [Salesforce Code Analyzer](https://developer.salesforce.com/docs/platfo
 * How to write and manage custom rules.
 * How to set up your CI/CD process with Code Analyzer.
 * How to review code violations with the Code Analyzer VS Code Extension.
+* this is test comment and will not be merged 
