@@ -4,9 +4,9 @@ on:
   schedule:
     # Cron syntax is "minute[0-59] hour[0-23] date[1-31] month[1-12] day[0-6]". '*' is 'any value,' and multiple values
     # can be specified with comma-separated lists. All times are UTC.
-    # So this expression means "run at 13:30 UTC every day". This time was chosen because it corresponds to
-    # 8:30AM CDT, meaning that any issues will be surfaced before the start of business.
-    - cron: "30 13 * * *"
+    # So this expression means "run at 03:30 UTC every day". This time was chosen because it corresponds to
+    # 9:00AM IST, meaning that any issues will be surfaced before the start of business in India.
+    - cron: "30 3 * * *"
 jobs:
   smoke-test:
   # We run the daily smoke tests against 'dev' to validate that the code currently in development is still valid
