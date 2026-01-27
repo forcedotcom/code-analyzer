@@ -1,3 +1,8 @@
+import { Console } from 'node:console';
+
+// Fix for patch-console/ink in vitest - ensure console.Console is available
+globalThis.console.Console = Console;
+
 // Note that in a single process our tests create many instances of CodeAnalyzer. For each instance of CodeAnalyzer, a
 // call to process.addListener is made to cleanup the root working folder if needed. See
 //    https://github.com/forcedotcom/code-analyzer-core/blob/dev/packages/code-analyzer-core/src/code-analyzer.ts#L121
