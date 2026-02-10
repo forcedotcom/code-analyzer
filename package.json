@@ -5,6 +5,9 @@
 	"author": "Salesforce Code Analyzer Team",
 	"bugs": "https://github.com/forcedotcom/code-analyzer/issues",
 	"type": "module",
+	"enableO11y": true,
+	"o11yUploadEndpoint": "https://794testsite.my.site.com/byolwr/webruntime/log/metrics",
+	"productFeatureId": "aJCEE0000000mDK4AY",
 	"dependencies": {
 		"@oclif/core": "^4.8.0",
 		"@oclif/table": "^0.5.1",
