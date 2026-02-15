@@ -20,4 +20,4 @@ Read the [Salesforce Code Analyzer](https://developer.salesforce.com/docs/platfo
 * What rules are included from engines such as PMD and ESLint.
 * How to write and manage custom rules.
 * How to set up your CI/CD process with Code Analyzer.
-* How to review code violations with the Code Analyzer VS Code Extension.
+* How to review code violations with the Code Analyzer VS Code Extension.# test
