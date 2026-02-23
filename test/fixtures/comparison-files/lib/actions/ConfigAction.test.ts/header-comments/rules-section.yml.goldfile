@@ -5,11 +5,15 @@
 #     'severity' - [Optional] The severity level value that you want to use to override the default severity level for the rule
 #                  Possible values: 1 or 'Critical', 2 or 'High', 3 or 'Moderate', 4 or 'Low', 5 or 'Info'
 #     'tags'     - [Optional] The string array of tag values that you want to use to override the default tags for the rule
+#     'disabled' - [Optional] Boolean value to disable the rule for all files. When set to true, the rule will not run during analysis
 # ---- [Example usage]: ---------------------
 # rules:
 #   eslint:
 #     sort-vars:
 #       severity: "Info"
 #       tags: ["Recommended", "Suggestion"]
+#   regex:
+#     NoTrailingWhiteSpace:
+#       disabled: true
 # -------------------------------------------
 rules:
