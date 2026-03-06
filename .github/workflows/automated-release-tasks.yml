@@ -3,8 +3,8 @@ on:
   schedule:
     # Cron syntax is "minute[0-59] hour[0-23] date[1-31] month[1-12] day[0-6]". '*' is 'any value,' and multiple values
     # can be specified with comma-separated lists. All times are UTC.
-    # So this expression means "run at 12 PM UTC, every Friday".
-    - cron: "0 12 * * 5"
+    # So this expression means "run at 4:30 AM UTC (10:00 AM IST), every Friday".
+    - cron: "30 4 * * 5"
 
 jobs:
   # Depending on circumstances, we may want to exit early instead of running the workflow to completion.
