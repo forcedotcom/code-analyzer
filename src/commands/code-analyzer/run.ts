@@ -70,6 +70,19 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			description: getMessage(BundleName.RunCommand, 'flags.config-file.description'),
 			char: 'c',
 			exists: true
+		}),
+		// === Flags pertaining to SFGE engine tuning ===
+		'sfge-thread-count': Flags.integer({
+			summary: getMessage(BundleName.RunCommand, 'flags.sfge-thread-count.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.sfge-thread-count.description'),
+			default: 8,
+			min: 1
+		}),
+		'sfge-thread-timeout': Flags.integer({
+			summary: getMessage(BundleName.RunCommand, 'flags.sfge-thread-timeout.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.sfge-thread-timeout.description'),
+			default: 180000,
+			min: 1000
 		})
 	};
 
@@ -84,7 +97,9 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
-			'target': parsedFlags['target']
+			'target': parsedFlags['target'],
+			'sfge-thread-count': parsedFlags['sfge-thread-count'],
+			'sfge-thread-timeout': parsedFlags['sfge-thread-timeout']
 		};
 		await action.execute(runInput);
 	}

@@ -8,7 +8,7 @@ import {
 	SeverityLevel,
 	Workspace
 } from '@salesforce/code-analyzer-core';
-import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
+import {CodeAnalyzerConfigFactory, SfgeEngineOverrides} from '../factories/CodeAnalyzerConfigFactory.js';
 import {EnginePluginsFactory} from '../factories/EnginePluginsFactory.js';
 import {createWorkspace} from '../utils/WorkspaceUtil.js';
 import {ResultsViewer} from '../viewers/ResultsViewer.js';
@@ -40,7 +40,8 @@ export type RunInput = {
 	'severity-threshold'?: SeverityLevel;
 	target?: string[];
 	workspace: string[];
-
+	'sfge-thread-count'?: number;
+	'sfge-thread-timeout'?: number;
 }
 
 export class RunAction {
@@ -51,7 +52,14 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
-		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file']);
+		const sfgeOverrides: SfgeEngineOverrides = {};
+		if (input['sfge-thread-count'] !== undefined) {
+			sfgeOverrides.java_thread_count = input['sfge-thread-count'];
+		}
+		if (input['sfge-thread-timeout'] !== undefined) {
+			sfgeOverrides.java_thread_timeout = input['sfge-thread-timeout'];
+		}
+		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file'], sfgeOverrides);
 		const logWriter: LogFileWriter = await LogFileWriter.fromConfig(config);
 		this.dependencies.actionSummaryViewer.viewPreExecutionSummary(logWriter.getLogDestination());
 		// We always add a Logger Listener to the appropriate listeners list, because we should Always Be Logging.
