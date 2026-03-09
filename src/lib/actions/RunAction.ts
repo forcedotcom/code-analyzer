@@ -8,7 +8,7 @@ import {
 	SeverityLevel,
 	Workspace
 } from '@salesforce/code-analyzer-core';
-import {CodeAnalyzerConfigFactory, SfgeEngineOverrides} from '../factories/CodeAnalyzerConfigFactory.js';
+import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
 import {EnginePluginsFactory} from '../factories/EnginePluginsFactory.js';
 import {createWorkspace} from '../utils/WorkspaceUtil.js';
 import {ResultsViewer} from '../viewers/ResultsViewer.js';
@@ -40,8 +40,6 @@ export type RunInput = {
 	'severity-threshold'?: SeverityLevel;
 	target?: string[];
 	workspace: string[];
-	'sfge-thread-count'?: number;
-	'sfge-thread-timeout'?: number;
 }
 
 export class RunAction {
@@ -52,14 +50,11 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
-		const sfgeOverrides: SfgeEngineOverrides = {};
-		if (input['sfge-thread-count'] !== undefined) {
-			sfgeOverrides.java_thread_count = input['sfge-thread-count'];
-		}
-		if (input['sfge-thread-timeout'] !== undefined) {
-			sfgeOverrides.java_thread_timeout = input['sfge-thread-timeout'];
-		}
-		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file'], sfgeOverrides);
+		// Threading configuration for the SFGE engine is now solely managed via the
+		// user’s YAML configuration file (engines.sfge.java_thread_count and
+		// engines.sfge.java_thread_timeout).  CLI overrides were removed, so we
+		// simply forward the config file path to the factory.
+		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file']);
 		const logWriter: LogFileWriter = await LogFileWriter.fromConfig(config);
 		this.dependencies.actionSummaryViewer.viewPreExecutionSummary(logWriter.getLogDestination());
 		// We always add a Logger Listener to the appropriate listeners list, because we should Always Be Logging.

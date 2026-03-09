@@ -142,22 +142,13 @@ To output the results to multiple files, specify this flag multiple times. For e
 
 If you specify a file within a folder, such as `--output-file ./out/results.json`, the folder must already exist, or you get an error. If the file already exists, it's overwritten without prompting.
 
-# flags.sfge-thread-count.summary
+<!-- sfge threading flags removed; configuration now lives purely in yaml -->
 
-Number of threads for SFGE path-based rule execution.
-
-# flags.sfge-thread-count.description
-
-Overrides the sfge engine java_thread_count configuration. Increasing this allows more entry points to be analyzed in parallel. Default is 8. Can also be set in code-analyzer.yaml under engines.sfge.java_thread_count.
-
-# flags.sfge-thread-timeout.summary
-
-Per-thread timeout in milliseconds for SFGE path-based rules.
-
-# flags.sfge-thread-timeout.description
-
-Overrides the sfge engine java_thread_timeout configuration. Entry points that exceed this limit produce a timeout violation. Default is 180000 (3 minutes). Can also be set in code-analyzer.yaml under engines.sfge.java_thread_timeout.
-
+> **Note:** SFGE engine threading settings are no longer exposed as CLI
+> flags.  Please configure `engines.sfge.java_thread_count` and
+> `engines.sfge.java_thread_timeout` in your `code-analyzer.yml`/`.yaml`
+> file.  The CLI will automatically pick up values from that file when it is
+> present.
 # error.invalid-severity-threshold
 
 Expected --severity-threshold=%s to be one of: %s

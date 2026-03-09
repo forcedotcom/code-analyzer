@@ -72,18 +72,10 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			exists: true
 		}),
 		// === Flags pertaining to SFGE engine tuning ===
-		'sfge-thread-count': Flags.integer({
-			summary: getMessage(BundleName.RunCommand, 'flags.sfge-thread-count.summary'),
-			description: getMessage(BundleName.RunCommand, 'flags.sfge-thread-count.description'),
-			default: 8,
-			min: 1
-		}),
-		'sfge-thread-timeout': Flags.integer({
-			summary: getMessage(BundleName.RunCommand, 'flags.sfge-thread-timeout.summary'),
-			description: getMessage(BundleName.RunCommand, 'flags.sfge-thread-timeout.description'),
-			default: 180000,
-			min: 1000
-		})
+		// NOTE: thread count/timeout are now configured via the YAML file
+		// (engines.sfge.java_thread_count / engines.sfge.java_thread_timeout) and
+		// are no longer exposed as CLI flags. Keeping the section around so the
+		// comment about configuration is still surfaced in help text.
 	};
 
 	public async run(): Promise<void> {
@@ -97,10 +89,11 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
-			'target': parsedFlags['target'],
-			'sfge-thread-count': parsedFlags['sfge-thread-count'],
-			'sfge-thread-timeout': parsedFlags['sfge-thread-timeout']
+'target': parsedFlags['target']
 		};
+		// sfge threading parameters are controlled entirely through the config
+		// file now; the CLI used to accept overrides but those flags have been
+		// removed.
 		await action.execute(runInput);
 	}
 
