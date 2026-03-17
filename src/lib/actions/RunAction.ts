@@ -40,7 +40,8 @@ export type RunInput = {
 	'severity-threshold'?: SeverityLevel;
 	target?: string[];
 	workspace: string[];
-
+	'include-fixes'?: boolean;
+	'include-suggestions'?: boolean;
 }
 
 export class RunAction {
@@ -75,7 +76,11 @@ export class RunAction {
 		// that's when progress events can start being emitted.
 		this.dependencies.progressListeners.forEach(listener => listener.listen(core));
 		const ruleSelection: RuleSelection = await core.selectRules(input['rule-selector'], {workspace});
-		const runOptions: RunOptions = {workspace};
+		const runOptions: RunOptions = {
+			workspace,
+			includeFixes: input['include-fixes'],
+			includeSuggestions: input['include-suggestions']
+		};
 		const results: RunResults = await core.run(ruleSelection, runOptions);
 		this.emitEngineTelemetry(ruleSelection, results, enginePlugins.flatMap(p => p.getAvailableEngineNames()));
 		// After Core is done running, the listeners need to be told to stop, since some of them have persistent UI elements

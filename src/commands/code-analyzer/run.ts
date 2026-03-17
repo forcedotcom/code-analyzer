@@ -70,7 +70,18 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			description: getMessage(BundleName.RunCommand, 'flags.config-file.description'),
 			char: 'c',
 			exists: true
-		})
+		}),
+		// === Flags pertaining to fixes and suggestions ===
+		'include-fixes': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.include-fixes.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.include-fixes.description'),
+			default: false
+		}),
+		'include-suggestions': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.include-suggestions.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.include-suggestions.description'),
+			default: false
+		}),
 	};
 
 	public async run(): Promise<void> {
@@ -84,7 +95,9 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
-			'target': parsedFlags['target']
+			'target': parsedFlags['target'],
+			'include-fixes': parsedFlags['include-fixes'],
+			'include-suggestions': parsedFlags['include-suggestions']
 		};
 		await action.execute(runInput);
 	}
