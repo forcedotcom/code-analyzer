@@ -11,7 +11,7 @@
 	"dependencies": {
 		"@oclif/core": "^4.8.1",
 		"@oclif/table": "^0.5.1",
-		"@salesforce/code-analyzer-core": "0.43.0",
+		"@salesforce/code-analyzer-core": "0.44.0",
 		"@salesforce/code-analyzer-engine-api": "0.35.0",
 		"@salesforce/code-analyzer-eslint-engine": "0.40.2",
 		"@salesforce/code-analyzer-flow-engine": "0.34.0",
