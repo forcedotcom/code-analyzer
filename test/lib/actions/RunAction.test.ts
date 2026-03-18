@@ -413,7 +413,6 @@ describe('RunAction tests', () => {
 			{case: 'neither flag set', includeFixes: undefined, includeSuggestions: undefined},
 			{case: 'include-fixes=false, include-suggestions=false', includeFixes: false, includeSuggestions: false},
 		])('When $case, both are passed as-is to RunOptions', async ({includeFixes, includeSuggestions}) => {
-			// ==== SETUP ====
 			const input: RunInput = {
 				'rule-selector': ['all'],
 				'workspace': ['.'],
@@ -422,17 +421,15 @@ describe('RunAction tests', () => {
 				'include-suggestions': includeSuggestions
 			};
 
-			// ==== TESTED BEHAVIOR ====
-			await action.execute(input);
 
-			// ==== ASSERTIONS ====
+			await action.execute(input);
 			const runOptions = engine1.runRulesCallHistory[0].runOptions;
 			expect(runOptions.includeFixes).toEqual(includeFixes);
 			expect(runOptions.includeSuggestions).toEqual(includeSuggestions);
 		});
 
 		it('When include-fixes=true, it is forwarded to RunOptions', async () => {
-			// ==== SETUP ====
+
 			const input: RunInput = {
 				'rule-selector': ['all'],
 				'workspace': ['.'],
@@ -441,17 +438,15 @@ describe('RunAction tests', () => {
 				'include-suggestions': false
 			};
 
-			// ==== TESTED BEHAVIOR ====
 			await action.execute(input);
 
-			// ==== ASSERTIONS ====
 			const runOptions = engine1.runRulesCallHistory[0].runOptions;
 			expect(runOptions.includeFixes).toBe(true);
 			expect(runOptions.includeSuggestions).toBe(false);
 		});
 
 		it('When include-suggestions=true, it is forwarded to RunOptions', async () => {
-			// ==== SETUP ====
+
 			const input: RunInput = {
 				'rule-selector': ['all'],
 				'workspace': ['.'],
@@ -460,17 +455,14 @@ describe('RunAction tests', () => {
 				'include-suggestions': true
 			};
 
-			// ==== TESTED BEHAVIOR ====
 			await action.execute(input);
 
-			// ==== ASSERTIONS ====
 			const runOptions = engine1.runRulesCallHistory[0].runOptions;
 			expect(runOptions.includeFixes).toBe(false);
 			expect(runOptions.includeSuggestions).toBe(true);
 		});
 
 		it('When both include-fixes=true and include-suggestions=true, both are forwarded to RunOptions', async () => {
-			// ==== SETUP ====
 			const input: RunInput = {
 				'rule-selector': ['all'],
 				'workspace': ['.'],
@@ -479,10 +471,8 @@ describe('RunAction tests', () => {
 				'include-suggestions': true
 			};
 
-			// ==== TESTED BEHAVIOR ====
 			await action.execute(input);
 
-			// ==== ASSERTIONS ====
 			const runOptions = engine1.runRulesCallHistory[0].runOptions;
 			expect(runOptions.includeFixes).toBe(true);
 			expect(runOptions.includeSuggestions).toBe(true);
