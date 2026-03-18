@@ -56,6 +56,10 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
     <%= config.bin %> <%= command.id %> --rule-selector eslint:getter-return --rule-selector no-inner-declarations
 
+- Analyze the files and ignore all inline suppression markers (code-analyzer-suppress/unsuppress) in the source code:
+
+    <%= config.bin %> <%= command.id %> --no-suppressions
+
 # flags.workspace.summary
 
 Set of files that make up your workspace.
@@ -141,6 +145,16 @@ If you don't specify this flag, the command outputs the results to only the term
 To output the results to multiple files, specify this flag multiple times. For example: `--output-file results.json --output-file report.html` creates both a JSON results file and an HTML file.
 
 If you specify a file within a folder, such as `--output-file ./out/results.json`, the folder must already exist, or you get an error. If the file already exists, it's overwritten without prompting.
+
+# flags.no-suppressions.summary
+
+Disable processing of inline suppression markers.
+
+# flags.no-suppressions.description
+
+By default, Code Analyzer processes inline suppression markers (code-analyzer-suppress and code-analyzer-unsuppress) found in your source code to filter out violations. Use this flag to ignore all suppression markers and report all violations.
+
+Note: If you have a `code-analyzer.yml` or `code-analyzer.yaml` configuration file with the `suppressions.disable_suppressions` field, the configuration file takes precedence over this flag.
 
 # error.invalid-severity-threshold
 
