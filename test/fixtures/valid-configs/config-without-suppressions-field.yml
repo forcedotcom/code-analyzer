@@ -1,0 +1,5 @@
+rules:
+  stubEngine1:
+    stub1RuleC:
+      severity: 4
+      tags: ["TestTag"]
