@@ -70,6 +70,12 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			description: getMessage(BundleName.RunCommand, 'flags.config-file.description'),
 			char: 'c',
 			exists: true
+		}),
+		'no-suppressions': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.no-suppressions.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.no-suppressions.description'),
+			default: false,
+			required: false
 		})
 	};
 
@@ -84,7 +90,8 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			'workspace': parsedFlags['workspace'],
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
-			'target': parsedFlags['target']
+			'target': parsedFlags['target'],
+			'no-suppressions': parsedFlags['no-suppressions']
 		};
 		await action.execute(runInput);
 	}

@@ -1,0 +1,7 @@
+suppressions:
+  disable_suppressions: true
+
+rules:
+  stubEngine1:
+    stub1RuleB:
+      severity: 3

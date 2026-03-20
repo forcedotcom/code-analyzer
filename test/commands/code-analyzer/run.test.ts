@@ -67,6 +67,72 @@ describe('`code-analyzer run` end to end tests', () => {
 	});
 });
 
+describe('`code-analyzer run` end to end tests for inline suppressions', () => {
+	const origDir: string = process.cwd();
+	const suppressionWorkspace: string = path.resolve(rootFolderWithPackageJson, 'test', 'fixtures', 'example-workspaces', 'workspace-with-suppressions');
+	
+	beforeAll(async () => {
+		process.chdir(suppressionWorkspace);
+		await config.load();
+	});
+
+	afterAll(async () => {
+		process.chdir(origDir);
+	});
+
+	it('Inline suppression markers should suppress violations for marked methods', async () => {
+		const outputInterceptor: ConsoleOuputInterceptor = new ConsoleOuputInterceptor();
+		try {
+			outputInterceptor.start();
+			await runRunCommand(['-r', 'pmd', '-t', 'TestClass.cls']);
+		} finally {
+			outputInterceptor.stop();
+		}
+
+		const output = outputInterceptor.out;
+
+		// Should not throw any unexpected errors
+		expect(output).not.toContain('threw an unexpected error');
+
+		// Verify suppressions were applied
+		expect(output).toContain('suppressed by inline suppression markers');
+
+		// Line 7 - methodWithoutDoc (no suppression) - should have ApexDoc violation
+		expect(output).toContain('TestClass.cls:7');
+		expect(output).toContain('ApexDoc');
+
+		// Line 25 - unsuppressedMethod (after unsuppress marker) - should have ApexDoc violation
+		expect(output).toContain('TestClass.cls:25');
+
+		// Line 13 - suppressedMethod has code-analyzer-suppress(pmd:ApexDoc)
+		// ApexDoc violation should NOT appear for line 13
+		expect(output).not.toMatch(/TestClass\.cls:13.*ApexDoc/);
+		
+		// Line 19-21 - allSuppressedMethod has code-analyzer-suppress (all rules)
+		// No violations should appear for lines 19, 20, or 21
+		expect(output).not.toContain('TestClass.cls:19');
+		expect(output).not.toContain('TestClass.cls:20');
+		expect(output).not.toContain('TestClass.cls:21');
+	});
+
+	it('Specific rule suppression only suppresses that rule, not others', async () => {
+		const outputInterceptor: ConsoleOuputInterceptor = new ConsoleOuputInterceptor();
+		try {
+			outputInterceptor.start();
+			await runRunCommand(['-r', 'pmd', '-t', 'TestClass.cls']);
+		} finally {
+			outputInterceptor.stop();
+		}
+
+		const output = outputInterceptor.out;
+
+		// code-analyzer-suppress(pmd:ApexDoc) on line 11 only suppresses ApexDoc
+		// AvoidDebugStatements on line 14 should still appear (not suppressed)
+		expect(output).toContain('TestClass.cls:14');
+		expect(output).toContain('AvoidDebugStatements');
+	});
+});
+
 describe('`code-analyzer run` unit tests', () => {
 	beforeAll(async () => {
 		await config.load();
