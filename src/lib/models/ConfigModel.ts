@@ -234,17 +234,17 @@ abstract class YamlFormatter {
 	private toYamlDisabledRule(engineName: string, ruleName: string, ruleOverride: RuleOverride): string {
 		let yamlCode: string = '';
 
-		// Include severity if user specified it (no comparison comment needed - rule is disabled)
+		// Include severity if user specified it
 		if (ruleOverride.severity !== undefined) {
 			yamlCode += indent(this.toYamlUncheckedField('severity', ruleOverride.severity), 2) + '\n';
 		}
 
-		// Include tags if user specified them (no comparison comment needed - rule is disabled)
+		// Include tags if user specified them
 		if (ruleOverride.tags !== undefined) {
 			yamlCode += indent(this.toYamlUncheckedField('tags', ruleOverride.tags), 2) + '\n';
 		}
 
-		// Always include disabled property WITH comparison comment (this is the important one)
+		// Always include disabled property with comparison comment
 		const defaultDisabled: boolean = false;
 		yamlCode += indent(this.toYamlField('disabled', true, defaultDisabled), 2);
 
