@@ -7,6 +7,7 @@ import {
 	ConfigFieldDescription,
 	EngineConfig,
 	Rule,
+	RuleOverride,
 	RuleSelection,
 	SeverityLevel
 } from '@salesforce/code-analyzer-core';
@@ -127,6 +128,9 @@ abstract class YamlFormatter {
 			this.toYamlFieldWithFieldDescription('log_level', this.config.getLogLevel(),
 			topLevelDescription.fieldDescriptions.log_level) + '\n' +
 			'\n' +
+			this.toYamlFieldWithFieldDescription('ignores', this.config.getIgnores(),
+				topLevelDescription.fieldDescriptions.ignores) + '\n' +
+			'\n' +
 			this.toYamlComment(topLevelDescription.fieldDescriptions.rules.descriptionText) + '\n' +
 			this.toYamlRuleOverrides() + '\n' +
 			'\n' +
@@ -154,11 +158,30 @@ abstract class YamlFormatter {
 		const engineConfigHeader: string = getMessage(BundleName.ConfigModel, 'template.rule-overrides-section',
 			[engineName.toUpperCase()]);
 		const ruleOverrideYamlStrings: string[] = [];
+		const processedRuleNames: Set<string> = new Set();
+
+		// First, process rules from the user selection (enabled rules)
 		for (const userRule of this.userRules.getRulesFor(engineName)) {
 			const defaultRule: Rule|null = this.getDefaultRuleFor(engineName, userRule.getName());
 			const ruleOverrideYaml: string = this.toYamlRuleOverridesForRule(userRule, defaultRule);
 			if (ruleOverrideYaml) {
 				ruleOverrideYamlStrings.push(indent(ruleOverrideYaml, 2));
+			}
+			processedRuleNames.add(userRule.getName());
+		}
+
+		// Second, process disabled rules from the user config that weren't in the selection
+		const userRuleOverrides = this.config.getRuleOverridesFor(engineName);
+		for (const ruleName of Object.keys(userRuleOverrides)) {
+			if (!processedRuleNames.has(ruleName)) {
+				const ruleOverride = userRuleOverrides[ruleName];
+				if (ruleOverride.disabled === true) {
+					// Create YAML for disabled rule
+					const ruleOverrideYaml: string = this.toYamlDisabledRule(engineName, ruleName, ruleOverride);
+					if (ruleOverrideYaml) {
+						ruleOverrideYamlStrings.push(indent(ruleOverrideYaml, 2));
+					}
+				}
 			}
 		}
 
@@ -192,9 +215,40 @@ abstract class YamlFormatter {
 			yamlCode += indent(this.toYamlField('severity', userSeverity, defaultSeverity), 2) + '\n';
 		}
 		if (this.includeUnmodifiedRules || !isSame(userTags, defaultTags)) {
-			yamlCode += indent(this.toYamlField('tags', userTags, defaultTags), 2);
+			yamlCode += indent(this.toYamlField('tags', userTags, defaultTags), 2) + '\n';
 		}
+
+		// Get the disabled property from the user's config
+		const userRuleOverride = this.config.getRuleOverrideFor(userRule.getEngineName(), userRule.getName());
+		const userDisabled: boolean | undefined = userRuleOverride.disabled;
+		const defaultDisabled: boolean = false; // Rules are enabled by default
+
+		// Include disabled property if explicitly set by user (preserve user customizations)
+		if (userDisabled !== undefined) {
+			yamlCode += indent(this.toYamlField('disabled', userDisabled, defaultDisabled), 2);
+		}
+
 		return yamlCode.length === 0 ? '' :  `"${userRule.getName()}":\n${yamlCode.trimEnd()}`;
+	}
+
+	private toYamlDisabledRule(engineName: string, ruleName: string, ruleOverride: RuleOverride): string {
+		let yamlCode: string = '';
+
+		// Include severity if user specified it
+		if (ruleOverride.severity !== undefined) {
+			yamlCode += indent(this.toYamlUncheckedField('severity', ruleOverride.severity), 2) + '\n';
+		}
+
+		// Include tags if user specified them
+		if (ruleOverride.tags !== undefined) {
+			yamlCode += indent(this.toYamlUncheckedField('tags', ruleOverride.tags), 2) + '\n';
+		}
+
+		// Always include disabled property with comparison comment
+		const defaultDisabled: boolean = false;
+		yamlCode += indent(this.toYamlField('disabled', true, defaultDisabled), 2);
+
+		return yamlCode.length === 0 ? '' :  `"${ruleName}":\n${yamlCode.trimEnd()}`;
 	}
 
 	private toYamlEngineOverrides(): string {
