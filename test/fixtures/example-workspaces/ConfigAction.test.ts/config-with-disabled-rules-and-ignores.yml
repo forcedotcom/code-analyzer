@@ -1,0 +1,24 @@
+# Config file for testing disabled rules and ignores preservation
+config_root: __DUMMY_CONFIG_ROOT__
+log_folder: __DUMMY_LOG_FOLDER__
+
+ignores:
+  files:
+    - "**/node_modules/**"
+    - "**/*.test.js"
+
+engines:
+  StubEngine1:
+    Property1: "foo"
+
+rules:
+  StubEngine1:
+    Stub1Rule1:
+      severity: "high"
+      disabled: false
+    Stub1Rule2:
+      disabled: true
+    Stub1Rule3:
+      severity: "high"
+      tags: ["CodeStyle"]
+      disabled: true
