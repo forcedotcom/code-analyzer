@@ -146,6 +146,22 @@ To output the results to multiple files, specify this flag multiple times. For e
 
 If you specify a file within a folder, such as `--output-file ./out/results.json`, the folder must already exist, or you get an error. If the file already exists, it's overwritten without prompting.
 
+# flags.include-fixes.summary
+
+Include fix data for violations when available.
+
+# flags.include-fixes.description
+
+When enabled, the output includes fix information for violations that have auto-fixes available. Each fix contains a code location and the replacement code. This flag may increase analysis time because engines must perform additional processing to compute fixes.
+
+# flags.include-suggestions.summary
+
+Include suggestion data for violations when available.
+
+# flags.include-suggestions.description
+
+When enabled, the output includes suggestion information for violations that have suggestions available. Each suggestion contains a code location and a message describing the suggested change.
+
 # flags.no-suppressions.summary
 
 Disable processing of inline suppression markers.

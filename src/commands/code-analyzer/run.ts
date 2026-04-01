@@ -71,6 +71,17 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			char: 'c',
 			exists: true
 		}),
+		// === Flags pertaining to fixes and suggestions ===
+		'include-fixes': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.include-fixes.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.include-fixes.description'),
+			default: false
+		}),
+		'include-suggestions': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.include-suggestions.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.include-suggestions.description'),
+			default: false
+		}),
 		'no-suppressions': Flags.boolean({
 			summary: getMessage(BundleName.RunCommand, 'flags.no-suppressions.summary'),
 			description: getMessage(BundleName.RunCommand, 'flags.no-suppressions.description'),
@@ -91,6 +102,8 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			'severity-threshold': parsedFlags['severity-threshold'] === undefined ? undefined :
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
 			'target': parsedFlags['target'],
+			'include-fixes': parsedFlags['include-fixes'],
+			'include-suggestions': parsedFlags['include-suggestions'],
 			'no-suppressions': parsedFlags['no-suppressions']
 		};
 		await action.execute(runInput);

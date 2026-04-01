@@ -407,6 +407,77 @@ describe('RunAction tests', () => {
 			expect(spyTelemetryEmitter.getCapturedTelemetry()[3].data.violationCount).toEqual(0);
 		});
 	})
+
+	describe('include-fixes and include-suggestions flags', () => {
+		it.each([
+			{case: 'neither flag set', includeFixes: undefined, includeSuggestions: undefined},
+			{case: 'include-fixes=false, include-suggestions=false', includeFixes: false, includeSuggestions: false},
+		])('When $case, both are passed as-is to RunOptions', async ({includeFixes, includeSuggestions}) => {
+			const input: RunInput = {
+				'rule-selector': ['all'],
+				'workspace': ['.'],
+				'output-file': [],
+				'include-fixes': includeFixes,
+				'include-suggestions': includeSuggestions
+			};
+
+
+			await action.execute(input);
+			const runOptions = engine1.runRulesCallHistory[0].runOptions;
+			expect(runOptions.includeFixes).toEqual(includeFixes);
+			expect(runOptions.includeSuggestions).toEqual(includeSuggestions);
+		});
+
+		it('When include-fixes=true, it is forwarded to RunOptions', async () => {
+
+			const input: RunInput = {
+				'rule-selector': ['all'],
+				'workspace': ['.'],
+				'output-file': [],
+				'include-fixes': true,
+				'include-suggestions': false
+			};
+
+			await action.execute(input);
+
+			const runOptions = engine1.runRulesCallHistory[0].runOptions;
+			expect(runOptions.includeFixes).toBe(true);
+			expect(runOptions.includeSuggestions).toBe(false);
+		});
+
+		it('When include-suggestions=true, it is forwarded to RunOptions', async () => {
+
+			const input: RunInput = {
+				'rule-selector': ['all'],
+				'workspace': ['.'],
+				'output-file': [],
+				'include-fixes': false,
+				'include-suggestions': true
+			};
+
+			await action.execute(input);
+
+			const runOptions = engine1.runRulesCallHistory[0].runOptions;
+			expect(runOptions.includeFixes).toBe(false);
+			expect(runOptions.includeSuggestions).toBe(true);
+		});
+
+		it('When both include-fixes=true and include-suggestions=true, both are forwarded to RunOptions', async () => {
+			const input: RunInput = {
+				'rule-selector': ['all'],
+				'workspace': ['.'],
+				'output-file': [],
+				'include-fixes': true,
+				'include-suggestions': true
+			};
+
+			await action.execute(input);
+
+			const runOptions = engine1.runRulesCallHistory[0].runOptions;
+			expect(runOptions.includeFixes).toBe(true);
+			expect(runOptions.includeSuggestions).toBe(true);
+		});
+	});
 });
 
 // TODO: Whenever we decide to document the custom_engine_plugin_modules flag in our configuration file, then we'll want
