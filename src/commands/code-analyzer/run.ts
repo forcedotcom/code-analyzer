@@ -82,6 +82,12 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 			description: getMessage(BundleName.RunCommand, 'flags.include-suggestions.description'),
 			default: false
 		}),
+		'no-suppressions': Flags.boolean({
+			summary: getMessage(BundleName.RunCommand, 'flags.no-suppressions.summary'),
+			description: getMessage(BundleName.RunCommand, 'flags.no-suppressions.description'),
+			default: false,
+			required: false
+		})
 	};
 
 	public async run(): Promise<void> {
@@ -97,7 +103,8 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 				convertThresholdToEnum(parsedFlags['severity-threshold'].toLowerCase()),
 			'target': parsedFlags['target'],
 			'include-fixes': parsedFlags['include-fixes'],
-			'include-suggestions': parsedFlags['include-suggestions']
+			'include-suggestions': parsedFlags['include-suggestions'],
+			'no-suppressions': parsedFlags['no-suppressions']
 		};
 		await action.execute(runInput);
 	}

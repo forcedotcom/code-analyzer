@@ -42,6 +42,7 @@ export type RunInput = {
 	workspace: string[];
 	'include-fixes'?: boolean;
 	'include-suggestions'?: boolean;
+	'no-suppressions'?: boolean;
 }
 
 export class RunAction {
@@ -52,7 +53,13 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
-		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file']);
+		const cliOverrides = input['no-suppressions'] !== undefined
+			? { noSuppressions: input['no-suppressions'] }
+			: undefined;
+		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(
+			input['config-file'],
+			cliOverrides
+		);
 		const logWriter: LogFileWriter = await LogFileWriter.fromConfig(config);
 		this.dependencies.actionSummaryViewer.viewPreExecutionSummary(logWriter.getLogDestination());
 		// We always add a Logger Listener to the appropriate listeners list, because we should Always Be Logging.

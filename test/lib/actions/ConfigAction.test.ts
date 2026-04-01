@@ -434,6 +434,88 @@ describe('ConfigAction tests', () => {
 				expect(output).toContain(goldFileContents);
 			});
 		});
+
+		describe('When there IS an existing config with disabled rules and ignores...', () => {
+			let configFactory: ConfigFactoryWithDisabledRulesAndIgnores;
+
+			beforeEach(() => {
+				configFactory = new ConfigFactoryWithDisabledRulesAndIgnores();
+				spyDisplay = new SpyDisplay();
+				dependencies = {
+					logEventListeners: [new LogEventDisplayer(spyDisplay)],
+					progressEventListeners: [],
+					viewer: new ConfigStyledYamlViewer(spyDisplay),
+					configFactory: configFactory,
+					actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
+					pluginsFactory: new StubEnginePluginFactory()
+				};
+			});
+
+			it('Ignores section is preserved in output', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all']);
+
+				// ==== ASSERTIONS ====
+				expect(output).toContain('ignores:');
+				expect(output).toContain('files:');
+				expect(output).toContain('**/node_modules/**');
+				expect(output).toContain('**/*.test.js');
+			});
+
+			it('Disabled: true rules are preserved with helpful comment', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all']);
+
+				// ==== ASSERTIONS ====
+				expect(output).toContain('"Stub1Rule2"');
+				expect(output).toContain('disabled: true # Modified from: false');
+				expect(output).toContain('"Stub1Rule3"');
+			});
+
+			it('Disabled: false is preserved when explicitly set', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all']);
+
+				// ==== ASSERTIONS ====
+				expect(output).toContain('"Stub1Rule1"');
+				expect(output).toContain('disabled: false');
+			});
+
+			it('Disabled rules with other overrides preserve all properties', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all']);
+
+				// ==== ASSERTIONS ====
+				// Stub1Rule3 has severity, tags, and disabled overrides
+				expect(output).toContain('"Stub1Rule3"');
+				expect(output).toContain('severity: 2'); // "high" = 2
+				expect(output).toContain('tags:');
+				expect(output).toContain('- CodeStyle');
+				expect(output).toContain('disabled: true');
+			});
+
+			it('When including unmodified rules, disabled rules are still preserved', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], undefined, undefined, undefined, true);
+
+				// ==== ASSERTIONS ====
+				expect(output).toContain('"Stub1Rule2"');
+				expect(output).toContain('disabled: true # Modified from: false');
+				expect(output).toContain('"Stub1Rule3"');
+				expect(output).toContain('disabled: true');
+			});
+
+			it('When including unmodified rules, ignores section is still preserved', async () => {
+				// ==== TESTED BEHAVIOR ====
+				const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], undefined, undefined, undefined, true);
+
+				// ==== ASSERTIONS ====
+				expect(output).toContain('ignores:');
+				expect(output).toContain('files:');
+				expect(output).toContain('**/node_modules/**');
+				expect(output).toContain('**/*.test.js');
+			});
+		});
 	});
 
 	describe('Target/Workspace resolution', () => {
@@ -661,6 +743,19 @@ class AlternativeStubCodeAnalyzerConfigFactory implements CodeAnalyzerConfigFact
 			.replaceAll('__STUB3_DISABLE_ENGINE_VALUE__', String(this.stub3DisableEngineValue))
 			.replaceAll('__DUMMY_STUBENGINE2_SUBFIELD__', this.dummyConfigRoot && this.dummyConfigRoot !== 'null' ?
 				path.join(this.dummyConfigRoot, 'optional-input-config.yml') : 'dummy');
+		return CodeAnalyzerConfig.fromYamlString(validatedConfigFileContents,  process.cwd());
+	}
+}
+
+class ConfigFactoryWithDisabledRulesAndIgnores implements CodeAnalyzerConfigFactory {
+	dummyConfigRoot: string = 'null';
+	dummyLogFolder: string = 'null';
+
+	public create(): CodeAnalyzerConfig {
+		const rawConfigFileContents = fs.readFileSync(path.join(PATH_TO_EXAMPLE_WORKSPACE, 'config-with-disabled-rules-and-ignores.yml'), 'utf-8');
+		const validatedConfigFileContents = rawConfigFileContents
+			.replaceAll('__DUMMY_CONFIG_ROOT__', this.dummyConfigRoot)
+			.replaceAll('__DUMMY_LOG_FOLDER__', this.dummyLogFolder);
 		return CodeAnalyzerConfig.fromYamlString(validatedConfigFileContents,  process.cwd());
 	}
 }
