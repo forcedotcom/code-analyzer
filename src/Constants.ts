@@ -11,3 +11,9 @@ export const CliTelemetryEvents = {
 	ENGINE_SELECTION: 'engine_selection',
 	ENGINE_EXECUTION: 'engine_execution'
 }
+
+export const CliCommands = {
+	RUN: 'run',
+	RULES: 'rules',
+	CONFIG: 'config'
+}
