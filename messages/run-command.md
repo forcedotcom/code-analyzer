@@ -164,11 +164,11 @@ When enabled, the output includes suggestion information for violations that hav
 
 # flags.no-suppressions.summary
 
-Disable processing of inline suppression markers.
+Disable processing of inline and bulk suppression markers.
 
 # flags.no-suppressions.description
 
-By default, Code Analyzer processes inline suppression markers (code-analyzer-suppress and code-analyzer-unsuppress) found in your source code to filter out violations. Use this flag to ignore all suppression markers and report all violations.
+When specified, any inline suppression markers (code-analyzer-suppress, code-analyzer-suppress-line, and code-analyzer-suppress-next-line) found in targeted files are ignored and any suppressions supplied by your Code Analyzer configuration file are ignored so that no violations are suppressed by them.
 
 Note: If you have a `code-analyzer.yml` or `code-analyzer.yaml` configuration file with the `suppressions.disable_suppressions` field, the configuration file takes precedence over this flag.
 

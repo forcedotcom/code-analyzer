@@ -27,7 +27,8 @@ export type ConfigInput = {
 	'rule-selector': string[];
 	workspace?: string[];
 	target?: string[];
-	'include-unmodified-rules'?: boolean
+	'include-unmodified-rules'?: boolean;
+	'no-suppressions'?: boolean;
 };
 
 export class ConfigAction {
@@ -139,7 +140,8 @@ export class ConfigAction {
 			...selectedDefaultRules.getEngineNames()]);
 
 		const includeUnmodifiedRules: boolean = input["include-unmodified-rules"] ?? false;
-		const configModel: ConfigModel = new AnnotatedConfigModel(userCore, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules);
+		const includeSuppressions: boolean = !(input["no-suppressions"] ?? false);
+		const configModel: ConfigModel = new AnnotatedConfigModel(userCore, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules, includeSuppressions);
 
 		const fileWritten: boolean = this.dependencies.writer
 			? await this.dependencies.writer.write(configModel)

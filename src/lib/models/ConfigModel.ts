@@ -35,21 +35,23 @@ export class AnnotatedConfigModel implements ConfigModel {
 	private readonly  relevantEngines: Set<string>;
 
 	private readonly includeUnmodifiedRules: boolean;
+	private readonly includeSuppressions: boolean;
 
-	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean) {
+	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean, includeSuppressions: boolean = true) {
 		this.codeAnalyzer = codeAnalyzer;
 		this.userRules = userRules;
 		this.allDefaultRules = allDefaultRules;
 		this.relevantEngines = relevantEngines;
 		this.includeUnmodifiedRules = includeUnmodifiedRules;
+		this.includeSuppressions = includeSuppressions;
 	}
 
 	toFormattedOutput(format: OutputFormat): string {
 		// istanbul ignore else: Should be impossible
 		if (format === OutputFormat.STYLED_YAML) {
-			return new StyledYamlFormatter(this.codeAnalyzer, this.userRules, this.allDefaultRules, this.relevantEngines, this.includeUnmodifiedRules).toYaml();
+			return new StyledYamlFormatter(this.codeAnalyzer, this.userRules, this.allDefaultRules, this.relevantEngines, this.includeUnmodifiedRules, this.includeSuppressions).toYaml();
 		} else if (format === OutputFormat.RAW_YAML) {
-			return new PlainYamlFormatter(this.codeAnalyzer, this.userRules, this.allDefaultRules, this.relevantEngines, this.includeUnmodifiedRules).toYaml();
+			return new PlainYamlFormatter(this.codeAnalyzer, this.userRules, this.allDefaultRules, this.relevantEngines, this.includeUnmodifiedRules, this.includeSuppressions).toYaml();
 		} else {
 			throw new Error(`Unsupported`)
 		}
@@ -63,14 +65,16 @@ abstract class YamlFormatter {
 	private readonly allDefaultRules: RuleSelection;
 	private readonly relevantEngines: Set<string>;
 	private readonly includeUnmodifiedRules: boolean;
+	private readonly includeSuppressions: boolean;
 
-	protected constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean) {
+	protected constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean, includeSuppressions: boolean) {
 		this.config = codeAnalyzer.getConfig();
 		this.codeAnalyzer = codeAnalyzer;
 		this.userRules = userRules;
 		this.allDefaultRules = allDefaultRules;
 		this.relevantEngines = relevantEngines;
 		this.includeUnmodifiedRules = includeUnmodifiedRules;
+		this.includeSuppressions = includeSuppressions;
 	}
 
 	protected abstract toYamlComment(commentText: string): string
@@ -115,9 +119,48 @@ abstract class YamlFormatter {
 		return this.toYamlUncheckedFieldWithInlineComment(fieldName, resolvedValue, commentText);
 	}
 
+	private toYamlSuppressions(fieldDescription: ConfigFieldDescription): string {
+		const bulkSuppressions = this.config.getBulkSuppressions();
+		const disableSuppressions = !this.config.getSuppressionsEnabled();
+
+		// Build the suppressions object without the bulk_suppressions wrapper
+		const flattenedSuppressions: Record<string, unknown> = {};
+
+		// Only include disable_suppressions if it's true (non-default)
+		if (disableSuppressions) {
+			flattenedSuppressions.disable_suppressions = true;
+		}
+
+		// Add bulk suppressions as direct children (flattened)
+		for (const [filePath, rules] of Object.entries(bulkSuppressions)) {
+			flattenedSuppressions[filePath] = rules;
+		}
+
+		// Generate YAML with proper comment
+		let yamlOutput = this.toYamlComment(fieldDescription.descriptionText) + "\n";
+
+		// Determine if we should show "Modified from" comment
+		const hasAnySuppressions = disableSuppressions || Object.keys(bulkSuppressions).length > 0;
+		const isModifiedFromDefault = disableSuppressions; // Only modified if disable_suppressions is true
+
+		if (hasAnySuppressions && isModifiedFromDefault) {
+			// User explicitly set disable_suppressions to true - show "Modified from" comment
+			const commentText: string = getMessage(BundleName.ConfigModel, 'template.modified-from', [JSON.stringify(fieldDescription.defaultValue)]);
+			yamlOutput += this.toYamlUncheckedFieldWithInlineComment('suppressions', flattenedSuppressions, commentText);
+		} else if (hasAnySuppressions) {
+			// Has bulk suppressions but disable_suppressions is still default (false) - no "Modified from" comment
+			yamlOutput += this.toYamlUncheckedField('suppressions', flattenedSuppressions);
+		} else {
+			// No suppressions at all - show default
+			yamlOutput += this.toYamlUncheckedField('suppressions', fieldDescription.defaultValue);
+		}
+
+		return yamlOutput;
+	}
+
 	toYaml(): string {
 		const topLevelDescription: ConfigDescription = this.config.getConfigDescription();
-		return this.toYamlSectionHeadingComment(topLevelDescription.overview) + '\n' +
+		let yamlOutput = this.toYamlSectionHeadingComment(topLevelDescription.overview) + '\n' +
 			'\n' +
 			this.toYamlFieldWithFieldDescription('config_root', this.config.getConfigRoot(),
 				topLevelDescription.fieldDescriptions.config_root) + '\n' +
@@ -129,8 +172,15 @@ abstract class YamlFormatter {
 			topLevelDescription.fieldDescriptions.log_level) + '\n' +
 			'\n' +
 			this.toYamlFieldWithFieldDescription('ignores', this.config.getIgnores(),
-				topLevelDescription.fieldDescriptions.ignores) + '\n' +
-			'\n' +
+				topLevelDescription.fieldDescriptions.ignores) + '\n';
+
+		// Add suppressions section if enabled
+		if (this.includeSuppressions) {
+			yamlOutput += '\n' +
+				this.toYamlSuppressions(topLevelDescription.fieldDescriptions.suppressions) + '\n';
+		}
+
+		yamlOutput += '\n' +
 			this.toYamlComment(topLevelDescription.fieldDescriptions.rules.descriptionText) + '\n' +
 			this.toYamlRuleOverrides() + '\n' +
 			'\n' +
@@ -138,6 +188,8 @@ abstract class YamlFormatter {
 			this.toYamlEngineOverrides() + '\n' +
 			'\n' +
 			this.toYamlSectionHeadingComment(getMessage(BundleName.ConfigModel, 'template.common.end-of-config')) + '\n';
+
+		return yamlOutput;
 	}
 
 	private toYamlRuleOverrides(): string {
@@ -291,8 +343,8 @@ abstract class YamlFormatter {
 }
 
 class PlainYamlFormatter extends YamlFormatter {
-	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean) {
-		super(codeAnalyzer, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules);
+	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean, includeSuppressions: boolean) {
+		super(codeAnalyzer, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules, includeSuppressions);
 	}
 
 	protected toYamlComment(commentText: string): string {
@@ -301,8 +353,8 @@ class PlainYamlFormatter extends YamlFormatter {
 }
 
 class StyledYamlFormatter extends YamlFormatter {
-	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean) {
-		super(codeAnalyzer, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules);
+	constructor(codeAnalyzer: CodeAnalyzer, userRules: RuleSelection, allDefaultRules: RuleSelection, relevantEngines: Set<string>, includeUnmodifiedRules: boolean, includeSuppressions: boolean) {
+		super(codeAnalyzer, userRules, allDefaultRules, relevantEngines, includeUnmodifiedRules, includeSuppressions);
 	}
 
 	protected toYamlComment(commentText: string): string {

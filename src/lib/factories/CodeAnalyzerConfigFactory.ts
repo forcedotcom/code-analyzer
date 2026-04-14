@@ -54,16 +54,38 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 		configFilePath: string,
 		cliOverrides: CliOverrides
 	): CodeAnalyzerConfig {
-		// Read raw YAML to check if suppressions field is explicitly set
+		// Read raw YAML to check if disable_suppressions field is explicitly set
 		const rawYaml: Record<string, unknown> | undefined = this.readRawYamlFile(configFilePath);
-		const suppressionsExplicitlySet = (rawYaml?.suppressions as Record<string, unknown> | undefined)?.disable_suppressions !== undefined;
+		const suppressionsSection = rawYaml?.suppressions as Record<string, unknown> | undefined;
 
-		if (suppressionsExplicitlySet) {
-			// YAML explicitly sets suppressions - use it as-is (YAML wins)
+		// Check if disable_suppressions is explicitly set in YAML
+		const disableSuppressionExplicitlySet = suppressionsSection?.disable_suppressions !== undefined;
+
+		// If YAML explicitly sets disable_suppressions, YAML wins completely (no CLI override)
+		if (disableSuppressionExplicitlySet) {
 			return CodeAnalyzerConfig.fromFile(configFilePath);
 		}
 
-		// Config file exists but doesn't specify suppressions - merge with CLI overrides
+		// At this point, disable_suppressions is NOT in YAML
+		// Check if we have bulk suppressions (file paths with arrays)
+		const hasBulkSuppressions = suppressionsSection && Object.keys(suppressionsSection).some(
+			key => key !== 'disable_suppressions' && Array.isArray(suppressionsSection[key])
+		);
+
+		// If CLI override provided and we have bulk suppressions, merge them
+		if (cliOverrides.noSuppressions !== undefined && hasBulkSuppressions && rawYaml) {
+			// Preserve bulk suppressions from YAML, apply CLI override to disable_suppressions
+			const mergedConfig: Record<string, unknown> = {
+				...rawYaml,
+				suppressions: {
+					...suppressionsSection,
+					disable_suppressions: cliOverrides.noSuppressions
+				}
+			};
+			return CodeAnalyzerConfig.fromObject(mergedConfig);
+		}
+
+		// If CLI override provided but no bulk suppressions (or no suppressions section at all)
 		if (cliOverrides.noSuppressions !== undefined && rawYaml) {
 			const mergedConfig: Record<string, unknown> = {
 				...rawYaml,
