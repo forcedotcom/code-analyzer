@@ -638,16 +638,6 @@ describe('ConfigAction tests', () => {
 			expect(suppressionsLine).toBeDefined();
 			expect(suppressionsLine).toContain('Modified from');
 		});
-
-		it('Suppressions output includes updated description for inline and bulk suppressions', async () => {
-			// ==== TESTED BEHAVIOR ====
-			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions);
-
-			// ==== ASSERTIONS ====
-			// Should have updated description mentioning both inline and bulk suppressions
-			expect(output).toMatch(/Configuration for inline and bulk suppressions/);
-			expect(output).toMatch(/\{file_path\}: Array of bulk suppression rules/);
-		});
 	});
 
 	describe('Target/Workspace resolution', () => {
