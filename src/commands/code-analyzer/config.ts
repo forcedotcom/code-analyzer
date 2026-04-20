@@ -54,6 +54,10 @@ export default class ConfigCommand extends SfCommand<void> implements Displayabl
 		'include-unmodified-rules': Flags.boolean({
 			summary: getMessage(BundleName.ConfigCommand, 'flags.include-unmodified-rules.summary'),
 			description: getMessage(BundleName.ConfigCommand, 'flags.include-unmodified-rules.description')
+		}),
+		'no-suppressions': Flags.boolean({
+			summary: getMessage(BundleName.ConfigCommand, 'flags.no-suppressions.summary'),
+			description: getMessage(BundleName.ConfigCommand, 'flags.no-suppressions.description')
 		})
 	};
 

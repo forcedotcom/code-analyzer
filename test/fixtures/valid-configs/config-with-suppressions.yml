@@ -1,0 +1,9 @@
+suppressions:
+  disable_suppressions: false
+  "src/test-file.js":
+    - rule_selector: "eslint:no-console"
+      max_suppressed_violations: 5
+      reason: "Console logs are used for debugging in this file"
+  "src/utils/":
+    - rule_selector: "pmd:UnusedMethod"
+      max_suppressed_violations: 2
