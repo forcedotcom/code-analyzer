@@ -1,0 +1,19 @@
+# Config file for testing suppressions preservation
+config_root: __DUMMY_CONFIG_ROOT__
+log_folder: __DUMMY_LOG_FOLDER__
+
+ignores:
+  files:
+    - "**/test/**"
+
+suppressions:
+  disable_suppressions: true
+
+engines:
+  StubEngine1:
+    Property1: "bar"
+
+rules:
+  StubEngine1:
+    Stub1Rule1:
+      severity: "moderate"

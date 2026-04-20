@@ -518,6 +518,138 @@ describe('ConfigAction tests', () => {
 		});
 	});
 
+	describe('Suppressions handling', () => {
+		const configFileWithSuppressions = path.join(PATH_TO_FIXTURES, 'valid-configs', 'config-with-suppressions.yml');
+		const configFileWithDefaultSuppressions = path.join(PATH_TO_EXAMPLE_WORKSPACE, 'config-with-default-suppressions.yml');
+		const configFileWithDisabledSuppressions = path.join(PATH_TO_EXAMPLE_WORKSPACE, 'config-with-disabled-suppressions.yml');
+
+		beforeEach(() => {
+			spyDisplay = new SpyDisplay();
+			dependencies = {
+				logEventListeners: [new LogEventDisplayer(spyDisplay)],
+				progressEventListeners: [],
+				viewer: new ConfigStyledYamlViewer(spyDisplay),
+				configFactory: new StubCodeAnalyzerConfigFactory(),
+				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
+				pluginsFactory: new StubEnginePluginFactory()
+			};
+		});
+
+		it('By default, suppressions are included in the output', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions);
+
+			// ==== ASSERTIONS ====
+			expect(output).toContain('suppressions:');
+		});
+
+		it('When --no-suppressions is specified, suppressions are excluded from output', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions, undefined, undefined, undefined, true);
+
+			// ==== ASSERTIONS ====
+			expect(output).not.toContain('suppressions:');
+		});
+
+		it('When no suppressions exist in config, suppressions section is still shown by default', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all']);
+
+			// ==== ASSERTIONS ====
+			// Should show the default suppressions structure (disable_suppressions: false)
+			expect(output).toContain('suppressions:');
+		});
+
+		it('When --no-suppressions is specified and no suppressions exist, suppressions section is not shown', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], undefined, undefined, undefined, undefined, true);
+
+			// ==== ASSERTIONS ====
+			expect(output).not.toContain('suppressions:');
+		});
+
+		it('Config with default suppressions includes suppressions section by default', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithDefaultSuppressions);
+
+			// ==== ASSERTIONS ====
+			expect(output).toContain('suppressions:');
+			expect(output).toContain('disable_suppressions: false');
+		});
+
+		it('Config with default suppressions excludes suppressions section when --no-suppressions is specified', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithDefaultSuppressions, undefined, undefined, undefined, true);
+
+			// ==== ASSERTIONS ====
+			expect(output).not.toContain('suppressions:');
+			expect(output).not.toContain('disable_suppressions');
+		});
+
+		it('Config with disabled suppressions includes suppressions section by default', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithDisabledSuppressions);
+
+			// ==== ASSERTIONS ====
+			expect(output).toContain('suppressions:');
+			expect(output).toContain('disable_suppressions: true');
+		});
+
+		it('Config with disabled suppressions excludes suppressions section when --no-suppressions is specified', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithDisabledSuppressions, undefined, undefined, undefined, true);
+
+			// ==== ASSERTIONS ====
+			expect(output).not.toContain('suppressions:');
+			expect(output).not.toContain('disable_suppressions');
+		});
+
+		it('Bulk suppressions are output as direct children without bulk_suppressions wrapper', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions);
+
+			// ==== ASSERTIONS ====
+			// Should have suppressions: as top level
+			expect(output).toContain('suppressions:');
+			// Should NOT have bulk_suppressions: wrapper
+			expect(output).not.toContain('bulk_suppressions:');
+			// File paths should be direct children of suppressions (indented 2 spaces)
+			expect(output).toMatch(/suppressions:\s*\n\s{2}[\w\-./]+:/m);
+		});
+
+		it('Bulk suppressions without disable_suppressions do not show Modified from comment', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions);
+
+			// ==== ASSERTIONS ====
+			// Should NOT have "Modified from" comment on suppressions line since disable_suppressions is default (false)
+			const suppressionsLine = output.split('\n').find(line => line.trim().startsWith('suppressions:'));
+			expect(suppressionsLine).toBeDefined();
+			expect(suppressionsLine).not.toContain('Modified from');
+		});
+
+		it('Suppressions with disable_suppressions true shows Modified from comment', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithDisabledSuppressions);
+
+			// ==== ASSERTIONS ====
+			// Should have "Modified from" comment since disable_suppressions is non-default (true)
+			const suppressionsLine = output.split('\n').find(line => line.trim().startsWith('suppressions:'));
+			expect(suppressionsLine).toBeDefined();
+			expect(suppressionsLine).toContain('Modified from');
+		});
+
+		it('Suppressions output includes updated description for inline and bulk suppressions', async () => {
+			// ==== TESTED BEHAVIOR ====
+			const output = await runActionAndGetDisplayedConfig(dependencies, ['all'], configFileWithSuppressions);
+
+			// ==== ASSERTIONS ====
+			// Should have updated description mentioning both inline and bulk suppressions
+			expect(output).toMatch(/Configuration for inline and bulk suppressions/);
+			expect(output).toMatch(/\{file_path\}: Array of bulk suppression rules/);
+		});
+	});
+
 	describe('Target/Workspace resolution', () => {
 		const originalCwd: string = process.cwd();
 		const baseDir: string = path.resolve(import.meta.dirname, '..', '..', 'fixtures', 'example-workspaces', 'workspace-with-misc-files');
@@ -691,7 +823,7 @@ describe('ConfigAction tests', () => {
 		return fs.promises.readFile(goldFilePath, {encoding: 'utf-8'});
 	}
 
-	async function runActionAndGetDisplayedConfig(dependencies: ConfigDependencies, ruleSelectors: string[], configFile?: string, workspace?: string[], target?: string[], includeUnmodifiedRules?: boolean): Promise<string> {
+	async function runActionAndGetDisplayedConfig(dependencies: ConfigDependencies, ruleSelectors: string[], configFile?: string, workspace?: string[], target?: string[], includeUnmodifiedRules?: boolean, noSuppressions?: boolean): Promise<string> {
 		// ==== SETUP ====
 		const action = ConfigAction.createAction(dependencies);
 		const input: ConfigInput = {
@@ -699,7 +831,8 @@ describe('ConfigAction tests', () => {
 			'config-file': configFile,
 			workspace,
 			target,
-			'include-unmodified-rules': includeUnmodifiedRules
+			'include-unmodified-rules': includeUnmodifiedRules,
+			'no-suppressions': noSuppressions
 		};
 
 		// ==== TESTED BEHAVIOR ====
@@ -725,7 +858,15 @@ class StubCodeAnalyzerConfigFactory implements CodeAnalyzerConfigFactory {
 		this.config = config;
 	}
 
-	public create(): CodeAnalyzerConfig {
+	public create(configPath?: string): CodeAnalyzerConfig {
+		if (configPath) {
+			// If a config path is provided, load it from the file
+			const rawConfigFileContents = fs.readFileSync(configPath, 'utf-8');
+			const validatedConfigFileContents = rawConfigFileContents
+				.replaceAll('__DUMMY_CONFIG_ROOT__', 'null')
+				.replaceAll('__DUMMY_LOG_FOLDER__', 'null');
+			return CodeAnalyzerConfig.fromYamlString(validatedConfigFileContents, process.cwd());
+		}
 		return this.config;
 	}
 }
