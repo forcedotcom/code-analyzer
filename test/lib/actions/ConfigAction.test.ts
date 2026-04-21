@@ -535,7 +535,8 @@ describe('ConfigAction tests', () => {
 				viewer: new ConfigStyledYamlViewer(spyDisplay),
 				configFactory: new StubCodeAnalyzerConfigFactory(),
 				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-				pluginsFactory: new StubEnginePluginFactory()
+				pluginsFactory: new StubEnginePluginFactory(),
+				telemetryEmitter: new SpyTelemetryEmitter()
 			};
 		});
 
