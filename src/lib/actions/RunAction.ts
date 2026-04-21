@@ -117,12 +117,14 @@ export class RunAction {
 			}
 			this.dependencies.telemetryEmitter.emitTelemetry(Constants.TelemetrySource, Constants.TelemetryEventName, {
 				sfcaEvent: Constants.CliTelemetryEvents.ENGINE_SELECTION,
+				command: Constants.CliCommands.RUN,
 				engine: coreEngineName,
 				ruleCount: ruleSelection.getRulesFor(coreEngineName).length
 			});
 
 			this.dependencies.telemetryEmitter.emitTelemetry(Constants.TelemetrySource, Constants.TelemetryEventName, {
 				sfcaEvent: Constants.CliTelemetryEvents.ENGINE_EXECUTION,
+				command: Constants.CliCommands.RUN,
 				engine: coreEngineName,
 				violationCount: results.getEngineRunResults(coreEngineName).getViolationCount()
 			});

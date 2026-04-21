@@ -9,6 +9,7 @@ import {BundleName, getMessage, getMessages} from '../../lib/messages.js';
 import {LogEventDisplayer} from '../../lib/listeners/LogEventListener.js';
 import {RuleSelectionProgressSpinner} from '../../lib/listeners/ProgressEventListener.js';
 import {Displayable, UxDisplay} from '../../lib/Display.js';
+import {SfCliTelemetryEmitter} from '../../lib/Telemetry.js';
 
 export default class ConfigCommand extends SfCommand<void> implements Displayable {
 	// We don't need the `--json` output for this command.
@@ -76,6 +77,7 @@ export default class ConfigCommand extends SfCommand<void> implements Displayabl
 		const dependencies: ConfigDependencies = {
 			configFactory: new CodeAnalyzerConfigFactoryImpl(),
 			pluginsFactory: new EnginePluginsFactoryImpl(),
+			telemetryEmitter: new SfCliTelemetryEmitter(),
 			logEventListeners: [new LogEventDisplayer(uxDisplay)],
 			progressEventListeners: [new RuleSelectionProgressSpinner(uxDisplay)],
 			actionSummaryViewer: new ConfigActionSummaryViewer(uxDisplay),

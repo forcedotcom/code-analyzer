@@ -96,6 +96,7 @@ export class RulesAction {
 			}
 			this.dependencies.telemetryEmitter.emitTelemetry(Constants.TelemetrySource, Constants.TelemetryEventName, {
 				sfcaEvent: Constants.CliTelemetryEvents.ENGINE_SELECTION,
+				command: Constants.CliCommands.RULES,
 				engine: coreEngineName,
 				ruleCount: ruleSelection.getRulesFor(coreEngineName).length
 			});

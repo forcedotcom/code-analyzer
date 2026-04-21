@@ -10,12 +10,16 @@ import {LogEventListener, LogEventLogger} from '../listeners/LogEventListener.js
 import {ProgressEventListener} from '../listeners/ProgressEventListener.js';
 import {ConfigActionSummaryViewer} from '../viewers/ActionSummaryViewer.js';
 import {AnnotatedConfigModel, ConfigModel} from '../models/ConfigModel.js';
+import {TelemetryEmitter} from '../Telemetry.js';
+import {TelemetryEventListener} from '../listeners/TelemetryEventListener.js';
+import * as Constants from '../../Constants.js';
 
 export type ConfigDependencies = {
 	configFactory: CodeAnalyzerConfigFactory;
 	pluginsFactory: EnginePluginsFactory;
 	logEventListeners: LogEventListener[];
 	progressEventListeners: ProgressEventListener[];
+	telemetryEmitter: TelemetryEmitter;
 	writer?: ConfigWriter;
 	actionSummaryViewer: ConfigActionSummaryViewer;
 	viewer: ConfigViewer;
@@ -54,6 +58,8 @@ export class ConfigAction {
 		// LogEventListeners should start listening as soon as the User Core is instantiated, since it can start emitting
 		// relevant events basically immediately.
 		this.dependencies.logEventListeners.forEach(listener => listener.listen(userCore));
+		const telemetryListener: TelemetryEventListener = new TelemetryEventListener(this.dependencies.telemetryEmitter);
+		telemetryListener.listen(userCore);
 
 		const enginePlugins: EnginePlugin[] = this.dependencies.pluginsFactory.create();
 		const enginePluginModules: string[] = userConfig.getCustomEnginePluginModules();
@@ -128,7 +134,10 @@ export class ConfigAction {
 		// elements or file handlers that must be gracefully ended.
 		this.dependencies.progressEventListeners.forEach(listener => listener.stopListening());
 		this.dependencies.logEventListeners.forEach(listener => listener.stopListening());
+		telemetryListener.stopListening();
 
+		// ==== EMIT TELEMETRY ==========================================================================================
+		this.emitEngineTelemetry(enginePlugins, userCore, userRules);
 
 		// ==== CREATE AND WRITE CONFIG YAML ===========================================================================
 
@@ -152,6 +161,23 @@ export class ConfigAction {
 
 		this.dependencies.actionSummaryViewer.viewPostExecutionSummary(logFileWriter.getLogDestination(), fileWritten ? input['output-file'] : undefined);
 		return Promise.resolve();
+	}
+
+	private emitEngineTelemetry(enginePlugins: EnginePlugin[], core: CodeAnalyzer, ruleSelection: {getEngineNames(): string[], getRulesFor(engine: string): unknown[]}): void {
+		const coreEngineNames: string[] = enginePlugins.flatMap(enginePlugin => enginePlugin.getAvailableEngineNames());
+		const selectedEngineNames: Set<string> = new Set(ruleSelection.getEngineNames());
+
+		for (const coreEngineName of coreEngineNames) {
+			if (!selectedEngineNames.has(coreEngineName)) {
+				continue;
+			}
+			this.dependencies.telemetryEmitter.emitTelemetry(Constants.TelemetrySource, Constants.TelemetryEventName, {
+				sfcaEvent: Constants.CliTelemetryEvents.ENGINE_SELECTION,
+				command: Constants.CliCommands.CONFIG,
+				engine: coreEngineName,
+				ruleCount: ruleSelection.getRulesFor(coreEngineName).length
+			});
+		}
 	}
 
 	public static createAction(dependencies: ConfigDependencies): ConfigAction {

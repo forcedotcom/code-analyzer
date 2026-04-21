@@ -15,6 +15,7 @@ import {SpyConfigWriter} from '../../stubs/SpyConfigWriter.js';
 import {SpyConfigViewer} from '../../stubs/SpyConfigViewer.js';
 import {DisplayEvent, DisplayEventType, SpyDisplay} from '../../stubs/SpyDisplay.js';
 import {LogEventDisplayer} from '../../../src/lib/listeners/LogEventListener.js';
+import {SpyTelemetryEmitter} from '../../stubs/SpyTelemetryEmitter.js';
 
 const PATH_TO_FIXTURES = path.join(import.meta.dirname, '..', '..', 'fixtures');
 
@@ -38,7 +39,8 @@ describe('ConfigAction tests', () => {
 					viewer: new ConfigStyledYamlViewer(spyDisplay),
 					configFactory: new StubCodeAnalyzerConfigFactory(),
 					actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-					pluginsFactory: new StubEnginePluginFactory()
+					pluginsFactory: new StubEnginePluginFactory(),
+					telemetryEmitter: new SpyTelemetryEmitter()
 				};
 			});
 
@@ -177,7 +179,8 @@ describe('ConfigAction tests', () => {
 					viewer: new ConfigStyledYamlViewer(spyDisplay),
 					configFactory: stubConfigFactory,
 					actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-					pluginsFactory: new StubEnginePluginFactory()
+					pluginsFactory: new StubEnginePluginFactory(),
+					telemetryEmitter: new SpyTelemetryEmitter()
 				};
 			});
 
@@ -447,7 +450,8 @@ describe('ConfigAction tests', () => {
 					viewer: new ConfigStyledYamlViewer(spyDisplay),
 					configFactory: configFactory,
 					actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-					pluginsFactory: new StubEnginePluginFactory()
+					pluginsFactory: new StubEnginePluginFactory(),
+					telemetryEmitter: new SpyTelemetryEmitter()
 				};
 			});
 
@@ -531,7 +535,8 @@ describe('ConfigAction tests', () => {
 				viewer: new ConfigStyledYamlViewer(spyDisplay),
 				configFactory: new StubCodeAnalyzerConfigFactory(),
 				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-				pluginsFactory: new StubEnginePluginFactory()
+				pluginsFactory: new StubEnginePluginFactory(),
+				telemetryEmitter: new SpyTelemetryEmitter()
 			};
 		});
 
@@ -687,7 +692,8 @@ describe('ConfigAction tests', () => {
 				viewer: new ConfigStyledYamlViewer(spyDisplay),
 				configFactory: new StubCodeAnalyzerConfigFactory(),
 				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-				pluginsFactory: new WorkspaceAwareEnginePluginFactory()
+				pluginsFactory: new WorkspaceAwareEnginePluginFactory(),
+				telemetryEmitter: new SpyTelemetryEmitter()
 			};
 
 			// ==== TESTED BEHAVIOR ====
@@ -708,7 +714,8 @@ describe('ConfigAction tests', () => {
 				viewer: new ConfigStyledYamlViewer(spyDisplay),
 				configFactory: new StubCodeAnalyzerConfigFactory(),
 				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-				pluginsFactory: new StubEnginePluginFactory()
+				pluginsFactory: new StubEnginePluginFactory(),
+				telemetryEmitter: new SpyTelemetryEmitter()
 			};
 		});
 
@@ -756,7 +763,8 @@ describe('ConfigAction tests', () => {
 				viewer: new ConfigStyledYamlViewer(spyDisplay),
 				configFactory: new StubCodeAnalyzerConfigFactory(),
 				actionSummaryViewer: new ConfigActionSummaryViewer(spyDisplay),
-				pluginsFactory: new StubEnginePluginFactory()
+				pluginsFactory: new StubEnginePluginFactory(),
+				telemetryEmitter: new SpyTelemetryEmitter()
 			}
 		});
 
