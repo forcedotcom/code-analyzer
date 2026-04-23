@@ -23,7 +23,7 @@
 		"@salesforce/sf-plugins-core": "^12.2.6",
 		"@salesforce/ts-types": "^2.0.12",
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^20.19.39",
+		"@types/node": "^20.0.0",
 		"ansis": "^4.2.0",
 		"fast-glob": "^3.3.3",
 		"js-yaml": "^4.1.1",
