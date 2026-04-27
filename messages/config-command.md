@@ -117,3 +117,11 @@ Include unmodified rules in the rule override settings.
 # flags.include-unmodified-rules.description
 
 The default behavior of the config command is to not include the unmodified rules with their default values in the rule override settings (for the rules selected via the `–-rule-selector` flag). This default behavior prevents your configuration file from being unnecessarily large. If you want to include the unmodified rules, in addition to the modified rules, then specify this flag.
+
+# flags.no-suppressions.summary
+
+Exclude suppressions from the output configuration.
+
+# flags.no-suppressions.description
+
+When specified, the 'suppressions' field is not included in the configuration state. Since the 'suppressions' field may contain file or folder paths specific to a specific path, use this flag to make it easy to share your configuration state to be used for a different workspace.

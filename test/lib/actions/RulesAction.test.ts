@@ -271,18 +271,20 @@ describe('RulesAction tests', () => {
 				expect(ruleSelectionTelemEvents).toHaveLength(2);
 				expect(ruleSelectionTelemEvents[0]).toEqual({
 					"data": {
+						"sfcaEvent": "engine_selection",
+						"command": "rules",
 						"engine": "stubEngine1",
-						"ruleCount": 5,
-						"sfcaEvent": "engine_selection"
+						"ruleCount": 5
 					},
 					"eventName": "plugin-code-analyzer",
 					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI
 				});
 				expect(ruleSelectionTelemEvents[1]).toEqual({
 					"data": {
+						"sfcaEvent": "engine_selection",
+						"command": "rules",
 						"engine": "stubEngine2",
-						"ruleCount": 3,
-						"sfcaEvent": "engine_selection"
+						"ruleCount": 3
 					},
 					"eventName": "plugin-code-analyzer",
 					"source": "CLI" // NOTE: We might move these events to Core in the future instead of the CLI

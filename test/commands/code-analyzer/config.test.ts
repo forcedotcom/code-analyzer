@@ -251,4 +251,32 @@ describe('`code-analyzer config` unit tests', () => {
 			expect(receivedActionInput['output-file']).toBeUndefined();
 		});
 	});
+
+	describe('--no-suppressions', () => {
+		it('Can be specified as a boolean flag', async () => {
+			await runConfigCommand(['--no-suppressions']);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('no-suppressions', true);
+		});
+
+		it('Is false by default when not specified', async () => {
+			await runConfigCommand([]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput['no-suppressions']).toBeUndefined();
+		});
+	});
+
+	describe('--include-unmodified-rules', () => {
+		it('Can be specified as a boolean flag', async () => {
+			await runConfigCommand(['--include-unmodified-rules']);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('include-unmodified-rules', true);
+		});
+
+		it('Is false by default when not specified', async () => {
+			await runConfigCommand([]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput['include-unmodified-rules']).toBeUndefined();
+		});
+	});
 });
