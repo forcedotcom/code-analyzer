@@ -6,6 +6,8 @@
 		"sourceMap": true,
 		"declaration": true,
 		"moduleResolution": "NodeNext",
+		"allowSyntheticDefaultImports": false,
+		"skipLibCheck": true,
 		"alwaysStrict": true,
 		"noUnusedLocals": true,
 		"outDir": "./lib",
