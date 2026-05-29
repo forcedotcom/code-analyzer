@@ -19,7 +19,7 @@
 		"@salesforce/code-analyzer-regex-engine": "0.36.0",
 		"@salesforce/code-analyzer-retirejs-engine": "0.35.0",
 		"@salesforce/code-analyzer-sfge-engine": "0.21.0",
-		"@salesforce/core": "8.23.4",
+		"@salesforce/core": "8.31.0",
 		"@salesforce/sf-plugins-core": "^12.2.6",
 		"@salesforce/ts-types": "^2.0.12",
 		"@types/js-yaml": "^4.0.9",
