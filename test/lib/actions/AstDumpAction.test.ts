@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
-import {AstDumpAction, AstDumpInput, AstDumpOutput, AstDumpJsonOutput, AstDumpXmlOutput, AstDumpErrorOutput} from '../../../src/lib/actions/AstDumpAction.js';
+import {AstDumpAction, AstDumpInput, AstDumpJsonOutput, AstDumpXmlOutput, AstDumpErrorOutput} from '../../../src/lib/actions/AstDumpAction.js';
 
 const { mockGenerateAst } = vi.hoisted(() => {
 	return { mockGenerateAst: vi.fn() };

@@ -20,7 +20,6 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 	});
 
 	let executeSpy: ReturnType<typeof vi.spyOn>;
-	let createActionSpy: ReturnType<typeof vi.spyOn>;
 	let receivedActionInput!: AstDumpInput;
 
 	beforeEach(() => {
@@ -28,7 +27,7 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 			receivedActionInput = input;
 			return Promise.resolve({status: 'success', file: input.file, language: 'apex', ast: '<xml/>'});
 		});
-		createActionSpy = vi.spyOn(AstDumpAction, 'createAction').mockImplementation(() => {
+		vi.spyOn(AstDumpAction, 'createAction').mockImplementation(() => {
 			return new AstDumpAction();
 		});
 	});
@@ -73,7 +72,7 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 					receivedActionInput = input;
 					return Promise.resolve({status: 'success', file: input.file, language: lang, ast: '<xml/>'});
 				});
-				createActionSpy = vi.spyOn(AstDumpAction, 'createAction').mockImplementation(() => new AstDumpAction());
+				vi.spyOn(AstDumpAction, 'createAction').mockImplementation(() => new AstDumpAction());
 
 				await runAstDumpCommand(['--file', 'package.json', '--language', lang]);
 				expect(receivedActionInput).toHaveProperty('language', lang);
@@ -107,7 +106,7 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 		});
 
 		it('Accepts json format', async () => {
-			executeSpy.mockImplementation((input) => {
+			executeSpy.mockImplementation((input: AstDumpInput) => {
 				receivedActionInput = input;
 				return Promise.resolve({status: 'success', file: input.file, language: 'apex', totalNodes: 0, nodes: []});
 			});
@@ -146,7 +145,7 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 	describe('Output display', () => {
 		it('Logs XML output directly when format is xml', async () => {
 			const astXml = '<CompilationUnit/>';
-			executeSpy.mockImplementation((input) => {
+			executeSpy.mockImplementation((input: AstDumpInput) => {
 				receivedActionInput = input;
 				return Promise.resolve({status: 'success', file: input.file, language: 'apex', ast: astXml});
 			});
@@ -162,7 +161,7 @@ describe('`code-analyzer ast-dump` unit tests', () => {
 		});
 
 		it('Logs JSON output when format is json', async () => {
-			executeSpy.mockImplementation((input) => {
+			executeSpy.mockImplementation((input: AstDumpInput) => {
 				receivedActionInput = input;
 				return Promise.resolve({status: 'success', file: input.file, language: 'apex', totalNodes: 1, nodes: [{nodeName: 'Root', attributes: {}, parent: null, ancestors: []}]});
 			});
