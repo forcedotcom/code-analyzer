@@ -24,10 +24,6 @@ Generate and display the AST that PMD produces when parsing a source file. This 
 
     <%= config.bin %> <%= command.id %> --file ./src/myfile.html --language html
 
-- Use a custom configuration file to specify Java command path:
-
-    <%= config.bin %> <%= command.id %> --file ./force-app/main/default/classes/MyClass.cls --config-file ./code-analyzer.yml
-
 # flags.file.summary
 
 Path to the source file to parse.
@@ -59,14 +55,6 @@ Path to the file where the AST output is written.
 # flags.output-file.description
 
 If specified, the AST output is written to this file instead of being displayed in the terminal. The content format depends on the `--format` flag.
-
-# flags.config-file.summary
-
-Path to the configuration file used to customize engine settings.
-
-# flags.config-file.description
-
-Use a Code Analyzer configuration file to specify engine overrides such as a custom `java_command` path. If not specified, the default configuration is used.
 
 # error.fileNotFound
 

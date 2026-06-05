@@ -1,9 +1,7 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import {CodeAnalyzerConfig} from '@salesforce/code-analyzer-core';
 import {PmdEngine} from '@salesforce/code-analyzer-pmd-engine';
 import type {PmdAstDumpResults, GenerateAstOptions} from '@salesforce/code-analyzer-pmd-engine';
-import {CodeAnalyzerConfigFactory} from '../factories/CodeAnalyzerConfigFactory.js';
 import {BundleName, getMessage} from '../messages.js';
 
 export type AstDumpInput = {
@@ -11,7 +9,6 @@ export type AstDumpInput = {
 	language?: string;
 	format: 'json' | 'xml';
 	'output-file'?: string;
-	'config-file'?: string;
 }
 
 export type AstNode = {
@@ -43,9 +40,6 @@ export type AstDumpErrorOutput = {
 
 export type AstDumpOutput = AstDumpJsonOutput | AstDumpXmlOutput | AstDumpErrorOutput;
 
-export type AstDumpDependencies = {
-	configFactory: CodeAnalyzerConfigFactory;
-}
 
 const LANGUAGE_MAP: Record<string, string> = {
 	'.cls': 'apex',
@@ -63,12 +57,6 @@ const SUPPORTED_LANGUAGES = ['apex', 'visualforce', 'html', 'xml', 'javascript']
 const MAX_FILE_SIZE_BYTES = 1_000_000; // 1MB
 
 export class AstDumpAction {
-	private readonly dependencies: AstDumpDependencies;
-
-	constructor(dependencies: AstDumpDependencies) {
-		this.dependencies = dependencies;
-	}
-
 	public async execute(input: AstDumpInput): Promise<AstDumpOutput> {
 		// Validate file exists
 		const filePath = path.resolve(input.file);
@@ -94,9 +82,7 @@ export class AstDumpAction {
 			return {status: 'error', message: getMessage(BundleName.AstDumpCommand, 'error.unsupportedLanguage', [filePath])};
 		}
 
-		// Get config for java_command resolution
-		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(input['config-file']);
-		const pmdConfig = this.extractPmdConfig(config);
+		const pmdConfig = this.getDefaultPmdConfig();
 
 		// Create PmdEngine and generate AST
 		const pmdEngine = new PmdEngine(pmdConfig as ConstructorParameters<typeof PmdEngine>[0]);
@@ -142,12 +128,11 @@ export class AstDumpAction {
 		return LANGUAGE_MAP[ext];
 	}
 
-	private extractPmdConfig(config: CodeAnalyzerConfig): Record<string, unknown> {
-		const overrides = config.getEngineOverridesFor('pmd') as Record<string, unknown>;
+	private getDefaultPmdConfig(): Record<string, unknown> {
 		return {
-			java_command: overrides.java_command || 'java',
-			java_classpath_entries: overrides.java_classpath_entries || [],
-			custom_rulesets: overrides.custom_rulesets || [],
+			java_command: 'java',
+			java_classpath_entries: [],
+			custom_rulesets: [],
 			rule_languages: ['apex', 'visualforce', 'xml', 'html', 'javascript'],
 			file_extensions: {
 				apex: ['.cls', '.trigger'],
@@ -244,7 +229,7 @@ export class AstDumpAction {
 		return attrs;
 	}
 
-	public static createAction(dependencies: AstDumpDependencies): AstDumpAction {
-		return new AstDumpAction(dependencies);
+	public static createAction(): AstDumpAction {
+		return new AstDumpAction();
 	}
 }

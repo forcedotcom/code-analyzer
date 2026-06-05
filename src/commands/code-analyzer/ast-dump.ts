@@ -1,6 +1,5 @@
 import {Flags, SfCommand} from '@salesforce/sf-plugins-core';
-import {CodeAnalyzerConfigFactoryImpl} from '../../lib/factories/CodeAnalyzerConfigFactory.js';
-import {AstDumpAction, AstDumpDependencies, AstDumpInput, AstDumpOutput} from '../../lib/actions/AstDumpAction.js';
+import {AstDumpAction, AstDumpInput, AstDumpOutput} from '../../lib/actions/AstDumpAction.js';
 import {BundleName, getMessage, getMessages} from '../../lib/messages.js';
 
 export default class AstDumpCommand extends SfCommand<void> {
@@ -32,30 +31,19 @@ export default class AstDumpCommand extends SfCommand<void> {
 		'output-file': Flags.string({
 			summary: getMessage(BundleName.AstDumpCommand, 'flags.output-file.summary'),
 			description: getMessage(BundleName.AstDumpCommand, 'flags.output-file.description'),
-		}),
-		'config-file': Flags.file({
-			summary: getMessage(BundleName.AstDumpCommand, 'flags.config-file.summary'),
-			description: getMessage(BundleName.AstDumpCommand, 'flags.config-file.description'),
-			char: 'c',
-			exists: true
 		})
 	};
 
 	public async run(): Promise<void> {
 		const parsedFlags = (await this.parse(AstDumpCommand)).flags;
 
-		const dependencies: AstDumpDependencies = {
-			configFactory: new CodeAnalyzerConfigFactoryImpl()
-		};
-
-		const action = AstDumpAction.createAction(dependencies);
+		const action = AstDumpAction.createAction();
 
 		const input: AstDumpInput = {
 			file: parsedFlags.file,
 			language: parsedFlags.language,
 			format: parsedFlags.format as 'json' | 'xml',
-			'output-file': parsedFlags['output-file'],
-			'config-file': parsedFlags['config-file']
+			'output-file': parsedFlags['output-file']
 		};
 
 		const output: AstDumpOutput = await action.execute(input);
