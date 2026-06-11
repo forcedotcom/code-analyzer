@@ -15,5 +15,6 @@ export const CliTelemetryEvents = {
 export const CliCommands = {
 	RUN: 'run',
 	RULES: 'rules',
-	CONFIG: 'config'
+	CONFIG: 'config',
+	AST_DUMP: 'ast-dump'
 }
