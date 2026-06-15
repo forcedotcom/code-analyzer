@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+import {XMLParser} from 'fast-xml-parser';
 import {PmdEngine} from '@salesforce/code-analyzer-pmd-engine';
 import type {PmdAstDumpResults, GenerateAstOptions} from '@salesforce/code-analyzer-pmd-engine';
 import {BundleName, getMessage} from '../messages.js';
@@ -144,89 +145,49 @@ export class AstDumpAction {
 		};
 	}
 
-	/**
-	 * Parse PMD AST XML into a flat list of nodes with ancestry information.
-	 * Each node gets: nodeName, attributes (key-value pairs), parent, ancestors chain.
-	 */
 	private parseAstXmlToNodes(xml: string): AstNode[] {
+		const ATTR_PFX = '@_';
+		const parser = new XMLParser({
+			ignoreAttributes: false,
+			attributeNamePrefix: ATTR_PFX,
+			parseAttributeValue: false,
+			allowBooleanAttributes: true,
+			isArray: () => true,
+		});
+		const parsed: Record<string, unknown> = parser.parse(xml) as Record<string, unknown>;
 		const nodes: AstNode[] = [];
-		this.traverseXml(xml, nodes);
+		for (const [rootName, arr] of Object.entries(parsed)) {
+			if (Array.isArray(arr)) {
+				for (const child of arr as Record<string, unknown>[]) {
+					this.walkNode(child, rootName, [], nodes, ATTR_PFX);
+				}
+			}
+		}
 		return nodes;
 	}
 
-	/**
-	 * Simple XML parser for PMD AST output.
-	 * PMD AST XML has a predictable structure: nested elements with attributes.
-	 * We parse it using regex-based tag extraction (safe for well-formed PMD output).
-	 */
-	private traverseXml(xml: string, nodes: AstNode[]): void {
-		const tagRegex = /<(\w+)([^>]*?)(\/>|>)/g;
-		const closeTagRegex = /<\/(\w+)>/g;
-
-		const ancestorStack: string[] = [];
-		let match: RegExpExecArray | null;
-
-		// Build a simple event-based parser
-		const events: Array<{type: 'open' | 'close' | 'selfclose'; name: string; attrs: string; pos: number}> = [];
-
-		// Find all opening/self-closing tags
-		tagRegex.lastIndex = 0;
-		while ((match = tagRegex.exec(xml)) !== null) {
-			const [, name, attrs, closing] = match;
-			if (name === '?xml') continue; // Skip XML declaration
-			events.push({
-				type: closing === '/>' ? 'selfclose' : 'open',
-				name,
-				attrs: attrs || '',
-				pos: match.index
-			});
-		}
-
-		// Find all closing tags
-		closeTagRegex.lastIndex = 0;
-		while ((match = closeTagRegex.exec(xml)) !== null) {
-			events.push({type: 'close', name: match[1], attrs: '', pos: match.index});
-		}
-
-		// Sort by position in document
-		events.sort((a, b) => a.pos - b.pos);
-
-		// Process events in order
-		for (const event of events) {
-			if (event.type === 'open') {
-				const attributes = this.parseAttributes(event.attrs);
-				nodes.push({
-					nodeName: event.name,
-					attributes,
-					parent: ancestorStack.length > 0 ? ancestorStack[ancestorStack.length - 1] : null,
-					ancestors: [...ancestorStack]
-				});
-				ancestorStack.push(event.name);
-			} else if (event.type === 'selfclose') {
-				const attributes = this.parseAttributes(event.attrs);
-				nodes.push({
-					nodeName: event.name,
-					attributes,
-					parent: ancestorStack.length > 0 ? ancestorStack[ancestorStack.length - 1] : null,
-					ancestors: [...ancestorStack]
-				});
-			} else if (event.type === 'close') {
-				ancestorStack.pop();
+	private walkNode(obj: Record<string, unknown>, nodeName: string, ancestors: string[], nodes: AstNode[], attrPfx: string): void {
+		const attributes: Record<string, string> = {};
+		const children: Record<string, Record<string, unknown>[]> = {};
+		for (const [k, v] of Object.entries(obj)) {
+			if (k.startsWith(attrPfx)) {
+				const val = Array.isArray(v) ? (v as unknown[])[0] : v;
+				attributes[k.slice(attrPfx.length)] = String(val);
+			} else {
+				children[k] = v as Record<string, unknown>[];
 			}
 		}
-	}
-
-	/**
-	 * Parse XML attributes from a string like: Name="value" Other="value2"
-	 */
-	private parseAttributes(attrString: string): Record<string, string> {
-		const attrs: Record<string, string> = {};
-		const attrRegex = /(\w+)\s*=\s*(['"])(.*?)\2/g;
-		let match: RegExpExecArray | null;
-		while ((match = attrRegex.exec(attrString)) !== null) {
-			attrs[match[1]] = match[3];
+		nodes.push({nodeName, attributes, parent: ancestors.length > 0 ? ancestors[ancestors.length - 1] : null, ancestors: [...ancestors]});
+		const nextAncestors = [...ancestors, nodeName];
+		for (const [childName, arr] of Object.entries(children)) {
+			if (Array.isArray(arr)) {
+				for (const child of arr) {
+					if (child !== null && typeof child === 'object') {
+						this.walkNode(child, childName, nextAncestors, nodes, attrPfx);
+					}
+				}
+			}
 		}
-		return attrs;
 	}
 
 	public static createAction(): AstDumpAction {
