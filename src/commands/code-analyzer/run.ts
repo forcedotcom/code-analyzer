@@ -40,6 +40,7 @@ export default class RunCommand extends SfCommand<void> implements Displayable {
 		'target-org': Flags.string({
 			summary: getMessage(BundleName.RunCommand, 'flags.target-org.summary'),
 			description: getMessage(BundleName.RunCommand, 'flags.target-org.description'),
+			// eslint-disable-next-line sf-plugin/dash-o
 			char: 'o'
 		}),
 		// === Flags pertaining to rule selection ===
