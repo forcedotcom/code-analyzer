@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@oclif/core": "^4.11.3",
 		"@oclif/table": "^0.5.8",
+		"@salesforce/code-analyzer-apexguru-engine": "github:forcedotcom/code-analyzer-core#feature/W-22393676-sfap-workspace-scan:packages/apexguru-engine",
 		"@salesforce/code-analyzer-core": "0.48.0",
 		"@salesforce/code-analyzer-engine-api": "0.38.0",
 		"@salesforce/code-analyzer-eslint-engine": "0.43.0",

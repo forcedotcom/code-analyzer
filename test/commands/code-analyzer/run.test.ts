@@ -469,6 +469,22 @@ describe('`code-analyzer run` unit tests', () => {
 		});
 	});
 
+	describe('--target-org', () => {
+		it('Can be supplied with a value', async () => {
+			const inputValue = 'test-org';
+			await runRunCommand(['--target-org', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
+		});
+
+		it('Can be referenced by its shortname, -o', async () => {
+			const inputValue = 'my-org';
+			await runRunCommand(['-o', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
+		});
+	});
+
 	describe('Flag interactions', () => {
 		describe('--output-file and --view', () => {
 			it('When --output-file and --view are both present, both are used', async () => {

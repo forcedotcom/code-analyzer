@@ -39,6 +39,7 @@ export type RunInput = {
 	'rule-selector': string[];
 	'severity-threshold'?: SeverityLevel;
 	target?: string[];
+	'target-org'?: string;
 	workspace: string[];
 	'include-fixes'?: boolean;
 	'include-suggestions'?: boolean;
@@ -53,8 +54,11 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
-		const cliOverrides = input['no-suppressions'] !== undefined
-			? { noSuppressions: input['no-suppressions'] }
+		const cliOverrides = (input['no-suppressions'] !== undefined || input['target-org'] !== undefined)
+			? {
+				noSuppressions: input['no-suppressions'],
+				targetOrg: input['target-org']
+			}
 			: undefined;
 		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(
 			input['config-file'],

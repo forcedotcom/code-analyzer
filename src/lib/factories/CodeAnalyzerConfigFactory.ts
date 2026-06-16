@@ -5,6 +5,7 @@ import * as yaml from 'js-yaml';
 
 export type CliOverrides = {
 	noSuppressions?: boolean;
+	targetOrg?: string;
 	// Future CLI flag overrides can be added here
 }
 
@@ -18,7 +19,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 
 	public create(configPath?: string, cliOverrides?: CliOverrides): CodeAnalyzerConfig {
 		// Fast path: If no CLI overrides, use existing simple logic
-		if (!cliOverrides || cliOverrides.noSuppressions === undefined) {
+		if (!cliOverrides || (cliOverrides.noSuppressions === undefined && cliOverrides.targetOrg === undefined)) {
 			return this.getConfigFromProvidedPath(configPath)
 			|| this.seekConfigInCurrentDirectory()
 			|| CodeAnalyzerConfig.withDefaults();
@@ -62,7 +63,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 		const disableSuppressionExplicitlySet = suppressionsSection?.disable_suppressions !== undefined;
 
 		// If YAML explicitly sets disable_suppressions, YAML wins completely (no CLI override)
-		if (disableSuppressionExplicitlySet) {
+		if (disableSuppressionExplicitlySet && !cliOverrides.targetOrg) {
 			return CodeAnalyzerConfig.fromFile(configFilePath);
 		}
 
@@ -72,42 +73,63 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 			key => key !== 'disable_suppressions' && Array.isArray(suppressionsSection[key])
 		);
 
-		// If CLI override provided and we have bulk suppressions, merge them
-		if (cliOverrides.noSuppressions !== undefined && hasBulkSuppressions && rawYaml) {
-			// Preserve bulk suppressions from YAML, apply CLI override to disable_suppressions
-			const mergedConfig: Record<string, unknown> = {
-				...rawYaml,
+		// Build merged config with any CLI overrides
+		let mergedConfig: Record<string, unknown> = rawYaml ? { ...rawYaml } : {};
+
+		// Apply suppressions override if needed
+		if (cliOverrides.noSuppressions !== undefined && hasBulkSuppressions) {
+			mergedConfig = {
+				...mergedConfig,
 				suppressions: {
 					...suppressionsSection,
 					disable_suppressions: cliOverrides.noSuppressions
 				}
 			};
-			return CodeAnalyzerConfig.fromObject(mergedConfig);
-		}
-
-		// If CLI override provided but no bulk suppressions (or no suppressions section at all)
-		if (cliOverrides.noSuppressions !== undefined && rawYaml) {
-			const mergedConfig: Record<string, unknown> = {
-				...rawYaml,
+		} else if (cliOverrides.noSuppressions !== undefined) {
+			mergedConfig = {
+				...mergedConfig,
 				suppressions: { disable_suppressions: cliOverrides.noSuppressions }
 			};
-			return CodeAnalyzerConfig.fromObject(mergedConfig);
 		}
 
-		// Config file exists, no CLI override, use config as-is with defaults
-		return CodeAnalyzerConfig.fromFile(configFilePath);
+		// Apply target-org override to apexguru engine config
+		if (cliOverrides.targetOrg) {
+			const engineOverridesSection = mergedConfig.engine_overrides as Record<string, Record<string, unknown>> | undefined;
+			mergedConfig = {
+				...mergedConfig,
+				engine_overrides: {
+					...(engineOverridesSection || {}),
+					apexguru: {
+						...(engineOverridesSection?.apexguru || {}),
+						target_org: cliOverrides.targetOrg
+					}
+				}
+			};
+		}
+
+		return rawYaml ? CodeAnalyzerConfig.fromObject(mergedConfig) : CodeAnalyzerConfig.fromFile(configFilePath);
 	}
 
 	private createConfigFromCliOverrides(cliOverrides: CliOverrides): CodeAnalyzerConfig {
-		// Apply CLI overrides if provided
+		// Build config from CLI overrides
+		const configObject: Record<string, unknown> = {};
+
 		if (cliOverrides?.noSuppressions) {
-			return CodeAnalyzerConfig.fromObject({
-				suppressions: { disable_suppressions: true }
-			});
+			configObject.suppressions = { disable_suppressions: true };
 		}
 
-		// No config file, no CLI overrides - use defaults (suppressions enabled)
-		return CodeAnalyzerConfig.withDefaults();
+		if (cliOverrides?.targetOrg) {
+			configObject.engine_overrides = {
+				apexguru: {
+					target_org: cliOverrides.targetOrg
+				}
+			};
+		}
+
+		// If we have overrides, create config from them; otherwise use defaults
+		return Object.keys(configObject).length > 0
+			? CodeAnalyzerConfig.fromObject(configObject)
+			: CodeAnalyzerConfig.withDefaults();
 	}
 
 	private getConfigFilePath(configPath?: string): string|undefined {
