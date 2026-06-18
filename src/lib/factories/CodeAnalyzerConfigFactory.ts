@@ -94,13 +94,13 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 
 		// Apply target-org override to apexguru engine config
 		if (cliOverrides.targetOrg) {
-			const engineOverridesSection = mergedConfig.engine_overrides as Record<string, Record<string, unknown>> | undefined;
+			const enginesSection = mergedConfig.engines as Record<string, Record<string, unknown>> | undefined;
 			mergedConfig = {
 				...mergedConfig,
-				engine_overrides: {
-					...(engineOverridesSection || {}),
+				engines: {
+					...(enginesSection || {}),
 					apexguru: {
-						...(engineOverridesSection?.apexguru || {}),
+						...(enginesSection?.apexguru || {}),
 						target_org: cliOverrides.targetOrg
 					}
 				}
@@ -119,7 +119,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 		}
 
 		if (cliOverrides?.targetOrg) {
-			configObject.engine_overrides = {
+			configObject.engines = {
 				apexguru: {
 					target_org: cliOverrides.targetOrg
 				}
