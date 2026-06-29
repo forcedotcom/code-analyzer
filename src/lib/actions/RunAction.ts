@@ -1,4 +1,4 @@
-import {SfError} from '@salesforce/core';
+import {AuthInfo, SfError} from '@salesforce/core';
 import {
 	CodeAnalyzer,
 	CodeAnalyzerConfig,
@@ -54,6 +54,11 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
+		// Validate org authentication upfront before config creation
+		if (input['target-org']) {
+			await this.validateTargetOrg(input['target-org']);
+		}
+
 		const cliOverrides = (input['no-suppressions'] !== undefined || input['target-org'] !== undefined)
 			? {
 				noSuppressions: input['no-suppressions'],
@@ -111,6 +116,22 @@ export class RunAction {
 
 	public static createAction(dependencies: RunDependencies): RunAction {
 		return new RunAction(dependencies);
+	}
+
+	private async validateTargetOrg(orgNameOrAlias: string): Promise<void> {
+		try {
+			await AuthInfo.create({ username: orgNameOrAlias });
+		} catch (error) {
+			if (error instanceof Error) {
+				const errorMessage = [
+					`Org '${orgNameOrAlias}' not found or not authenticated.`,
+					`  • Run 'sf org list' to see available orgs`,
+					`  • Run 'sf org login web --alias ${orgNameOrAlias}' to authenticate a new org`
+				].join('\n');
+				throw new SfError(errorMessage, 'OrgAuthenticationError');
+			}
+			throw error;
+		}
 	}
 
 	private emitEngineTelemetry(ruleSelection: RuleSelection, results: RunResults, coreEngineNames: string[]): void {
