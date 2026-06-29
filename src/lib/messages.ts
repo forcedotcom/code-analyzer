@@ -6,6 +6,7 @@ Messages.importMessagesDirectory(import.meta.dirname);
 
 export enum BundleName {
 	ActionSummaryViewer = 'action-summary-viewer',
+	AstDumpCommand = 'ast-dump-command',
 	ConfigCommand = 'config-command',
 	ConfigModel = 'config-model',
 	ConfigWriter = 'config-writer',
