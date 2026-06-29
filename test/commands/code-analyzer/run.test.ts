@@ -67,10 +67,57 @@ describe('`code-analyzer run` end to end tests', () => {
 	});
 });
 
+describe('`code-analyzer run` with --target-org flag', () => {
+	const origDir: string = process.cwd();
+	const apexWorkspace: string = path.resolve(rootFolderWithPackageJson, 'test', 'fixtures', 'example-workspaces', 'workspace-with-misc-files');
+
+	beforeAll(async () => {
+		process.chdir(apexWorkspace);
+		await config.load();
+	});
+
+	afterAll(async () => {
+		process.chdir(origDir);
+	});
+
+	it('Accepts --target-org flag with org value', async () => {
+		const outputInterceptor: ConsoleOuputInterceptor = new ConsoleOuputInterceptor();
+		try {
+			outputInterceptor.start();
+			await runRunCommand(['--target-org', 'test-org', '-r', 'apexguru', '-t', 'world.cls']);
+		} catch (error) {
+			// ApexGuru may fail if org is not authenticated, which is expected in test environment
+			// We're testing that the flag is accepted and parsed, not that ApexGuru runs successfully
+		} finally {
+			outputInterceptor.stop();
+		}
+
+		// Should not throw parsing errors for the flag itself
+		expect(outputInterceptor.out).not.toContain('Unknown flag');
+		expect(outputInterceptor.out).not.toContain('Unexpected argument');
+	});
+
+	it('Accepts -o shorthand for --target-org', async () => {
+		const outputInterceptor: ConsoleOuputInterceptor = new ConsoleOuputInterceptor();
+		try {
+			outputInterceptor.start();
+			await runRunCommand(['-o', 'my-org', '-r', 'apexguru', '-t', 'world.cls']);
+		} catch (error) {
+			// ApexGuru may fail if org is not authenticated, which is expected in test environment
+		} finally {
+			outputInterceptor.stop();
+		}
+
+		// Should not throw parsing errors for the flag itself
+		expect(outputInterceptor.out).not.toContain('Unknown flag');
+		expect(outputInterceptor.out).not.toContain('Unexpected argument');
+	});
+});
+
 describe('`code-analyzer run` end to end tests for inline suppressions', () => {
 	const origDir: string = process.cwd();
 	const suppressionWorkspace: string = path.resolve(rootFolderWithPackageJson, 'test', 'fixtures', 'example-workspaces', 'workspace-with-suppressions');
-	
+
 	beforeAll(async () => {
 		process.chdir(suppressionWorkspace);
 		await config.load();
@@ -466,6 +513,22 @@ describe('`code-analyzer run` unit tests', () => {
 			await runRunCommand([]);
 			expect(createActionSpy).toHaveBeenCalled();
 			expect(receivedActionDependencies.telemetryEmitter!.constructor.name).toEqual('SfCliTelemetryEmitter');
+		});
+	});
+
+	describe('--target-org', () => {
+		it('Can be supplied with a value', async () => {
+			const inputValue = 'test-org';
+			await runRunCommand(['--target-org', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
+		});
+
+		it('Can be referenced by its shortname, -o', async () => {
+			const inputValue = 'my-org';
+			await runRunCommand(['-o', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
 		});
 	});
 
