@@ -479,6 +479,44 @@ describe('RunAction tests', () => {
 			expect(runOptions.includeFixes).toBe(true);
 			expect(runOptions.includeSuggestions).toBe(true);
 		});
+
+		describe('target-org', () => {
+			it('RunInput accepts target-org field', async () => {
+				const input: RunInput = {
+					'rule-selector': ['all'],
+					'workspace': ['.'],
+					'output-file': [],
+					'target-org': 'test-org'
+				};
+
+				await action.execute(input);
+
+				// Verify execution completes without type errors
+				expect(engine1.runRulesCallHistory).toHaveLength(1);
+			});
+
+			it('target-org is passed through to engine config', async () => {
+				const targetOrg = 'my-test-org';
+				const configFactorySpy = vi.spyOn(dependencies.configFactory, 'create');
+
+				const input: RunInput = {
+					'rule-selector': ['all'],
+					'workspace': ['.'],
+					'output-file': [],
+					'target-org': targetOrg
+				};
+
+				await action.execute(input);
+
+				// Verify configFactory.create was called with target-org override
+				expect(configFactorySpy).toHaveBeenCalledWith(
+					undefined,
+					expect.objectContaining({
+						targetOrg: targetOrg
+					})
+				);
+			});
+		});
 	});
 });
 
