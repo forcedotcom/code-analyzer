@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import ansis from 'ansis';
 import {AuthInfo, SfError} from '@salesforce/core';
-import {SeverityLevel} from '@salesforce/code-analyzer-core';
+import {OutputFormat, SeverityLevel} from '@salesforce/code-analyzer-core';
 import {SpyResultsViewer} from '../../stubs/SpyResultsViewer.js';
 import {SpyResultsWriter} from '../../stubs/SpyResultsWriter.js';
 import {SpyDisplay, DisplayEventType} from '../../stubs/SpyDisplay.js';
@@ -584,6 +584,89 @@ describe('RunAction tests', () => {
 				expect(authInfoSpy).not.toHaveBeenCalled();
 			});
 		});
+	});
+});
+
+describe('RunAction JSON output with engine skip warnings', () => {
+	let spyDisplay: SpyDisplay;
+	let engine1: StubEngine1;
+	let stubEnginePlugin: ConfigurableStubEnginePlugin1;
+	let pluginsFactory: StubEnginePluginsFactory_withPreconfiguredStubEngines;
+	let writer: SpyResultsWriter;
+	let resultsViewer: SpyResultsViewer;
+	let actionSummaryViewer: RunActionSummaryViewer;
+	let dependencies: RunDependencies;
+	let action: RunAction;
+
+	beforeEach(() => {
+		engine1 = new StubEngine1({});
+		stubEnginePlugin = new ConfigurableStubEnginePlugin1();
+		stubEnginePlugin.addEngine(engine1);
+		pluginsFactory = new StubEnginePluginsFactory_withPreconfiguredStubEngines();
+		pluginsFactory.addPreconfiguredEnginePlugin(stubEnginePlugin);
+
+		spyDisplay = new SpyDisplay();
+		writer = new SpyResultsWriter();
+		resultsViewer = new SpyResultsViewer();
+		actionSummaryViewer = new RunActionSummaryViewer(spyDisplay);
+
+		dependencies = {
+			configFactory: new StubDefaultConfigFactory(),
+			pluginsFactory: pluginsFactory,
+			logEventListeners: [],
+			progressListeners: [],
+			telemetryEmitter: new SpyTelemetryEmitter(),
+			writer,
+			resultsViewer,
+			actionSummaryViewer
+		};
+		action = RunAction.createAction(dependencies);
+	});
+
+	it('RunResults captures engine skip insights that will surface as warnings in JSON output', async () => {
+		engine1.resultsToReturn = {
+			violations: [],
+			insights: {
+				skipped: true,
+				skipReason: 'AUTHENTICATION_REQUIRED',
+				message: 'ApexGuru skipped: user is not authenticated.'
+			}
+		};
+
+		const input: RunInput = {
+			'rule-selector': ['all'],
+			'workspace': ['.'],
+			'output-file': []
+		};
+
+		await action.execute(input);
+
+		const results = writer.getCallHistory()[0];
+		const insights = results.getEngineInsights('stubEngine1');
+		expect(insights).toBeDefined();
+		expect(insights!['skipped']).toBe(true);
+		expect(insights!['skipReason']).toBe('AUTHENTICATION_REQUIRED');
+		expect(insights!['message']).toBe('ApexGuru skipped: user is not authenticated.');
+	});
+
+	it('JSON output has no warnings array when engine insights do not indicate a skip', async () => {
+		engine1.resultsToReturn = {
+			violations: [],
+			insights: { scan: { files_scanned: 3 } }
+		};
+
+		const input: RunInput = {
+			'rule-selector': ['all'],
+			'workspace': ['.'],
+			'output-file': []
+		};
+
+		await action.execute(input);
+
+		const results = writer.getCallHistory()[0];
+		const jsonOutput = JSON.parse(results.toFormattedOutput(OutputFormat.JSON));
+
+		expect(jsonOutput.warnings).toBeUndefined();
 	});
 });
 
