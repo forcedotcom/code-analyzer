@@ -81,6 +81,25 @@ describe('LogEventListener implementations', () => {
 			const displayEvents = spyDisplay.getDisplayEvents();
 			expect(displayEvents).toHaveLength(0);
 		});
+
+		it('Engine skip warning (LogLevel.Warn) with engine name is displayed as a warning', async () => {
+			const skipMessage = 'ApexGuru skipped: user is not authenticated. Run "sf org login web" to authenticate.';
+			engine1.addLogEvents({logLevel: LogLevel.Warn, message: skipMessage});
+
+			const workspace = await core.createWorkspace(['package.json']);
+			const ruleSelection = await core.selectRules(['all'], {workspace});
+
+			logEventDisplayer.listen(core);
+			await core.run(ruleSelection, {workspace});
+			logEventDisplayer.stopListening();
+
+			const displayEvents = spyDisplay.getDisplayEvents();
+			const warnEvents = displayEvents.filter(e => e.type === DisplayEventType.WARN);
+			expect(warnEvents.length).toBeGreaterThanOrEqual(1);
+			const matchingWarn = warnEvents.find(e => e.data.includes('not authenticated'));
+			expect(matchingWarn).toBeDefined();
+			expect(matchingWarn!.data).toContain('eventConfigurableEngine1');
+		});
 	});
 
 	describe('LogEventLogger', () => {
@@ -113,6 +132,25 @@ describe('LogEventListener implementations', () => {
 			expect(logContents).toContain('infoMessage');
 			expect(logContents).toContain('warnMessage');
 			expect(logContents).toContain('errorMessage');
+		});
+
+		it('Engine skip warning is written to log file', async () => {
+			const skipMessage = 'ApexGuru skipped: user is not authenticated.';
+			engine1.addLogEvents({logLevel: LogLevel.Warn, message: skipMessage});
+
+			const spyLogWriter = new SpyLogWriter();
+			const logListener = new LogEventLogger(spyLogWriter);
+
+			const workspace = await core.createWorkspace(['package.json']);
+			const ruleSelection = await core.selectRules(['all'], {workspace});
+
+			logListener.listen(core);
+			await core.run(ruleSelection, {workspace});
+			logListener.stopListening();
+
+			const logContents = spyLogWriter.getWrittenLog();
+			expect(logContents).toContain('not authenticated');
+			expect(logContents).toContain('Warn');
 		});
 
 		it('When user specify fine level logs, then they are included as well as the others', async () => {
