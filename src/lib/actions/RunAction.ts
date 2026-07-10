@@ -1,4 +1,4 @@
-import {AuthInfo, SfError} from '@salesforce/core';
+import {Org, SfError} from '@salesforce/core';
 import {
 	CodeAnalyzer,
 	CodeAnalyzerConfig,
@@ -120,7 +120,7 @@ export class RunAction {
 
 	private async validateTargetOrg(orgNameOrAlias: string): Promise<void> {
 		try {
-			await AuthInfo.create({ username: orgNameOrAlias });
+			await Org.create({ aliasOrUsername: orgNameOrAlias });
 		} catch (error) {
 			if (error instanceof Error) {
 				const errorMessage = [
