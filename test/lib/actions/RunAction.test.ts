@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import ansis from 'ansis';
-import {AuthInfo, SfError} from '@salesforce/core';
+import {Org, SfError} from '@salesforce/core';
 import {SeverityLevel} from '@salesforce/code-analyzer-core';
 import {SpyResultsViewer} from '../../stubs/SpyResultsViewer.js';
 import {SpyResultsWriter} from '../../stubs/SpyResultsWriter.js';
@@ -482,8 +482,8 @@ describe('RunAction tests', () => {
 
 		describe('target-org', () => {
 			it('RunInput accepts target-org field', async () => {
-				// Mock AuthInfo.create to succeed
-				vi.spyOn(AuthInfo, 'create').mockResolvedValue({} as AuthInfo);
+				// Mock Org.create to succeed
+				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
 
 				const input: RunInput = {
 					'rule-selector': ['all'],
@@ -499,8 +499,8 @@ describe('RunAction tests', () => {
 			});
 
 			it('target-org is passed through to engine config', async () => {
-				// Mock AuthInfo.create to succeed
-				vi.spyOn(AuthInfo, 'create').mockResolvedValue({} as AuthInfo);
+				// Mock Org.create to succeed
+				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
 
 				const targetOrg = 'my-test-org';
 				const configFactorySpy = vi.spyOn(dependencies.configFactory, 'create');
@@ -525,7 +525,7 @@ describe('RunAction tests', () => {
 
 			it('validates org authentication before config creation', async () => {
 				const targetOrg = 'test-org';
-				const authInfoSpy = vi.spyOn(AuthInfo, 'create').mockResolvedValue({} as AuthInfo);
+				const orgSpy = vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
 
 				const input: RunInput = {
 					'rule-selector': ['all'],
@@ -536,14 +536,14 @@ describe('RunAction tests', () => {
 
 				await action.execute(input);
 
-				// Verify AuthInfo.create was called with the org name
-				expect(authInfoSpy).toHaveBeenCalledWith({ username: targetOrg });
+				// Verify Org.create was called with the org alias/username
+				expect(orgSpy).toHaveBeenCalledWith({ aliasOrUsername: targetOrg });
 			});
 
 			it('throws clear error when org is not authenticated', async () => {
 				const targetOrg = 'unauthenticated-org';
-				// Mock AuthInfo.create to throw an error (org not found/authenticated)
-				vi.spyOn(AuthInfo, 'create').mockRejectedValue(new Error('No authorization information found'));
+				// Mock Org.create to throw an error (org not found/authenticated)
+				vi.spyOn(Org, 'create').mockRejectedValue(new Error('No authorization information found'));
 
 				const input: RunInput = {
 					'rule-selector': ['all'],
@@ -569,7 +569,7 @@ describe('RunAction tests', () => {
 			});
 
 			it('does not validate org when target-org is not provided', async () => {
-				const authInfoSpy = vi.spyOn(AuthInfo, 'create');
+				const orgSpy = vi.spyOn(Org, 'create');
 
 				const input: RunInput = {
 					'rule-selector': ['all'],
@@ -580,8 +580,8 @@ describe('RunAction tests', () => {
 
 				await action.execute(input);
 
-				// Verify AuthInfo.create was NOT called
-				expect(authInfoSpy).not.toHaveBeenCalled();
+				// Verify Org.create was NOT called
+				expect(orgSpy).not.toHaveBeenCalled();
 			});
 		});
 	});
