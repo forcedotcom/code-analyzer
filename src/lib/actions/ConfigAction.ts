@@ -62,23 +62,15 @@ export class ConfigAction {
 		telemetryListener.listen(userCore);
 
 		const enginePlugins: EnginePlugin[] = this.dependencies.pluginsFactory.create();
-		const enginePluginModules: string[] = userConfig.getCustomEnginePluginModules();
 
 		const userEnginePromises: Promise<void>[] = [
 			...enginePlugins.map(enginePlugin => userCore.addEnginePlugin(enginePlugin)),
-			...enginePluginModules.map(pluginModule => userCore.dynamicallyAddEnginePlugin(pluginModule)),
 		];
 		await Promise.all(userEnginePromises);
 
 
 		// ==== PREPARE DEFAULT CONFIG (with disable_engine settings kept) AND DEFAULT CODE ANALYZER ===================
 
-		// TODO: We are currently only passing in the enginePlugins here which are not all plugins. We need to
-		// include the dynamically loaded plugins... but dynamicallyAddEnginePlugin loads and adds and so we never get
-		// access to the plugins. We need to update core to separate the concerns so that we just have a
-		// dynamicallyLoadEnginePlugin to just return the plugin so that we can add these plugins to this list.
-		// And/Or we could just have the Code Analyzer class return a list of the engines that were disabled so that
-		// we don't need this helper function here.
 		const disabledEngines: string[] = getDisabledEngineNames(enginePlugins, new Set(userCore.getEngineNames()));
 
 		type engineDisableInfo = { engines: { [key: string]: { disable_engine: boolean } } };
@@ -95,10 +87,6 @@ export class ConfigAction {
 		const defaultEnginePromises: Promise<void>[] = [
 			...enginePlugins.map(enginePlugin => defaultCoreForAllRules.addEnginePlugin(enginePlugin)),
 			...enginePlugins.map(enginePlugin => defaultCoreForSelectRules.addEnginePlugin(enginePlugin)),
-			// Assumption: Every engine's default configuration is sufficient to allow that engine to be instantiated,
-			// or throw a clear error indicating the problem.
-			...enginePluginModules.map(pluginModule => defaultCoreForAllRules.dynamicallyAddEnginePlugin(pluginModule)),
-			...enginePluginModules.map(pluginModule => defaultCoreForSelectRules.dynamicallyAddEnginePlugin(pluginModule)),
 		];
 		await Promise.all(defaultEnginePromises);
 
