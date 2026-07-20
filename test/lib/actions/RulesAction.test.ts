@@ -309,7 +309,3 @@ describe('RulesAction tests', () => {
 			});
 		})
 });
-
-// TODO: Whenever we decide to document the custom_engine_plugin_modules flag in our configuration file, then we'll want
-// to add in tests to lock in that behavior. But for now, it is a hidden utility for us to use internally, so no tests
-// have been added.
