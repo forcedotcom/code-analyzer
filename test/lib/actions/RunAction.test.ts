@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import ansis from 'ansis';
-import {Org, SfError} from '@salesforce/core';
+import {SfError} from '@salesforce/core';
 import {SeverityLevel} from '@salesforce/code-analyzer-core';
 import {SpyResultsViewer} from '../../stubs/SpyResultsViewer.js';
 import {SpyResultsWriter} from '../../stubs/SpyResultsWriter.js';
@@ -478,111 +478,6 @@ describe('RunAction tests', () => {
 			const runOptions = engine1.runRulesCallHistory[0].runOptions;
 			expect(runOptions.includeFixes).toBe(true);
 			expect(runOptions.includeSuggestions).toBe(true);
-		});
-
-		describe('target-org', () => {
-			it('RunInput accepts target-org field', async () => {
-				// Mock Org.create to succeed
-				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': 'test-org'
-				};
-
-				await action.execute(input);
-
-				// Verify execution completes without type errors
-				expect(engine1.runRulesCallHistory).toHaveLength(1);
-			});
-
-			it('target-org is passed through to engine config', async () => {
-				// Mock Org.create to succeed
-				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
-				const targetOrg = 'my-test-org';
-				const configFactorySpy = vi.spyOn(dependencies.configFactory, 'create');
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': targetOrg
-				};
-
-				await action.execute(input);
-
-				// Verify configFactory.create was called with target-org override
-				expect(configFactorySpy).toHaveBeenCalledWith(
-					undefined,
-					expect.objectContaining({
-						targetOrg: targetOrg
-					})
-				);
-			});
-
-			it('validates org authentication before config creation', async () => {
-				const targetOrg = 'test-org';
-				const orgSpy = vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': targetOrg
-				};
-
-				await action.execute(input);
-
-				// Verify Org.create was called with the org alias/username
-				expect(orgSpy).toHaveBeenCalledWith({ aliasOrUsername: targetOrg });
-			});
-
-			it('throws clear error when org is not authenticated', async () => {
-				const targetOrg = 'unauthenticated-org';
-				// Mock Org.create to throw an error (org not found/authenticated)
-				vi.spyOn(Org, 'create').mockRejectedValue(new Error('No authorization information found'));
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': targetOrg
-				};
-
-				// Execute and expect it to throw
-				let thrownError: Error | null = null;
-				try {
-					await action.execute(input);
-				} catch (e) {
-					thrownError = e as Error;
-				}
-
-				// Verify the error is an SfError with actionable message
-				expect(thrownError).toBeInstanceOf(SfError);
-				expect((thrownError as SfError).name).toEqual('OrgAuthenticationError');
-				expect((thrownError as SfError).message).toContain(`Org '${targetOrg}' not found or not authenticated`);
-				expect((thrownError as SfError).message).toContain('sf org list');
-				expect((thrownError as SfError).message).toContain('sf org login web');
-			});
-
-			it('does not validate org when target-org is not provided', async () => {
-				const orgSpy = vi.spyOn(Org, 'create');
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': []
-					// No target-org provided
-				};
-
-				await action.execute(input);
-
-				// Verify Org.create was NOT called
-				expect(orgSpy).not.toHaveBeenCalled();
-			});
 		});
 	});
 });

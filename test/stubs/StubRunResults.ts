@@ -14,6 +14,14 @@ export class StubEmptyResults implements RunResults {
 		throw new Error('Method not implemented.');
 	}
 
+	/**
+	 * Based on the way the tests currently use this stub, this method is never called,
+	 * so it should be fine for it to be unimplemented.
+	 */
+	getEngineInsights(_engineName: string): Record<string, unknown> | undefined {
+		return undefined;
+	}
+
 	getViolationCount(): number {
 		return 0;
 	}
@@ -57,22 +65,6 @@ export class StubEmptyResults implements RunResults {
 	toFormattedOutput(format: OutputFormat): string {
 		return `Results formatted as ${format}`;
 	}
-
-	/**
-	 * Based on the way the tests currently use this stub, this method is never called,
-	 * so it should be fine for it to be unimplemented.
-	 */
-	getInsights(): Record<string, unknown> | undefined {
-		return undefined;
-	}
-
-	/**
-	 * Based on the way the tests currently use this stub, this method is never called,
-	 * so it should be fine for it to be unimplemented.
-	 */
-	getEngineInsights(_engineName: string): Record<string, unknown> | undefined {
-		return undefined;
-	}
 }
 
 export class StubNonEmptyResults implements RunResults {
@@ -83,6 +75,15 @@ export class StubNonEmptyResults implements RunResults {
 	getRunDirectory(): string {
 		throw new Error('Method not implemented.');
 	}
+
+	/**
+	 * Based on the way the tests currently use this stub, this method is never called,
+	 * so it should be fine for it to be unimplemented.
+	 */
+	getEngineInsights(_engineName: string): Record<string, unknown> | undefined {
+		return undefined;
+	}
+
 	getViolationCount(): number {
 		return 5;
 	}
@@ -125,21 +126,5 @@ export class StubNonEmptyResults implements RunResults {
 	 */
 	toFormattedOutput(format: OutputFormat): string {
 		return `Results formatted as ${format}`;
-	}
-
-	/**
-	 * Based on the way the tests currently use this stub, this method is never called,
-	 * so it should be fine for it to be unimplemented.
-	 */
-	getInsights(): Record<string, unknown> | undefined {
-		return undefined;
-	}
-
-	/**
-	 * Based on the way the tests currently use this stub, this method is never called,
-	 * so it should be fine for it to be unimplemented.
-	 */
-	getEngineInsights(_engineName: string): Record<string, unknown> | undefined {
-		return undefined;
 	}
 }

@@ -86,14 +86,6 @@ Each targeted file must live within the workspace that you specified with the `â
 
 If you don't specify the `--target` flag, then all the files within your workspace (specified by the `--workspace` flag) are targeted for analysis.
 
-# flags.target-org.summary
-
-Target org username or alias for remote analysis engines.
-
-# flags.target-org.description
-
-Specify the username or alias of a Salesforce org when using engines that require remote connectivity, such as ApexGuru. The org must be authenticated with the Salesforce CLI.
-
 # flags.rule-selector.summary
 
 Selection of rules, based on engine name, severity level, rule name, tag, or a combination of criteria separated by colons.
