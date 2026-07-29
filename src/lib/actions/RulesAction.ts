@@ -52,10 +52,8 @@ export class RulesAction {
 		const telemetryListener: TelemetryEventListener = new TelemetryEventListener(this.dependencies.telemetryEmitter);
 		telemetryListener.listen(core);
 		const enginePlugins = this.dependencies.pluginsFactory.create();
-		const enginePluginModules = config.getCustomEnginePluginModules();
 		const addEnginePromises: Promise<void>[] = [
-			...enginePlugins.map(enginePlugin => core.addEnginePlugin(enginePlugin)),
-			...enginePluginModules.map(pluginModule => core.dynamicallyAddEnginePlugin(pluginModule))
+			...enginePlugins.map(enginePlugin => core.addEnginePlugin(enginePlugin))
 		];
 		await Promise.all(addEnginePromises);
 		const workspace: string[]|undefined = input.workspace || (input.target ? ['.'] : undefined);
