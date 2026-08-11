@@ -282,59 +282,5 @@ describe('CodeAnalyzerConfigFactoryImpl', () => {
 			});
 		});
 
-		describe('targetOrg override', () => {
-			it('When no config file and targetOrg override is provided, applies it to apexguru engine', () => {
-				const factory = new CodeAnalyzerConfigFactoryImpl();
-				const testedConfig = factory.create(undefined, { targetOrg: 'my-org@example.com' });
-
-				expect(testedConfig.getEngineOverridesFor('apexguru')).toEqual({
-					target_org: 'my-org@example.com'
-				});
-			});
-
-			it('When config file exists (without engines) and targetOrg override is provided, applies it to apexguru engine', () => {
-				const factory = new CodeAnalyzerConfigFactoryImpl();
-				const configPath = path.resolve('test', 'fixtures', 'valid-configs', 'config-without-suppressions-field.yml');
-
-				const testedConfig = factory.create(configPath, { targetOrg: 'my-org@example.com' });
-
-				expect(testedConfig.getEngineOverridesFor('apexguru')).toEqual({
-					target_org: 'my-org@example.com'
-				});
-				// Original config values should still be loaded
-				expect(testedConfig.getRuleOverridesFor('stubEngine1')).toEqual({
-					stub1RuleC: {
-						severity: 4,
-						tags: ['TestTag']
-					}
-				});
-			});
-
-			it('When YAML config explicitly disables suppressions and targetOrg override is provided, both are applied', () => {
-				const factory = new CodeAnalyzerConfigFactoryImpl();
-				const configPath = path.resolve('test', 'fixtures', 'valid-configs', 'config-with-suppressions-disabled.yml');
-
-				const testedConfig = factory.create(configPath, { targetOrg: 'my-org@example.com' });
-
-				// YAML suppressions setting preserved (disabled), targetOrg also applied
-				expect(testedConfig.getSuppressionsEnabled()).toBe(false);
-				expect(testedConfig.getEngineOverridesFor('apexguru')).toEqual({
-					target_org: 'my-org@example.com'
-				});
-			});
-
-			it('When both noSuppressions and targetOrg overrides are provided, both are applied', () => {
-				const factory = new CodeAnalyzerConfigFactoryImpl();
-				const testedConfig = factory.create(undefined, {
-					noSuppressions: true,
-					targetOrg: 'my-org@example.com'
-				});
-
-				expect(testedConfig.getSuppressionsEnabled()).toBe(false);
-				expect(testedConfig.getEngineOverridesFor('apexguru')).toEqual({
-					target_org: 'my-org@example.com'
-				});
-			});
-		});
 	});
 });

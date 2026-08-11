@@ -5,7 +5,6 @@ import * as yaml from 'js-yaml';
 
 export type CliOverrides = {
 	noSuppressions?: boolean;
-	targetOrg?: string;
 	// Future CLI flag overrides can be added here
 }
 
@@ -19,7 +18,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 
 	public create(configPath?: string, cliOverrides?: CliOverrides): CodeAnalyzerConfig {
 		// Fast path: If no CLI overrides, use existing simple logic
-		if (!cliOverrides || (cliOverrides.noSuppressions === undefined && cliOverrides.targetOrg === undefined)) {
+		if (!cliOverrides || cliOverrides.noSuppressions === undefined) {
 			return this.getConfigFromProvidedPath(configPath)
 			|| this.seekConfigInCurrentDirectory()
 			|| CodeAnalyzerConfig.withDefaults();
@@ -63,7 +62,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 		const disableSuppressionExplicitlySet = suppressionsSection?.disable_suppressions !== undefined;
 
 		// If YAML explicitly sets disable_suppressions, YAML wins completely (no CLI override)
-		if (disableSuppressionExplicitlySet && !cliOverrides.targetOrg) {
+		if (disableSuppressionExplicitlySet) {
 			return CodeAnalyzerConfig.fromFile(configFilePath);
 		}
 
@@ -92,21 +91,6 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 			};
 		}
 
-		// Apply target-org override to apexguru engine config
-		if (cliOverrides.targetOrg) {
-			const enginesSection = mergedConfig.engines as Record<string, Record<string, unknown>> | undefined;
-			mergedConfig = {
-				...mergedConfig,
-				engines: {
-					...(enginesSection || {}),
-					apexguru: {
-						...(enginesSection?.apexguru || {}),
-						target_org: cliOverrides.targetOrg
-					}
-				}
-			};
-		}
-
 		return rawYaml ? CodeAnalyzerConfig.fromObject(mergedConfig) : CodeAnalyzerConfig.fromFile(configFilePath);
 	}
 
@@ -116,14 +100,6 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 
 		if (cliOverrides?.noSuppressions) {
 			configObject.suppressions = { disable_suppressions: true };
-		}
-
-		if (cliOverrides?.targetOrg) {
-			configObject.engines = {
-				apexguru: {
-					target_org: cliOverrides.targetOrg
-				}
-			};
 		}
 
 		// If we have overrides, create config from them; otherwise use defaults

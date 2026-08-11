@@ -36,7 +36,7 @@ class MessageCatalog {
 
 	private getBundle(bundle: BundleName): Messages<string> {
 		if (!this.bundleMap.has(bundle)) {
-			this.bundleMap.set(bundle, Messages.loadMessages('@salesforce/plugin-code-analyzer', bundle.toString()));
+			this.bundleMap.set(bundle, Messages.loadMessages('@salesforce/plugin-code-analyzer-lite', bundle.toString()));
 		}
 		// @ts-expect-error Map.get() can technically return undefined, but that will never happen in practice.
 		return this.bundleMap.get(bundle);

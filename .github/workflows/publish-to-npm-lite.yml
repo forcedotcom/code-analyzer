@@ -1,0 +1,132 @@
+name: publish-to-npm-lite
+on:
+  release:
+    types: [released]
+  # Support manual releases in case something goes wrong, or we need to do a test.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to be published
+        type: string
+        required: true
+
+jobs:
+  # Step 1: Verify that the tag we're trying to release is a valid candidate for publishing.
+  verify-candidate-tag:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the tag we want to release.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      # Verify that the `package.json`'s name property is the lite package, so this workflow can't accidentally
+      # publish a tag intended for the full plugin (or vice versa).
+      - name: Verify package name
+        run: |
+          PACKAGE_NAME=$(jq -r ".name" package.json)
+          [[ ${PACKAGE_NAME} == "@salesforce/plugin-code-analyzer-lite" ]] || (echo "package.json name must be @salesforce/plugin-code-analyzer-lite" && exit 1)
+      # Verify that the `package.json`'s version property is 5.Y.Z, as we want to restrict this branch to
+      # publishing v5.x, matching the full plugin's major version.
+      - name: Verify major version
+        run: |
+          MAJOR_VERSION=`cat package.json | jq '.version | split(".") | .[0]' | xargs`
+          [[ ${MAJOR_VERSION} == 5 ]] || (echo "package.json version must be 5.x" && exit 1)
+      # Verify that the tag is of the format "vX.Y.Z", where the X, Y, and Z exactly match the corresponding values in
+      # `package.json`'s version property. Tag/input values are compared as environment variables (not interpolated
+      # directly into the script) to avoid shell injection via a crafted tag name.
+      - name: Compare tag to package.json
+        env:
+          GIT_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          PACKAGE_VERSION=v`cat package.json | jq '.version' | xargs`
+          [[ "${GIT_TAG}" == "${PACKAGE_VERSION}" ]] || (echo "Tag name must match package.json version, prefixed by lowercase v" && exit 1)
+      - name: Check if this version number is already used on NPM
+        run: |
+          RESPONSE=$(npm view @salesforce/plugin-code-analyzer-lite@$INPUTS_GITHUB_TAG version --json --silent || echo "Not published")
+          if [ "$RESPONSE" = "\"$INPUTS_GITHUB_TAG\"" ]; then
+            echo "NPM already has a package with this version number, so publishing is impossible." && exit 1
+          else
+            echo "NPM does not yet have a package with this version number, so we're free to use it here."
+          fi
+        env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  # Step 2: Publish the tag as a release candidate.
+  publish-rc:
+    needs: verify-candidate-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - run: npm install && npm run build
+      - run: npm install -g @salesforce/plugin-release-management
+      - name: NPM release
+        run: |
+          sf-release npm:package:release \
+            --githubtag "$INPUTS_GITHUB_TAG" \
+            --npmtag "$INPUTS_NPM_TAG" \
+            --no-install \
+            --sign
+        env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          INPUTS_NPM_TAG: latest-rc # Publish as a release candidate, so we can do our validations against it.
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+  # Step 3: Run smoke tests against the release candidate.
+  rc-test:
+    needs: publish-rc
+    strategy:
+      # By default, if any job in a matrix fails, all other jobs are immediately cancelled. This option makes the jobs
+      # run to completion instead.
+      fail-fast: false
+      matrix:
+        os: [{vm: ubuntu-latest, exe: .sh}, {vm: macos-latest, exe: .sh}, {vm: windows-latest, exe: .cmd}]
+    runs-on: ${{ matrix.os.vm }}
+    steps:
+      # We need to checkout the tag to get the smoke tests
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+      # We need Node LTS and Java v11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11' # For now, Java version is hardcoded.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '>=3.10'
+      # Install SF, and the release candidate version.
+      - run: npm install -g @salesforce/cli
+      - run: sf plugins install @salesforce/plugin-code-analyzer-lite@latest-rc
+      # Log the installed plugins for easier debugging.
+      - run: sf plugins
+      # Attempt to run the smoke tests.
+      - run: smoke-tests/smoke-test${{ matrix.os.exe }} sf
+      # Upload the smoke test result as an artifact, so it's visible for later.
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: ${{ runner.os }}-smoke-test-results-lite
+          path: smoke-test-results
+  # Step 4: Promote the release candidate to latest.
+  promote-to-latest:
+    needs: rc-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GIT_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm dist-tag add "@salesforce/plugin-code-analyzer-lite@${GIT_TAG}" latest

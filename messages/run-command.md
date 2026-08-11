@@ -68,7 +68,7 @@ Set of files that make up your workspace.
 
 Typically, a workspace is a single project folder that contains all your files. But it can also consist of one or more folders, one or more files, and use glob patterns (wildcards). If you specify this flag multiple times, then your workspace is the sum of the files and folders.
 
-Some engines often need your entire code base to perform an analysis, even if you want to target only a subset of the files within your workspace , such as with the `--target` flag. For example, the Salesforce Graph Engine might need to compile your entire project in order to properly build a graph so it can perform a data flow analysis on the paths that start in your targeted files.
+Some engines often need your entire code base to perform an analysis, even if you want to target only a subset of the files within your workspace, such as with the `--target` flag.
 
 If you don't specify the `--workspace` flag, then the current folder '.' is used as your workspace.
 
@@ -85,14 +85,6 @@ If you specify this flag multiple times, then the full list of targeted files is
 Each targeted file must live within the workspace that you specified with the `–-workspace` flag.
 
 If you don't specify the `--target` flag, then all the files within your workspace (specified by the `--workspace` flag) are targeted for analysis.
-
-# flags.target-org.summary
-
-Target org username or alias for remote analysis engines.
-
-# flags.target-org.description
-
-Specify the username or alias of a Salesforce org when using engines that require remote connectivity, such as ApexGuru. The org must be authenticated with the Salesforce CLI.
 
 # flags.rule-selector.summary
 
