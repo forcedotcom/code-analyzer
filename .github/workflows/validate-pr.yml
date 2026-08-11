@@ -3,6 +3,11 @@ on:
   pull_request:
     types: [edited, opened, reopened, synchronize]
 
+# Principle of least privilege: this workflow only needs to read repository
+# contents. Restricting the token limits the blast radius of any compromised step.
+permissions:
+  contents: read
+
 jobs:
   # We need to verify that the Pull Request's title matches the desired format.
   verify_pr_title:
@@ -13,10 +18,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Verify PR Title
+        # Pass untrusted values (the PR title) via the environment rather than
+        # direct ${{ }} interpolation, so they are treated as data and cannot
+        # inject shell commands.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          title="${{ github.event.pull_request.title }}"
+          title="$PR_TITLE"
           title_upper=$(echo "$title" | tr '[:lower:]' '[:upper:]')
-          base_ref="${{ github.base_ref }}"
+          base_ref="$BASE_REF"
 
           # Define regex patterns for different types of PR titles
           MAIN2DEV_REGEX="^MAIN2DEV[[:space:]]*:?[[:space:]]*@W-[[:digit:]]{8,9}@.*MERGING.+[[:digit:]]{1,2}\.[[:digit:]]{1,2}\.[[:digit:]]{1,2}.*"
