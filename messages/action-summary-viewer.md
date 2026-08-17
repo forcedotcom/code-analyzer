@@ -45,3 +45,7 @@ Found %d violation(s) across %d file(s):
 # run-action.outfiles-total
 
 Results written to:
+
+# run-action.apexguru-analysis-mode
+
+ApexGuru analysis mode: %s
