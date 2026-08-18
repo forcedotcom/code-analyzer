@@ -448,6 +448,41 @@ export class StubEnginePluginWithTargetDependentEngine extends EngineApi.EngineP
 	}
 }
 
+
+export class StubApexGuruEngine extends EngineApi.Engine {
+	readonly runRulesCallHistory: {ruleNames: string[], runOptions: EngineApi.RunOptions}[] = [];
+	resultsToReturn: EngineApi.EngineRunResults = { violations: [] }
+
+	constructor(_config: EngineApi.ConfigObject) {
+		super();
+	}
+
+	getName(): string {
+		return "apexguru";
+	}
+
+	getEngineVersion(): Promise<string> {
+		return Promise.resolve("1.0.0");
+	}
+
+	describeRules(): Promise<EngineApi.RuleDescription[]> {
+		return Promise.resolve([
+			{
+				name: "stubApexGuruRuleA",
+				severityLevel: EngineApi.SeverityLevel.High,
+				tags: ["Recommended", "Performance"],
+				description: "Some description for stubApexGuruRuleA",
+				resourceUrls: ["https://example.com/stubApexGuruRuleA"]
+			}
+		]);
+	}
+
+	runRules(ruleNames: string[], runOptions: EngineApi.RunOptions): Promise<EngineApi.EngineRunResults> {
+		this.runRulesCallHistory.push({ruleNames, runOptions});
+		return Promise.resolve(this.resultsToReturn);
+	}
+}
+
 export class TargetDependentEngine1 extends EngineApi.Engine {
 	readonly runRulesCallHistory: {ruleNames: string[], runOptions: EngineApi.RunOptions}[] = [];
 	constructor(_config: EngineApi.ConfigObject) {
