@@ -3,6 +3,14 @@ import {Display} from '../Display.js';
 import {toStyledHeader, indent} from '../utils/StylingUtil.js';
 import {BundleName, getMessage} from '../messages.js';
 
+
+const APEXGURU_ENGINE_NAME = 'apexguru';
+
+const APEXGURU_ANALYSIS_MODE_LABELS: Record<string, string> = {
+	full: 'ADVANCED',
+	static: 'BASIC'
+};
+
 abstract class AbstractActionSummaryViewer {
 	protected readonly display: Display;
 
@@ -113,6 +121,7 @@ export class RunActionSummaryViewer extends AbstractActionSummaryViewer {
 		} else {
 			this.displayResultsSummary(results);
 		}
+		this.displayApexGuruAnalysisMode(results);
 		this.displayLineSeparator();
 
 		if (outfiles.length > 0) {
@@ -135,6 +144,20 @@ export class RunActionSummaryViewer extends AbstractActionSummaryViewer {
 				this.display.displayLog(indent(getMessage(BundleName.ActionSummaryViewer, 'run-action.violations-item', [sevCount, sev])));
 			}
 		}
+	}
+
+
+	private displayApexGuruAnalysisMode(results: RunResults): void {
+		if (!results.getEngineNames().includes(APEXGURU_ENGINE_NAME)) {
+			return;
+		}
+		const insights = results.getEngineInsights(APEXGURU_ENGINE_NAME);
+		const analysisMode = insights?.['analysisMode'];
+		if (typeof analysisMode !== 'string') {
+			return;
+		}
+		const label = APEXGURU_ANALYSIS_MODE_LABELS[analysisMode] ?? analysisMode.toUpperCase();
+		this.display.displayLog(getMessage(BundleName.ActionSummaryViewer, 'run-action.apexguru-analysis-mode', [label]));
 	}
 
 	private countUniqueFiles(violations: Violation[]): number {
