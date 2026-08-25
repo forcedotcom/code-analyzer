@@ -20,7 +20,7 @@
 		"@salesforce/code-analyzer-regex-engine": "0.39.0",
 		"@salesforce/code-analyzer-retirejs-engine": "0.38.0",
 		"@salesforce/code-analyzer-sfge-engine": "0.24.0",
-		"@salesforce/code-analyzer-uibundle-engine": "0.1.0",
+		"@salesforce/code-analyzer-uibundle-engine": "0.2.0",
 		"@salesforce/core": "8.23.4",
 		"@salesforce/sf-plugins-core": "^12.2.26",
 		"@salesforce/ts-types": "^2.0.12",
