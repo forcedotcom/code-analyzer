@@ -6,7 +6,7 @@ describe('EnginePluginsFactoryImpl', () => {
 		const pluginsFactory = new EnginePluginsFactoryImpl();
 		const enginePlugins = pluginsFactory.create();
 
-		expect(enginePlugins).toHaveLength(7);
+		expect(enginePlugins).toHaveLength(8);
 		expect(enginePlugins[0].getAvailableEngineNames()).toEqual(['eslint']);
 		expect(enginePlugins[1].getAvailableEngineNames()).toEqual(['pmd', 'cpd']);
 		expect(enginePlugins[2].getAvailableEngineNames()).toEqual(['retire-js']);
@@ -14,5 +14,6 @@ describe('EnginePluginsFactoryImpl', () => {
 		expect(enginePlugins[4].getAvailableEngineNames()).toEqual(['flow']);
 		expect(enginePlugins[5].getAvailableEngineNames()).toEqual(['sfge']);
 		expect(enginePlugins[6].getAvailableEngineNames()).toEqual(['apexguru']);
+		expect(enginePlugins[7].getAvailableEngineNames()).toEqual(['uibundle']);
 	});
 });

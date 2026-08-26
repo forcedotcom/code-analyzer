@@ -1,13 +1,13 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import ansis from 'ansis';
-import {Org, SfError} from '@salesforce/core';
+import {SfError} from '@salesforce/core';
 import {SeverityLevel} from '@salesforce/code-analyzer-core';
 import {SpyResultsViewer} from '../../stubs/SpyResultsViewer.js';
 import {SpyResultsWriter} from '../../stubs/SpyResultsWriter.js';
 import {SpyDisplay, DisplayEventType} from '../../stubs/SpyDisplay.js';
 import {StubDefaultConfigFactory} from '../../stubs/StubCodeAnalyzerConfigFactories.js';
-import {ConfigurableStubEnginePlugin1, StubEngine1, TargetDependentEngine1} from '../../stubs/StubEnginePlugins.js';
+import {ConfigurableStubEnginePlugin1, StubApexGuruEngine, StubEngine1, TargetDependentEngine1} from '../../stubs/StubEnginePlugins.js';
 import {RunAction, RunInput, RunDependencies} from '../../../src/lib/actions/RunAction.js';
 import {RunActionSummaryViewer} from '../../../src/lib/viewers/ActionSummaryViewer.js';
 import {
@@ -365,6 +365,92 @@ describe('RunAction tests', () => {
 			expect(displayedLogEvents).toContain(preExecutionGoldfileContents);
 			expect(displayedLogEvents).toContain(goldfileContents);
 		});
+
+		describe('ApexGuru analysis mode', () => {
+			let apexGuruEngine: StubApexGuruEngine;
+
+			beforeEach(() => {
+				apexGuruEngine = new StubApexGuruEngine({});
+				stubEnginePlugin.addEngine(apexGuruEngine);
+			});
+
+			it.each([
+				{analysisMode: 'full', expectedLabel: 'ADVANCED'},
+				{analysisMode: 'static', expectedLabel: 'BASIC'}
+			])('When ApexGuru insights report analysis mode "$analysisMode", the terminal summary shows $expectedLabel', async ({analysisMode, expectedLabel}) => {
+				// ==== SETUP ====
+				apexGuruEngine.resultsToReturn = {
+					violations: [],
+					insights: {
+						status: 'completed',
+						analysisMode
+					}
+				};
+				const input: RunInput = {
+					'rule-selector': ['all'],
+					'workspace': ['.'],
+					'output-file': []
+				};
+
+				// ==== TESTED BEHAVIOR ====
+				await action.execute(input);
+
+				// ==== ASSERTIONS ====
+				const displayEvents = spyDisplay.getDisplayEvents();
+				const displayedLogEvents = ansis.strip(displayEvents
+					.filter(e => e.type === DisplayEventType.LOG)
+					.map(e => e.data)
+					.join('\n'));
+				expect(displayedLogEvents).toContain(`ApexGuru analysis mode: ${expectedLabel}`);
+			});
+
+			it('When ApexGuru ran but did not report an analysis mode, no analysis mode line is shown', async () => {
+				// ==== SETUP ====
+				apexGuruEngine.resultsToReturn = {
+					violations: [],
+					insights: {
+						status: 'completed'
+					}
+				};
+				const input: RunInput = {
+					'rule-selector': ['all'],
+					'workspace': ['.'],
+					'output-file': []
+				};
+
+				// ==== TESTED BEHAVIOR ====
+				await action.execute(input);
+
+				// ==== ASSERTIONS ====
+				const displayEvents = spyDisplay.getDisplayEvents();
+				const displayedLogEvents = ansis.strip(displayEvents
+					.filter(e => e.type === DisplayEventType.LOG)
+					.map(e => e.data)
+					.join('\n'));
+				expect(displayedLogEvents).not.toContain('ApexGuru analysis mode');
+			});
+
+			it('When ApexGuru did not run, no analysis mode line is shown', async () => {
+				// ==== SETUP ====
+				// Remove ApexGuru from the plugin's available engines by only selecting rules from other engines.
+				const input: RunInput = {
+					'rule-selector': ['stubEngine1'],
+					'workspace': ['.'],
+					'output-file': []
+				};
+
+				// ==== TESTED BEHAVIOR ====
+				await action.execute(input);
+
+				// ==== ASSERTIONS ====
+				const displayEvents = spyDisplay.getDisplayEvents();
+				const displayedLogEvents = ansis.strip(displayEvents
+					.filter(e => e.type === DisplayEventType.LOG)
+					.map(e => e.data)
+					.join('\n'));
+				expect(displayedLogEvents).not.toContain('ApexGuru analysis mode');
+			});
+		});
 	});
 
 	describe('Telemetry Emission', () => {
@@ -481,10 +567,12 @@ describe('RunAction tests', () => {
 		});
 
 		describe('target-org', () => {
+			// Note: RunAction no longer validates org authentication upfront. A bad/unauthenticated
+			// --target-org is instead handled gracefully by the ApexGuru engine itself (which is the
+			// only engine that consumes target-org), skipping with a warning rather than aborting the
+			// whole `run` command. See ApexGuruAuthService/ApexGuruEngine in code-analyzer-core for that
+			// behavior and its tests.
 			it('RunInput accepts target-org field', async () => {
-				// Mock Org.create to succeed
-				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
 				const input: RunInput = {
 					'rule-selector': ['all'],
 					'workspace': ['.'],
@@ -499,9 +587,6 @@ describe('RunAction tests', () => {
 			});
 
 			it('target-org is passed through to engine config', async () => {
-				// Mock Org.create to succeed
-				vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
 				const targetOrg = 'my-test-org';
 				const configFactorySpy = vi.spyOn(dependencies.configFactory, 'create');
 
@@ -523,53 +608,8 @@ describe('RunAction tests', () => {
 				);
 			});
 
-			it('validates org authentication before config creation', async () => {
-				const targetOrg = 'test-org';
-				const orgSpy = vi.spyOn(Org, 'create').mockResolvedValue({} as Org);
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': targetOrg
-				};
-
-				await action.execute(input);
-
-				// Verify Org.create was called with the org alias/username
-				expect(orgSpy).toHaveBeenCalledWith({ aliasOrUsername: targetOrg });
-			});
-
-			it('throws clear error when org is not authenticated', async () => {
-				const targetOrg = 'unauthenticated-org';
-				// Mock Org.create to throw an error (org not found/authenticated)
-				vi.spyOn(Org, 'create').mockRejectedValue(new Error('No authorization information found'));
-
-				const input: RunInput = {
-					'rule-selector': ['all'],
-					'workspace': ['.'],
-					'output-file': [],
-					'target-org': targetOrg
-				};
-
-				// Execute and expect it to throw
-				let thrownError: Error | null = null;
-				try {
-					await action.execute(input);
-				} catch (e) {
-					thrownError = e as Error;
-				}
-
-				// Verify the error is an SfError with actionable message
-				expect(thrownError).toBeInstanceOf(SfError);
-				expect((thrownError as SfError).name).toEqual('OrgAuthenticationError');
-				expect((thrownError as SfError).message).toContain(`Org '${targetOrg}' not found or not authenticated`);
-				expect((thrownError as SfError).message).toContain('sf org list');
-				expect((thrownError as SfError).message).toContain('sf org login web');
-			});
-
-			it('does not validate org when target-org is not provided', async () => {
-				const orgSpy = vi.spyOn(Org, 'create');
+			it('does not include a target-org override when target-org is not provided', async () => {
+				const configFactorySpy = vi.spyOn(dependencies.configFactory, 'create');
 
 				const input: RunInput = {
 					'rule-selector': ['all'],
@@ -580,8 +620,7 @@ describe('RunAction tests', () => {
 
 				await action.execute(input);
 
-				// Verify Org.create was NOT called
-				expect(orgSpy).not.toHaveBeenCalled();
+				expect(configFactorySpy).toHaveBeenCalledWith(undefined, undefined);
 			});
 		});
 	});
