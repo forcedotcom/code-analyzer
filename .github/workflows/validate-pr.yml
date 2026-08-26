@@ -18,16 +18,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Verify PR Title
-        # Pass untrusted values (the PR title) via the environment rather than
-        # direct ${{ }} interpolation, so they are treated as data and cannot
-        # inject shell commands.
+        # Pass untrusted values (the PR title and branch refs) via the
+        # environment rather than direct ${{ }} interpolation, so they are
+        # treated as data and cannot inject shell commands.
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           title="$PR_TITLE"
           title_upper=$(echo "$title" | tr '[:lower:]' '[:upper:]')
           base_ref="$BASE_REF"
+          head_ref="$HEAD_REF"
 
           # Define regex patterns for different types of PR titles
           MAIN2DEV_REGEX="^MAIN2DEV[[:space:]]*:?[[:space:]]*@W-[[:digit:]]{8,9}@.*MERGING.+[[:digit:]]{1,2}\.[[:digit:]]{1,2}\.[[:digit:]]{1,2}.*"
@@ -35,7 +37,7 @@ jobs:
           PR_INTO_DEV_OR_RELEASE_REGEX="^(FIX|CHANGE|NEW)([[:space:]]*\([^)]+\))?[[:space:]]*:?[[:space:]]*@W-[[:digit:]]{8,9}@.+"
 
           # Validate PR title based on base_ref and head_ref
-          if [[ "$base_ref" == "dev" && "${{ startsWith(github.head_ref, 'm2d/') }}" == "true" ]]; then
+          if [[ "$base_ref" == "dev" && "$head_ref" == m2d/* ]]; then
             if [[ ! "$title_upper" =~ $MAIN2DEV_REGEX ]]; then
               echo "::error::Invalid PR title: '$title'. Please follow the format: Main2Dev @W-XXXXXXXX@ Merging.*\d+\.\d+\.\d+"
               exit 1
@@ -45,7 +47,7 @@ jobs:
               echo "::error::Invalid PR title: '$title'. Please follow the format: RELEASE @W-XXXXXXXX@ Summary"
               exit 1
             fi
-          elif [[ "$base_ref" == "dev" || "${{ startsWith(github.base_ref, 'release-') }}" == "true" ]]; then
+          elif [[ "$base_ref" == "dev" || "$base_ref" == release-* ]]; then
             if [[ ! "$title_upper" =~ $PR_INTO_DEV_OR_RELEASE_REGEX ]]; then
               echo "::error::Invalid PR title: '$title'. Please follow the format: FIX|CHANGE|NEW (__) @W-XXXXXXXX@ Summary"
               exit 1
