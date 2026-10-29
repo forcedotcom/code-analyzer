@@ -18,6 +18,10 @@ on:
 jobs:
   publish_package:
     runs-on: ubuntu-latest
+    permissions:
+      # Required for npm Trusted Publishing (OIDC).
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +35,18 @@ jobs:
           echo "::error::You did not confirm, so dist-tag not called."
           exit 1
 
-      - name: Prepare NPM Credentials
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
+      # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@11
 
       - name: Apply tag
+        # Pass user-supplied inputs via the environment rather than direct ${{ }} interpolation, so they are
+        # treated as data and cannot inject shell commands.
+        env:
+          INPUTS_TAG_NAME: ${{ github.event.inputs.tag_name }}
+          INPUTS_VERSION: ${{ github.event.inputs.version }}
         run: |
-          echo "You have confirmed that using this action is only recommended for emergency rollback situations and that you are responsible for manually applying the ${{ github.event.inputs.tag_name }} tag to @salesforce/plugin-code-analyzer@${{ github.event.inputs.version }}."
+          echo "You have confirmed that using this action is only recommended for emergency rollback situations and that you are responsible for manually applying the ${INPUTS_TAG_NAME} tag to @salesforce/plugin-code-analyzer@${INPUTS_VERSION}."
           echo "Applying tag..."
-          npm dist-tag add @salesforce/plugin-code-analyzer@${{ github.event.inputs.version }} ${{ github.event.inputs.tag_name }}
+          npm dist-tag add "@salesforce/plugin-code-analyzer@${INPUTS_VERSION}" "${INPUTS_TAG_NAME}"

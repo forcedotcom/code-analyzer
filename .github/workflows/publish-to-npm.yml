@@ -42,8 +42,10 @@ jobs:
       # Verify that the tag is of the format "vX.Y.Z", where the X, Y, and Z exactly match the corresponding values in
       # `package.json`'s version property.
       - name: Compare tag to package.json
+        env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          TAG=${{ github.event.release.tag_name || inputs.tag }}
+          TAG="$INPUTS_GITHUB_TAG"
           PACKAGE_VERSION=v`cat package.json | jq '.version' | xargs`
           [[ ${TAG} == ${PACKAGE_VERSION} ]] || (echo "Tag name must match package.json version, prefixed by lowercase v" && exit 1)
       - name: Check if this version number is already used on NPM
@@ -56,11 +58,14 @@ jobs:
           fi
         env:
           INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   # Step 2: Publish the tag as a release candidate.
   publish-rc:
     needs: verify-candidate-tag
     runs-on: ubuntu-latest
+    permissions:
+      # Required for npm Trusted Publishing (OIDC).
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,6 +74,10 @@ jobs:
         with:
           node-version: 'lts/*'
       - run: npm install && npm run build
+      # Trusted Publishing requires npm >= 11.5.1, which is newer than the npm bundled with Node LTS.
+      # Pinned to the npm 11 line (not latest): npm 12 removed `npm shrinkwrap` and no longer packs
+      # npm-shrinkwrap.json, which this package ships (see `prepack` in package.json).
+      - run: npm install -g npm@11
       - run: npm install -g @salesforce/plugin-release-management
       - name: NPM release
         run: |
@@ -76,13 +85,13 @@ jobs:
             --githubtag "$INPUTS_GITHUB_TAG" \
             --npmtag "$INPUTS_NPM_TAG" \
             --no-install \
-            --sign
+            --sign \
+            --trusted-publishing
         env:
           INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
           INPUTS_NPM_TAG: latest-rc # Publish as a release candidate, so we can do our validations against it.
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
   # Step 3: Run smoke tests against the release candidate.
   rc-test:
     needs: publish-rc
@@ -126,13 +135,21 @@ jobs:
   promote-to-latest:
     needs: rc-test
     runs-on: ubuntu-latest
+    permissions:
+      # Required for npm Trusted Publishing (OIDC).
+      id-token: write
+      contents: read
     steps:
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-      - run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          npm dist-tag add @salesforce/plugin-code-analyzer@${{ github.event.release.tag_name || inputs.tag }} latest
+      # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
+      # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
+      - run: npm install -g npm@11
+      - env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          npm dist-tag add "@salesforce/plugin-code-analyzer@${INPUTS_GITHUB_TAG}" latest
   # Step 5: Create a Pull Request for merging `main` into `dev`
   create-main2dev-pull-request:
     needs: promote-to-latest
