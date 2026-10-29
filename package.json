@@ -89,7 +89,7 @@
 	"repository": "forcedotcom/code-analyzer",
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
-		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme && cp package-lock.json npm-shrinkwrap.json",
+		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme && npm shrinkwrap",
 		"postpack": "rm -f oclif.manifest.json oclif.lock npm-shrinkwrap.json",
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
