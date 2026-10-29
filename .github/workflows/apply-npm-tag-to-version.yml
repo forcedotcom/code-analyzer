@@ -41,7 +41,12 @@ jobs:
         run: npm install -g npm@11
 
       - name: Apply tag
+        # Pass user-supplied inputs via the environment rather than direct ${{ }} interpolation, so they are
+        # treated as data and cannot inject shell commands.
+        env:
+          INPUTS_TAG_NAME: ${{ github.event.inputs.tag_name }}
+          INPUTS_VERSION: ${{ github.event.inputs.version }}
         run: |
-          echo "You have confirmed that using this action is only recommended for emergency rollback situations and that you are responsible for manually applying the ${{ github.event.inputs.tag_name }} tag to @salesforce/plugin-code-analyzer@${{ github.event.inputs.version }}."
+          echo "You have confirmed that using this action is only recommended for emergency rollback situations and that you are responsible for manually applying the ${INPUTS_TAG_NAME} tag to @salesforce/plugin-code-analyzer@${INPUTS_VERSION}."
           echo "Applying tag..."
-          npm dist-tag add @salesforce/plugin-code-analyzer@${{ github.event.inputs.version }} ${{ github.event.inputs.tag_name }}
+          npm dist-tag add "@salesforce/plugin-code-analyzer@${INPUTS_VERSION}" "${INPUTS_TAG_NAME}"

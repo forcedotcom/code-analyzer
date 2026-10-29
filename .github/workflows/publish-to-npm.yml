@@ -42,8 +42,10 @@ jobs:
       # Verify that the tag is of the format "vX.Y.Z", where the X, Y, and Z exactly match the corresponding values in
       # `package.json`'s version property.
       - name: Compare tag to package.json
+        env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          TAG=${{ github.event.release.tag_name || inputs.tag }}
+          TAG="$INPUTS_GITHUB_TAG"
           PACKAGE_VERSION=v`cat package.json | jq '.version' | xargs`
           [[ ${TAG} == ${PACKAGE_VERSION} ]] || (echo "Tag name must match package.json version, prefixed by lowercase v" && exit 1)
       - name: Check if this version number is already used on NPM
@@ -144,8 +146,10 @@ jobs:
       # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
       # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
       - run: npm install -g npm@11
-      - run: |
-          npm dist-tag add @salesforce/plugin-code-analyzer@${{ github.event.release.tag_name || inputs.tag }} latest
+      - env:
+          INPUTS_GITHUB_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          npm dist-tag add "@salesforce/plugin-code-analyzer@${INPUTS_GITHUB_TAG}" latest
   # Step 5: Create a Pull Request for merging `main` into `dev`
   create-main2dev-pull-request:
     needs: promote-to-latest
