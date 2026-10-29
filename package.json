@@ -60,7 +60,6 @@
 	"files": [
 		"/lib",
 		"/messages",
-		"/npm-shrinkwrap.json",
 		"/oclif.manifest.json"
 	],
 	"homepage": "https://developer.salesforce.com/docs/platform/salesforce-code-analyzer/overview",
@@ -89,8 +88,8 @@
 	"repository": "forcedotcom/code-analyzer",
 	"scripts": {
 		"build": "tsc --build tsconfig.json",
-		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme && npm shrinkwrap",
-		"postpack": "rm -f oclif.manifest.json oclif.lock npm-shrinkwrap.json",
+		"prepack": "rm -rf lib && tsc --build tsconfig.json && oclif manifest && oclif readme",
+		"postpack": "rm -f oclif.manifest.json oclif.lock",
 		"lint": "eslint ./src --max-warnings 0",
 		"version": "oclif readme && git add README.md",
 		"test": "tsc --build ./test/tsconfig.json --noEmit && vitest run --coverage",

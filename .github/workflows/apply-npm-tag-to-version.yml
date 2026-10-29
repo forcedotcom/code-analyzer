@@ -18,6 +18,10 @@ on:
 jobs:
   publish_package:
     runs-on: ubuntu-latest
+    permissions:
+      # Required for npm Trusted Publishing (OIDC).
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +35,10 @@ jobs:
           echo "::error::You did not confirm, so dist-tag not called."
           exit 1
 
-      - name: Prepare NPM Credentials
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
+      # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
 
       - name: Apply tag
         run: |
