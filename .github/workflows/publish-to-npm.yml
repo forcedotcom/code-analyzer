@@ -73,7 +73,9 @@ jobs:
           node-version: 'lts/*'
       - run: npm install && npm run build
       # Trusted Publishing requires npm >= 11.5.1, which is newer than the npm bundled with Node LTS.
-      - run: npm install -g npm@latest
+      # Pinned to the npm 11 line (not latest): npm 12 removed `npm shrinkwrap` and no longer packs
+      # npm-shrinkwrap.json, which this package ships (see `prepack` in package.json).
+      - run: npm install -g npm@11
       - run: npm install -g @salesforce/plugin-release-management
       - name: NPM release
         run: |
@@ -141,7 +143,7 @@ jobs:
           node-version: 'lts/*'
       # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
       # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
-      - run: npm install -g npm@latest
+      - run: npm install -g npm@11
       - run: |
           npm dist-tag add @salesforce/plugin-code-analyzer@${{ github.event.release.tag_name || inputs.tag }} latest
   # Step 5: Create a Pull Request for merging `main` into `dev`

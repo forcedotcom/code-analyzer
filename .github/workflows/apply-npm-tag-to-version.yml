@@ -38,7 +38,7 @@ jobs:
       # Managing dist-tags via Trusted Publishing requires a recent npm (>= 11.21.0), and the trusted publisher
       # configuration on npmjs.com must have "Allow npm dist-tag" enabled.
       - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Apply tag
         run: |
