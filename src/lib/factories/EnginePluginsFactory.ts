@@ -10,12 +10,12 @@ import * as UIBundleEngineModule from '@salesforce/code-analyzer-uibundle-engine
 import * as FlowAnalyzerEngineModule from '@salesforce/code-analyzer-flow-analyzer-engine';
 
 export interface EnginePluginsFactory {
-	create(): EnginePlugin[];
+	create(includeFlowAnalyzer?: boolean): EnginePlugin[];
 }
 
 export class EnginePluginsFactoryImpl implements EnginePluginsFactory {
-	public create(): EnginePlugin[] {
-		return [
+	public create(includeFlowAnalyzer: boolean = false): EnginePlugin[] {
+		const engines: EnginePlugin[] = [
 			ESLintEngineModule.createEnginePlugin(),
 			PmdCpdEnginesModule.createEnginePlugin(),
 			RetireJSEngineModule.createEnginePlugin(),
@@ -23,8 +23,15 @@ export class EnginePluginsFactoryImpl implements EnginePluginsFactory {
 			FlowEngineModule.createEnginePlugin(),
 			SfgeEngineModule.createEnginePlugin(),
 			ApexGuruEngineModule.createEnginePlugin(),
-			UIBundleEngineModule.createEnginePlugin(),
-			FlowAnalyzerEngineModule.createEnginePlugin()
+			UIBundleEngineModule.createEnginePlugin()
 		];
+
+		// Flow Analyzer is opt-in: only load if explicitly requested
+		if (includeFlowAnalyzer) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+			engines.push(FlowAnalyzerEngineModule.createEnginePlugin() as EnginePlugin);
+		}
+
+		return engines;
 	}
 }

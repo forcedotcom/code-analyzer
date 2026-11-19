@@ -54,11 +54,11 @@ export class RunAction {
 	}
 
 	public async execute(input: RunInput): Promise<void> {
-		const cliOverrides = (input['no-suppressions'] !== undefined || input['target-org'] !== undefined)
+		const cliOverrides = (input['no-suppressions'] !== undefined || input['target-org'] !== undefined || input['rule-selector']?.length)
 			? {
 				noSuppressions: input['no-suppressions'],
 				targetOrg: input['target-org'],
-				ruleSelectors: input['rule-selector']
+				ruleSelectors: input['rule-selector']?.length ? input['rule-selector'] : undefined
 			}
 			: undefined;
 		const config: CodeAnalyzerConfig = this.dependencies.configFactory.create(
@@ -75,9 +75,17 @@ export class RunAction {
 		this.dependencies.logEventListeners.forEach(listener => listener.listen(core));
 		const telemetryListener: TelemetryEventListener = new TelemetryEventListener(this.dependencies.telemetryEmitter);
 		telemetryListener.listen(core);
-		const enginePlugins = this.dependencies.pluginsFactory.create();
+		// Flow Analyzer is opt-in: only load if user selected it
+		const hasFlowAnalyzerSelector = input['rule-selector']?.some(sel =>
+			sel.toLowerCase().split(/[^a-z0-9_-]+/).includes('flow-analyzer')
+		) ?? false;
+		const enginePlugins = this.dependencies.pluginsFactory.create(hasFlowAnalyzerSelector);
 		const addEnginePromises: Promise<void>[] = [
-			...enginePlugins.map(enginePlugin => core.addEnginePlugin(enginePlugin))
+			...enginePlugins.map(enginePlugin =>
+				core.addEnginePlugin(enginePlugin).catch(err => {
+					throw this.formatEngineError(err);
+				})
+			)
 		];
 		await Promise.all(addEnginePromises);
 		const workspace: Workspace = await createWorkspace(core, input.workspace, input.target);
@@ -132,6 +140,12 @@ export class RunAction {
 				violationCount: results.getEngineRunResults(coreEngineName).getViolationCount()
 			});
 		}
+	}
+
+	private formatEngineError(error: unknown): SfError {
+		const err = error as Error;
+		const message = err.message || String(error);
+		return new SfError(`[error] ${message}`, 'EngineInstantiationError', []);
 	}
 }
 
