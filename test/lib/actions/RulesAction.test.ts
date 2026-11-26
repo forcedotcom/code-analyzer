@@ -174,6 +174,39 @@ describe('RulesAction tests', () => {
 		expect(viewerCallHistory[0]).toEqual([]);
 	});
 
+	describe('target-org', () => {
+		it('passes target-org through to engine config', async () => {
+			const targetOrg = 'my-test-org';
+			const configFactorySpy = vi.spyOn(defaultDependencies.configFactory, 'create');
+			const action = RulesAction.createAction(defaultDependencies);
+			const input: RulesInput = {
+				'rule-selector': ['all'],
+				'target-org': targetOrg
+			};
+
+			await action.execute(input);
+
+			expect(configFactorySpy).toHaveBeenCalledWith(
+				undefined,
+				expect.objectContaining({
+					targetOrg: targetOrg
+				})
+			);
+		});
+
+		it('does not include a target-org override when target-org is not provided', async () => {
+			const configFactorySpy = vi.spyOn(defaultDependencies.configFactory, 'create');
+			const action = RulesAction.createAction(defaultDependencies);
+			const input: RulesInput = {
+				'rule-selector': ['all']
+			};
+
+			await action.execute(input);
+
+			expect(configFactorySpy).toHaveBeenCalledWith(undefined, undefined);
+		});
+	});
+
 	it('Throws an error when an engine throws an error', async () => {
 		const dependencies: RulesDependencies = {
 			...defaultDependencies,

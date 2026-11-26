@@ -6,6 +6,8 @@ import * as yaml from 'js-yaml';
 export type CliOverrides = {
 	noSuppressions?: boolean;
 	targetOrg?: string;
+	// The user's --rule-selector values. Used to keep the opt-in Flow Analyzer engine inactive unless it was asked for.
+	ruleSelectors?: string[];
 	// Future CLI flag overrides can be added here
 }
 
@@ -92,22 +94,39 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 			};
 		}
 
-		// Apply target-org override to apexguru engine config
+		// Apply target-org override to engines that require an explicit org
 		if (cliOverrides.targetOrg) {
 			const enginesSection = mergedConfig.engines as Record<string, Record<string, unknown>> | undefined;
+			const targetOrgEngines: Record<string, Record<string, unknown>> = this.createTargetOrgEngineOverrides(cliOverrides);
 			mergedConfig = {
 				...mergedConfig,
 				engines: {
 					...(enginesSection || {}),
-					apexguru: {
-						...(enginesSection?.apexguru || {}),
-						target_org: cliOverrides.targetOrg
-					}
+					...Object.fromEntries(Object.entries(targetOrgEngines).map(([engineName, overrides]) =>
+						[engineName, {...(enginesSection?.[engineName] || {}), ...overrides}]))
 				}
 			};
 		}
 
 		return rawYaml ? CodeAnalyzerConfig.fromObject(mergedConfig) : CodeAnalyzerConfig.fromFile(configFilePath);
+	}
+
+	private createTargetOrgEngineOverrides(cliOverrides: CliOverrides): Record<string, Record<string, unknown>> {
+		const engines: Record<string, Record<string, unknown>> = {
+			apexguru: {target_org: cliOverrides.targetOrg}
+		};
+		// Flow Analyzer is opt-in. Giving it a target org activates it, and an activated engine contacts the org when
+		// Core gathers rules, so only do this when the user selected Flow Analyzer.
+		if (CodeAnalyzerConfigFactoryImpl.selectsFlowAnalyzer(cliOverrides.ruleSelectors)) {
+			engines['flow-analyzer'] = {target_org: cliOverrides.targetOrg};
+		}
+		return engines;
+	}
+
+	private static selectsFlowAnalyzer(ruleSelectors: string[] = []): boolean {
+		return ruleSelectors
+			.flatMap(selector => selector.toLowerCase().split(/[^a-z0-9_-]+/))
+			.some(token => token === 'flow-analyzer');
 	}
 
 	private createConfigFromCliOverrides(cliOverrides: CliOverrides): CodeAnalyzerConfig {
@@ -119,11 +138,7 @@ export class CodeAnalyzerConfigFactoryImpl implements CodeAnalyzerConfigFactory 
 		}
 
 		if (cliOverrides?.targetOrg) {
-			configObject.engines = {
-				apexguru: {
-					target_org: cliOverrides.targetOrg
-				}
-			};
+			configObject.engines = this.createTargetOrgEngineOverrides(cliOverrides);
 		}
 
 		// If we have overrides, create config from them; otherwise use defaults

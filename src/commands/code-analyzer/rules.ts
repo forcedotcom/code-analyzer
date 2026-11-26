@@ -34,6 +34,12 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 			multiple: true,
 			delimiter: ','
 		}),
+		'target-org': Flags.string({
+			summary: getMessage(BundleName.RulesCommand, 'flags.target-org.summary'),
+			description: getMessage(BundleName.RulesCommand, 'flags.target-org.description'),
+			// eslint-disable-next-line sf-plugin/dash-o
+			char: 'o'
+		}),
 		'rule-selector': Flags.string({
 			summary: getMessage(BundleName.RulesCommand, 'flags.rule-selector.summary'),
 			description: getMessage(BundleName.RulesCommand, 'flags.rule-selector.description'),
@@ -75,7 +81,8 @@ export default class RulesCommand extends SfCommand<void> implements Displayable
 			'output-file': outputFiles,
 			'rule-selector': parsedFlags['rule-selector'].flatMap(s => s.replace(/\s+/g, ' ').trim().split(' ')),
 			'workspace': parsedFlags['workspace'],
-			'target': parsedFlags['target']
+			'target': parsedFlags['target'],
+			'target-org': parsedFlags['target-org']
 		};
 
 		await action.execute(rulesInput);

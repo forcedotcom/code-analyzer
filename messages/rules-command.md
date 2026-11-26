@@ -24,6 +24,10 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
     <%= config.bin %> <%= command.id %> --rule-selector eslint:Recommended
 
+- List Flow Analyzer rules from an authenticated org (required for that engine):
+
+    <%= config.bin %> <%= command.id %> --rule-selector flowAnalyzer --target-org my-org
+
 - List all the rules for the "eslint" engine:
 
     <%= config.bin %> <%= command.id %> --rule-selector eslint
@@ -91,6 +95,16 @@ The command uses the type of the targeted files, such as JavaScript or Typescrip
 Each targeted file must live within the workspace specified by the –-workspace flag.
 
 If you specify `--workspace` but not `--target`, then all the files within your workspace are targeted.
+
+# flags.target-org.summary
+
+Target org username or alias for remote analysis engines.
+
+# flags.target-org.description
+
+Specify the username or alias of a Salesforce org when listing rules from engines that require remote connectivity, such as Flow Analyzer. The org must be authenticated with the Salesforce CLI.
+
+Flow Analyzer requires this flag (or `engines.flowAnalyzer.target_org` in your `code-analyzer.yml`). Other engines ignore it.
 
 # flags.rule-selector.summary
 

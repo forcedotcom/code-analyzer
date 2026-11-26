@@ -44,6 +44,10 @@ We're continually improving Salesforce Code Analyzer. Tell us what you think! Gi
 
     <%= config.bin %> <%= command.id %> --rule-selector retire-js:Recommended --target ./other-source --target ./force-app/**/*.cls
 
+- Analyze only specific flows with the "flowAnalyzer" engine; target one flow by path, plus every flow whose file name starts with "Account_" in any folder (quote globs so your shell doesn't expand them). Only the targeted flows are sent to your org:
+
+    <%= config.bin %> <%= command.id %> --rule-selector flowAnalyzer --target-org my-org --target ./force-app/main/default/flows/My_Flow.flow-meta.xml --target "./force-app/**/Account_*.flow-meta.xml"
+
 - Specify a custom configuration file and output the results to the "results.csv" file in CSV format; the commands fails if it finds a violation that exceeds the moderate severity level (3):
 
     <%= config.bin %> <%= command.id %> --config-file ./code-analyzer2.yml --output-file results.csv --severity-threshold 3
@@ -92,7 +96,9 @@ Target org username or alias for remote analysis engines.
 
 # flags.target-org.description
 
-Specify the username or alias of a Salesforce org when using engines that require remote connectivity, such as ApexGuru. The org must be authenticated with the Salesforce CLI.
+Specify the username or alias of a Salesforce org when using engines that require remote connectivity, such as ApexGuru or Flow Analyzer. The org must be authenticated with the Salesforce CLI.
+
+Flow Analyzer requires this flag (or `engines.flowAnalyzer.target_org` in your `code-analyzer.yml`).
 
 # flags.rule-selector.summary
 

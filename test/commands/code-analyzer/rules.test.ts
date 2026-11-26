@@ -275,6 +275,22 @@ describe('`code-analyzer rules` unit tests', () => {
 		});
 	});
 
+	describe('--target-org', () => {
+		it('Can be supplied with a value', async () => {
+			const inputValue = 'test-org';
+			await runRulesCommand(['--target-org', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
+		});
+
+		it('Can be referenced by its shortname, -o', async () => {
+			const inputValue = 'my-org';
+			await runRulesCommand(['-o', inputValue]);
+			expect(executeSpy).toHaveBeenCalled();
+			expect(receivedActionInput).toHaveProperty('target-org', inputValue);
+		});
+	});
+
 	describe.each([
 		{flag: '--workspace', shortflag: '-w', property: 'workspace'},
 		{flag: '--target', shortflag: '-t', property: 'target'},
